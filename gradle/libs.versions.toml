@@ -1,0 +1,103 @@
+[versions]
+accompanist = "0.34.0"
+androidDesugarJdkLibs = "2.0.4"
+# AGP and tools should be updated together
+androidGradlePlugin = "8.5.2"
+androidTools = "31.4.1"
+androidxActivity = "1.8.2"
+androidxAppCompat = "1.7.0"
+androidxBrowser = "1.8.0"
+androidxComposeAlpha = "1.7.0-beta01"
+androidxComposeBom = "2024.02.02"
+androidxComposeMaterial3Adaptive = "1.0.0-beta01"
+androidxComposeMaterial3AdaptiveNavigationSuite = "1.3.0-beta01"
+androidxComposeRuntimeTracing = "1.0.0-beta01"
+androidxCore = "1.12.0"
+androidxCoreSplashscreen = "1.0.1"
+androidxDataStore = "1.0.0"
+androidxEspresso = "3.5.1"
+androidxHiltNavigationCompose = "1.2.0"
+androidxLifecycle = "2.8.3"
+androidxMacroBenchmark = "1.2.4"
+androidxMetrics = "1.0.0-alpha04"
+androidxNavigation = "2.8.0-alpha06"
+androidxProfileinstaller = "1.3.1"
+androidxTestCore = "1.5.0"
+androidxTestExt = "1.1.5"
+androidxTestRules = "1.5.0"
+androidxTestRunner = "1.5.2"
+androidxTracing = "1.3.0-alpha02"
+androidxUiAutomator = "2.3.0"
+androidxWindowManager = "1.3.0-alpha03"
+androidxWork = "2.9.0"
+coil = "2.6.0"
+dependencyGuard = "0.5.0"
+firebaseBom = "33.1.1"
+firebaseCrashlyticsPlugin = "2.9.9"
+firebasePerfPlugin = "1.4.2"
+gmsPlugin = "4.4.1"
+googleOss = "17.0.1"
+googleOssPlugin = "0.10.6"
+hilt = "2.51.1"
+hiltExt = "1.1.0"
+jacoco = "0.8.7"
+junit4 = "4.13.2"
+kotlin = "2.0.0"
+kotlinxCoroutines = "1.8.0"
+kotlinxDatetime = "0.5.0"
+kotlinxSerializationJson = "1.6.3"
+ksp = "2.0.0-1.0.21"
+moduleGraph = "2.5.0"
+okhttp = "4.12.0"
+protobuf = "4.26.1"
+protobufPlugin = "0.9.4"
+retrofit = "2.9.0"
+retrofitKotlinxSerializationJson = "1.0.0"
+robolectric = "4.12.2"
+roborazzi = "1.7.0"
+room = "2.6.1"
+secrets = "2.0.1"
+truth = "1.4.2"
+turbine = "1.1.0"
+
+[libraries]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
+baselineprofile = { id = "androidx.baselineprofile", version.ref = "androidxMacroBenchmark"}
+compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+dependencyGuard = { id = "com.dropbox.dependency-guard", version.ref = "dependencyGuard" }
+firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
+firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }
+gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+module-graph = { id = "com.jraska.module.graph.assertion", version.ref = "moduleGraph" }
+protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
+roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+room = { id = "androidx.room", version.ref = "room" }
+secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secrets" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+
+# Plugins defined by this project
+ru-akhilko-christian-calendar-android-application = { id = "ru.akhilko.christian_calendar.android.application", version = "unspecified" }
+ru-akhilko-christian-calendar-android-application-compose = { id = "ru.akhilko.christian_calendar.android.application.compose", version = "unspecified" }
+ru-akhilko-christian-calendar-android-application-firebase = { id = "ru.akhilko.christian_calendar.android.application.firebase", version = "unspecified" }
+ru-akhilko-christian-calendar-android-application-flavors = { id = "ru.akhilko.christian_calendar.android.application.flavors", version = "unspecified" }
+ru-akhilko-christian-calendar-android-application-jacoco = { id = "ru.akhilko.christian_calendar.android.application.jacoco", version = "unspecified" }
+ru-akhilko-christian-calendar-android-feature = { id = "ru.akhilko.christian_calendar.android.feature", version = "unspecified" }
+ru-akhilko-christian-calendar-android-library = { id = "ru.akhilko.christian_calendar.android.library", version = "unspecified" }
+ru-akhilko-christian-calendar-android-library-compose = { id = "ru.akhilko.christian_calendar.android.library.compose", version = "unspecified" }
+ru-akhilko-christian-calendar-android-library-jacoco = { id = "ru.akhilko.christian_calendar.android.library.jacoco", version = "unspecified" }
+ru-akhilko-christian-calendar-android-lint = { id = "ru.akhilko.christian_calendar.android.lint", version = "unspecified" }
+ru-akhilko-christian-calendar-android-room = { id = "ru.akhilko.christian_calendar.android.room", version = "unspecified" }
+ru-akhilko-christian-calendar-android-test = { id = "ru.akhilko.christian_calendar.android.test", version = "unspecified" }
+ru-akhilko-christian-calendar-hilt = { id = "ru.akhilko.christian_calendar.hilt", version = "unspecified" }
+ru-akhilko-christian-calendar-jvm-library = { id = "ru.akhilko.christian_calendar.jvm.library", version = "unspecified" }

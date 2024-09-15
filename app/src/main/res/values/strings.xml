@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">christian_calendar</string>
+    <string name="week_mode">Week mode</string>
+
+    <string name="format_calendar_date">dd MMMM yyyy</string>
+    <string name="format_old_new_date">%•%</string>
+    <string name="readings_format"></string>
+</resources>
