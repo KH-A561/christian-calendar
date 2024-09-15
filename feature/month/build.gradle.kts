@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.christian.calendar.android.feature)
+    alias(libs.plugins.christian.calendar.android.library.compose)
 }
 
 android {
-    namespace = "ru.akhilko.month"
+    namespace = "ru.akhilko.feature.month"
     compileSdk = 34
 
     defaultConfig {
@@ -33,11 +33,9 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.runtime.android)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    implementation(project(":core:calendar"))
+//
+//    testImplementation(project(":core:testing"))
+
+    androidTestImplementation(libs.bundles.androidx.compose.ui.test)
 }

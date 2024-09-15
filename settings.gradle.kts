@@ -1,5 +1,7 @@
 pluginManagement {
-    includeBuild("build-logic")
+    includeBuild("build-logic") {
+
+    }
 
     repositories {
         google()
@@ -18,6 +20,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "christian_calendar"
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":feature")
 include(":feature:month")
@@ -25,4 +28,10 @@ include(":feature:week")
 include(":feature:day")
 include(":feature:search")
 include(":feature:settings")
-include(":build-logic")
+include(":core")
+include(":core:designsystem")
+include(":core:ui")
+include(":calendar")
+include(":core:calendar")
+include(":core:data")
+include(":core:model")

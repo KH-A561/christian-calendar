@@ -26,8 +26,8 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             pluginManager.apply {
-                apply("nowinandroid.android.library")
-                apply("nowinandroid.hilt")
+                apply("christian_calendar.android.library")
+                apply("christian_calendar.hilt")
             }
             extensions.configure<LibraryExtension> {
                 testOptions.animationsDisabled = true

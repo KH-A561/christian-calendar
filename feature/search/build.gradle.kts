@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.christian.calendar.android.feature)
+    alias(libs.plugins.christian.calendar.android.library.compose)
 }
 
 android {
-    namespace = "ru.akhilko.search"
+    namespace = "ru.akhilko.feature.search"
     compileSdk = 34
 
     defaultConfig {
@@ -36,8 +36,4 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
 }

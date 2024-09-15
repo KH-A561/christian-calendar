@@ -21,7 +21,7 @@ plugins {
     `kotlin-dsl`
 }
 
-group = "com.google.samples.apps.nowinandroid.buildlogic"
+group = "christian_calendar"
 
 // Configure the build-logic plugins to target JDK 17
 // This matches the JDK used to build the project, and is not related to what is running on device.
@@ -58,59 +58,59 @@ tasks {
 gradlePlugin {
     plugins {
         register("androidApplicationCompose") {
-            id = "ru.akhilko.christian_calendar.android.application.compose"
+            id = "christian_calendar.android.application.compose"
             implementationClass = "AndroidApplicationComposeConventionPlugin"
         }
         register("androidApplication") {
-            id = "ru.akhilko.christian_calendar.android.application"
+            id = "christian_calendar.android.application"
             implementationClass = "AndroidApplicationConventionPlugin"
         }
         register("androidApplicationJacoco") {
-            id = "ru.akhilko.christian_calendar.android.application.jacoco"
+            id = "christian_calendar.android.application.jacoco"
             implementationClass = "AndroidApplicationJacocoConventionPlugin"
         }
         register("androidLibraryCompose") {
-            id = "ru.akhilko.christian_calendar.android.library.compose"
+            id = "christian_calendar.android.library.compose"
             implementationClass = "AndroidLibraryComposeConventionPlugin"
         }
         register("androidLibrary") {
-            id = "ru.akhilko.christian_calendar.android.library"
+            id = "christian_calendar.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
         register("androidFeature") {
-            id = "ru.akhilko.christian_calendar.android.feature"
+            id = "christian_calendar.android.feature"
             implementationClass = "AndroidFeatureConventionPlugin"
         }
         register("androidLibraryJacoco") {
-            id = "ru.akhilko.christian_calendar.android.library.jacoco"
+            id = "christian_calendar.android.library.jacoco"
             implementationClass = "AndroidLibraryJacocoConventionPlugin"
         }
         register("androidTest") {
-            id = "ru.akhilko.christian_calendar.android.test"
+            id = "christian_calendar.android.test"
             implementationClass = "AndroidTestConventionPlugin"
         }
         register("hilt") {
-            id = "ru.akhilko.christian_calendar.hilt"
+            id = "christian_calendar.hilt"
             implementationClass = "HiltConventionPlugin"
         }
         register("androidRoom") {
-            id = "ru.akhilko.christian_calendar.android.room"
+            id = "christian_calendar.android.room"
             implementationClass = "AndroidRoomConventionPlugin"
         }
         register("androidFirebase") {
-            id = "ru.akhilko.christian_calendar.android.application.firebase"
+            id = "christian_calendar.android.application.firebase"
             implementationClass = "AndroidApplicationFirebaseConventionPlugin"
         }
         register("androidFlavors") {
-            id = "ru.akhilko.christian_calendar.android.application.flavors"
+            id = "christian_calendar.android.application.flavors"
             implementationClass = "AndroidApplicationFlavorsConventionPlugin"
         }
         register("androidLint") {
-            id = "ru.akhilko.christian_calendar.android.lint"
+            id = "christian_calendar.android.lint"
             implementationClass = "AndroidLintConventionPlugin"
         }
         register("jvmLibrary") {
-            id = "ru.akhilko.christian_calendar.jvm.library"
+            id = "christian_calendar.jvm.library"
             implementationClass = "JvmLibraryConventionPlugin"
         }
     }

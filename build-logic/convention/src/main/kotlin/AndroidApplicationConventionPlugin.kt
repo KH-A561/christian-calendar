@@ -32,7 +32,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("com.android.application")
                 apply("org.jetbrains.kotlin.android")
-                apply("nowinandroid.android.lint")
+                apply("christian_calendar.android.lint")
                 apply("com.dropbox.dependency-guard")
             }
 
