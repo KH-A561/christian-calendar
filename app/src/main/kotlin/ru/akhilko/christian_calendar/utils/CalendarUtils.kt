@@ -26,5 +26,5 @@ fun readDayFromJson(): Day {
 }
 
 fun main() {
-    readDayFromJson()
+    println(readDayFromJson())
 }

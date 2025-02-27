@@ -18,9 +18,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.samples.apps.nowinandroid.core.designsystem.theme.CalendarTheme
-import com.google.samples.apps.nowinandroid.core.designsystem.theme.GradientColors
-import com.google.samples.apps.nowinandroid.core.designsystem.theme.LocalGradientColors
+import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.core.designsystem.theme.GradientColors
+import ru.akhilko.core.designsystem.theme.LocalGradientColors
 import ru.akhilko.core.designsystem.theme.LocalBackgroundTheme
 import kotlin.math.tan
 

@@ -47,6 +47,7 @@ fun DayCard(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DayMainInfoCard(
     day: Day, modifier: Modifier = Modifier

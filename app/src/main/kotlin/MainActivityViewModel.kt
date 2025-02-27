@@ -17,13 +17,13 @@
 import MainActivityUiState.Loading
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.samples.apps.nowinandroid.core.model.data.CalendarData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import ru.akhilko.christian_calendar.repo.CalendarRepository
+import ru.akhilko.christian_calendar.core.model.data.CalendarData
+import ru.akhilko.christian_calendar.core.CalendarRepository
 import javax.inject.Inject
 
 @HiltViewModel

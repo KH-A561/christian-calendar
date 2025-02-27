@@ -1,3 +1,4 @@
+
 import MainActivityUiState.Loading
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,7 +15,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import ru.akhilko.christian_calendar.page.Month
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            Month()
+//            Month()
         }
     }
 }

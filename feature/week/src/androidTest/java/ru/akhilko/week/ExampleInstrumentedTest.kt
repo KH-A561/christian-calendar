@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("ru.akhilko.week.test", appContext.packageName)
+        assertEquals("ru.akhilko.weekDay.test", appContext.packageName)
     }
 }

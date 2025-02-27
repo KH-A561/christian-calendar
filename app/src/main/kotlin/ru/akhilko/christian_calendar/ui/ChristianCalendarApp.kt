@@ -14,9 +14,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration.Short
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -32,15 +29,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
-import ru.akhilko.core.designsystem.theme.GradientColors
 import com.google.samples.apps.nowinandroid.navigation.TopLevelDestination
 import ru.akhilko.core.designsystem.component.CalendarBackground
 import ru.akhilko.core.designsystem.component.CalendarGradientBackground
 import ru.akhilko.core.designsystem.component.CalendarNavigationSuiteScaffold
 import ru.akhilko.core.designsystem.component.CalendarTopAppBar
 import ru.akhilko.core.designsystem.icon.Icons
+import ru.akhilko.core.designsystem.theme.GradientColors
 import ru.akhilko.core.designsystem.theme.LocalGradientColors
-
 import ru.akhilko.feature.settings.R as settingsR
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -162,16 +158,16 @@ internal fun ChristianCalendarAppInternal(
                         },
                     ),
                 ) {
-                    NiaNavHost(
-                        appState = appState,
-                        onShowSnackbar = { message, action ->
-                            snackbarHostState.showSnackbar(
-                                message = message,
-                                actionLabel = action,
-                                duration = Short,
-                            ) == ActionPerformed
-                        },
-                    )
+//                    NiaNavHost(
+//                        appState = appState,
+//                        onShowSnackbar = { message, action ->
+//                            snackbarHostState.showSnackbar(
+//                                message = message,
+//                                actionLabel = action,
+//                                duration = Short,
+//                            ) == ActionPerformed
+//                        },
+//                    )
                 }
             }
         }

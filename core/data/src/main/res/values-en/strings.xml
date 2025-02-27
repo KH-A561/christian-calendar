@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_data_day_type_feast">Feast</string>
+    <string name="core_data_day_type_fast">Fast</string>
+
+</resources>

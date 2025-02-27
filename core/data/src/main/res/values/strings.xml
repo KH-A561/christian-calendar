@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_data_day_type_feast">Праздник</string>
+    <string name="core_data_day_type_fast">Пост</string>
+    <string name="core_data_day_type_unknown" translatable="false"> </string>
+
+</resources>

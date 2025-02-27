@@ -1,10 +1,10 @@
 plugins {
-    alias(libs.plugins.android.library)
-    alias(libs.plugins.jetbrains.kotlin.android)
+    alias(libs.plugins.christian.calendar.android.library)
+    alias(libs.plugins.christian.calendar.android.library.compose)
 }
 
 android {
-    namespace = "ru.akhilko.ui"
+    namespace = "ru.akhilko.core.ui"
     compileSdk = 34
 
     defaultConfig {
@@ -33,6 +33,9 @@ android {
 }
 
 dependencies {
+    api(projects.core.designsystem)
+    api(projects.core.model)
+    api(projects.core.data)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -16,6 +16,8 @@
 
 package ru.akhilko.christian_calendar.core.model.data
 
+data class CalendarData(val id: String)
+
 data class YearData(
     val months: List<MonthData>
 )
@@ -31,12 +33,5 @@ data class WeekData(
 
 data class DayData(
     val name: String,
-    val type: DayType
+    val type: String
 )
-
-enum class DayType(
-    val russian: String
-) {
-    FEAST("Праздник"),
-    FASTING("Пост")
-}

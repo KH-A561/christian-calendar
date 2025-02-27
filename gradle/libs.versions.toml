@@ -62,7 +62,6 @@ turbine = "1.1.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 material = "1.12.0"
-coreKtx = "1.15.0"
 
 [bundles]
 androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-testManifest"]
@@ -166,7 +165,6 @@ room-gradlePlugin = { group = "androidx.room", name = "room-gradle-plugin", vers
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
@@ -187,7 +185,6 @@ protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
 roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
 room = { id = "androidx.room", version.ref = "room" }
 secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secrets" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version = "1.9.24" }
 
 # Plugins defined by this project
 christian-calendar-android-application = { id = "christian_calendar.android.application", version = "unspecified" }

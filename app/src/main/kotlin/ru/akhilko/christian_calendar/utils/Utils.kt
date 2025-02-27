@@ -16,7 +16,7 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 /**
- * Find first visible week in a paged week calendar **after** scrolling stops.
+ * Find first visible weekDay in a paged weekDay calendar **after** scrolling stops.
  */
 @Composable
 fun rememberFirstVisibleWeekAfterScroll(state: WeekCalendarState): Week {

@@ -22,17 +22,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.samples.apps.nowinandroid.core.designsystem.theme.LocalTintTheme
-import com.google.samples.apps.nowinandroid.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.calendarsystem.CalendarDay
 import ru.akhilko.core.calendarsystem.DayPosition
+import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.core.designsystem.theme.LocalTintTheme
 import ru.akhilko.feature.month.R
 
 @Composable
@@ -125,7 +124,8 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(48.dp))
 
         Text(
-            text = stringResource(id = R.string.feature_bookmarks_empty_error),
+//            text = stringResource(id = R.string.feature_bookmarks_empty_error),
+            text = "",
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.titleMedium,
@@ -135,7 +135,8 @@ private fun EmptyState(modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = stringResource(id = R.string.feature_bookmarks_empty_description),
+//            text = stringResource(id = R.string.feature_bookmarks_empty_description),
+            text = "",
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyMedium,

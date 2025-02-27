@@ -15,10 +15,10 @@
  */
 
 import com.android.build.gradle.api.AndroidBasePlugin
-import com.google.samples.apps.nowinandroid.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
+import ru.akhilko.christian.calendar.libs
 
 class HiltConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {

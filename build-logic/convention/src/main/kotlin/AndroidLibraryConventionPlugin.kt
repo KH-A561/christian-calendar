@@ -16,17 +16,17 @@
 
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.LibraryExtension
-import com.google.samples.apps.nowinandroid.configureFlavors
-import com.google.samples.apps.nowinandroid.configureGradleManagedDevices
-import com.google.samples.apps.nowinandroid.configureKotlinAndroid
-import com.google.samples.apps.nowinandroid.configurePrintApksTask
-import com.google.samples.apps.nowinandroid.disableUnnecessaryAndroidTests
-import com.google.samples.apps.nowinandroid.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.kotlin
+import ru.akhilko.christian.calendar.configureFlavors
+import ru.akhilko.christian.calendar.configureGradleManagedDevices
+import ru.akhilko.christian.calendar.configureKotlinAndroid
+import ru.akhilko.christian.calendar.configurePrintApksTask
+import ru.akhilko.christian.calendar.disableUnnecessaryAndroidTests
+import ru.akhilko.christian.calendar.libs
 
 class AndroidLibraryConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
