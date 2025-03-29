@@ -4,4 +4,6 @@
     <string name="feature_search_not_ready">Извините, поисковой запрос всё ещё обрабатывается. Пожалуйста, вернитесь позже</string>
     <string name="feature_search_results">Результаты</string>
 
+    <string name="feature_search_title">Поиск</string>
+    <string name="feature_search_clear_search_text_content_desc">Очистить поисковую строку</string>
 </resources>

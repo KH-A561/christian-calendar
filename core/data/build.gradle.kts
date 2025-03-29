@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.christian.calendar.android.library)
+    alias(libs.plugins.christian.calendar.hilt)
 }
 
 android {
@@ -33,6 +34,10 @@ android {
 
 dependencies {
     implementation(projects.core.model)
+    api(projects.core.common)
+    api(projects.core.database)
+//    api(projects.core.datastore)
+//    api(projects.core.network)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

@@ -16,7 +16,8 @@
 
 package ru.akhilko.feature.search
 
-import android.app.appsearch.SearchResult
+import ru.akhilko.christian_calendar.core.data.model.search.SearchResult
+
 
 sealed interface SearchResultUiState {
     data object Loading : SearchResultUiState
@@ -31,7 +32,7 @@ sealed interface SearchResultUiState {
     data object LoadFailed : SearchResultUiState
 
     data class Success(
-        val results: List<SearchResult> = emptyList(),
+        val results: SearchResult,
     ) : SearchResultUiState {
 
         fun isEmpty() : Boolean = results.isEmpty()

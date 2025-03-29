@@ -84,9 +84,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.coil.kt)
 
-    /* Firebase SDK */
-    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
-    implementation("com.google.firebase:firebase-firestore")
+    ksp(libs.hilt.compiler)
 
     implementation("com.kizitonwose.calendar:compose:2.5.2")
     implementation("org.threeten:threeten-extra:1.8.0")

@@ -4,5 +4,6 @@
 
     <string name="core_ui_card_meta_data_text_without_week_info">%1$s • %2$s</string>
     <string name="core_ui_card_meta_data_text">%1$s • %2$s • %3$s</string>
+    <string name="core_ui_back">Back</string>
 
 </resources>

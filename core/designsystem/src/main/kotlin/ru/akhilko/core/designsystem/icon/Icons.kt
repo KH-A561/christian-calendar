@@ -17,6 +17,7 @@
 package ru.akhilko.core.designsystem.icon
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ShortText
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.outlined.CalendarViewWeek
 import androidx.compose.material.icons.rounded.CalendarMonth
 import androidx.compose.material.icons.rounded.CalendarViewDay
 import androidx.compose.material.icons.rounded.CalendarViewWeek
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -41,7 +43,10 @@ object Icons {
     val OutlinedViewDay = Icons.Outlined.CalendarViewDay
 
     val Search = Icons.Rounded.Search
+    val Close = Icons.Rounded.Close
     val Settings = Icons.Rounded.Settings
     val ShortText = Icons.AutoMirrored.Rounded.ShortText
     val MoreVert = Icons.Default.MoreVert
+
+    val ArrowBack = Icons.AutoMirrored.Rounded.ArrowBack
 }

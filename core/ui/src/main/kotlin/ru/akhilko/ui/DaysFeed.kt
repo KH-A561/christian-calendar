@@ -6,11 +6,8 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.akhilko.christian_calendar.core.data.model.DayResource
@@ -26,14 +23,11 @@ fun LazyStaggeredGridScope.daysFeed(
         is DaysFeedUiState.Success -> {
             items(
                 items = feedState.feed,
-                key = { it.day.id },
+                key = { it.id },
                 contentType = { "daysFeedItem" },
             ) { dayResource ->
-                val context = LocalContext.current
-                val backgroundColor = MaterialTheme.colorScheme.background.toArgb()
-
                 DayResourceCardExpanded(
-                    day = dayResource.day,
+                    day = dayResource.day(),
                     onClick = {
                         onExpandedCardClick()
 //                        analyticsHelper.logNewsResourceOpened(
