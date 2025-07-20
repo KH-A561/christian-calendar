@@ -86,8 +86,6 @@ import ru.akhilko.feature.search.R as searchR
 @Composable
 internal fun SearchRoute(
     onBackClick: () -> Unit,
-    onInterestsClick: () -> Unit,
-    onTopicClick: (String) -> Unit,
     modifier: Modifier = Modifier,
     searchViewModel: SearchViewModel = hiltViewModel(),
 ) {
@@ -98,7 +96,7 @@ internal fun SearchRoute(
         searchQuery = searchQuery,
         searchResultUiState = searchResultUiState,
         onSearchQueryChanged = searchViewModel::onSearchQueryChanged,
-        onSearchTriggered = searchViewModel::onSearchTriggered,
+        onSearchTriggered = {},
         onBackClick = onBackClick,
     )
 }
@@ -138,7 +136,7 @@ internal fun SearchScreen(
                 } else {
                     SearchResultBody(
                         searchQuery = searchQuery,
-                        onSearchTriggered = onSearchTriggered,
+                        onSearchTriggered = {},
                         searchResults = searchResultUiState.results
                     )
                 }
@@ -229,7 +227,6 @@ private fun SearchResultBody(
                 daysFeed(
                     feedState = DaysFeedUiState.Success(feed = searchResults.dayData),
                     onExpandedCardClick = {
-                        onSearchTriggered(searchQuery)
                     },
                 )
             }

@@ -122,7 +122,7 @@ fun DayResourceSubtitle(
     Text(
         resourceTitle.lowercase().replaceFirstChar
         { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
-        style = MaterialTheme.typography.titleMedium, modifier = modifier
+        style = MaterialTheme.typography.headlineSmall, modifier = modifier
     )
 }
 
@@ -148,7 +148,7 @@ fun DayResourceMetaData(
                 oldStyleFormattedDate, newStyleFormattedDate
             )
         },
-        style = MaterialTheme.typography.labelSmall,
+        style = MaterialTheme.typography.labelMedium,
     )
 }
 

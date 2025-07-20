@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
 import ru.akhilko.day.navigation.dayScreen
+import ru.akhilko.feature.search.navigation.searchScreen
 import ru.akhilko.month.navigation.MONTH_ROUTE
 import ru.akhilko.month.navigation.monthScreen
 import ru.akhilko.week.navigation.weekScreen
@@ -45,14 +46,15 @@ fun ChristianCalendarNavHost(
         startDestination = startDestination,
         modifier = modifier,
     ) {
-        monthScreen(
-            onShowSnackbar = onShowSnackbar,
-        )
+        monthScreen()
         weekScreen(
             onShowSnackbar = onShowSnackbar,
         )
         dayScreen(
             onShowSnackbar = onShowSnackbar,
+        )
+        searchScreen(
+            onBackClick = navController::popBackStack,
         )
     }
 }

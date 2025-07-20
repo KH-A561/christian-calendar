@@ -62,9 +62,10 @@ dependencies {
     implementation(projects.feature.search)
     implementation(projects.feature.settings)
 
+    implementation(projects.core.common)
     implementation(projects.core.ui)
     implementation(projects.core.designsystem)
-    implementation(projects.core.data)
+    implementation(projects.core.database)
     implementation(projects.core.model)
 
     implementation(libs.androidx.activity.compose)
@@ -86,7 +87,6 @@ dependencies {
 
     ksp(libs.hilt.compiler)
 
-    implementation("com.kizitonwose.calendar:compose:2.5.2")
     implementation("org.threeten:threeten-extra:1.8.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation(libs.androidx.appcompat)

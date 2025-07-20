@@ -23,14 +23,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import ru.akhilko.christian_calendar.core.model.data.CalendarData
-import ru.akhilko.christian_calendar.core.CalendarRepository
+import ru.akhilko.core.database.repository.CalendarRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     calendarRepository: CalendarRepository,
 ) : ViewModel() {
-    val uiState: StateFlow<MainActivityUiState> = calendarRepository.calendarData.map {
+    val uiState: StateFlow<MainActivityUiState> = calendarRepository..map {
         MainActivityUiState.Success(it)
     }.stateIn(
         scope = viewModelScope,
