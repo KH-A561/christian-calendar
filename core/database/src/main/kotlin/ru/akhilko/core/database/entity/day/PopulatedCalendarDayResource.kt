@@ -2,14 +2,14 @@ package ru.akhilko.core.database.entity.day
 
 import androidx.room.Embedded
 import kotlinx.datetime.DayOfWeek
-import ru.akhilko.christian_calendar.core.data.model.DayResource
+import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 
-data class PopulatedDayResource(
+data class PopulatedCalendarDayResource(
     @Embedded
-    val entity: DayResourceEntity
+    val entity: CalendarDayResourceEntity
 ) {
-    fun asModel(): DayResource {
-        return DayResource(
+    fun asModel(): CalendarDayResource {
+        return CalendarDayResource(
             id = entity.id,
             weekDay = DayOfWeek.valueOf(entity.weekDay),
             oldStyleDate = entity.oldStyleDate,
@@ -24,8 +24,8 @@ data class PopulatedDayResource(
         )
     }
 
-    fun asFtsEntity(): DayResourceFtsEntity {
-        return DayResourceFtsEntity(
+    fun asFtsEntity(): CalendarDayResourceFtsEntity {
+        return CalendarDayResourceFtsEntity(
             id = entity.id,
             weekDay = entity.weekDay,
             title = entity.title,
@@ -39,6 +39,5 @@ data class PopulatedDayResource(
             tags = entity.tags?.joinToString(),
             fasting = entity.fasting
         )
-
     }
 }

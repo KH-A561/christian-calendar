@@ -27,24 +27,24 @@ import kotlinx.coroutines.withContext
 import ru.akhilko.christian_calendar.core.data.model.search.SearchResult
 import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
-import ru.akhilko.core.database.entity.day.PopulatedDayResource
+import ru.akhilko.core.data.repository.SearchContentsRepository
+import ru.akhilko.core.database.dao.CalendarDayDao
+import ru.akhilko.core.database.entity.day.PopulatedCalendarDayResource
 import java.util.stream.Collectors
 import javax.inject.Inject
 
 internal class DefaultSearchContentsRepository @Inject constructor(
-    private val calendarRepository: CalendarRepository,
-    private val calendarFtsRepository: CalendarFtsRepository,
+    private val dayDao: CalendarDayDao,
+    private val dayFtsRepository: CalendarDayFtsDao,
     @Dispatcher(Dispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
 ) : SearchContentsRepository {
 
     override suspend fun populateFtsData() {
         withContext(ioDispatcher) {
-            calendarFtsRepository.insertAll(
-                calendarRepository.getDaysResources(
-                    useFilterDaysIds = false
-                )
+            dayFtsRepository.insertAll(
+                dayDao.getAll()
                     .first()
-                    .map(PopulatedDayResource::asFtsEntity),
+                    .map(PopulatedCalendarDayResource::asFtsEntity)
             )
         }
     }
@@ -52,13 +52,13 @@ internal class DefaultSearchContentsRepository @Inject constructor(
     override fun searchContents(searchQuery: String): Flow<SearchResult> {
         // Surround the query by asterisks to match the query when it's in the middle of
         // a word
-        val daysResourceIds = calendarFtsRepository.searchAll("*$searchQuery*")
+        val daysResourceIds = dayFtsRepository.searchAll("*$searchQuery*")
 
         val daysResourcesFlow = daysResourceIds
             .mapLatest { it.toSet() }
             .distinctUntilChanged()
             .flatMapLatest {
-                calendarRepository.getDaysResources(useFilterDaysIds = true, filterDaysIds = it)
+                dayDao.getDaysByIds(it.toList())
             }
 
         return daysResourcesFlow.map { r ->
@@ -69,5 +69,5 @@ internal class DefaultSearchContentsRepository @Inject constructor(
     }
 
     override fun getSearchContentsCount(): Flow<Int> =
-        calendarFtsRepository.getCount()
+        dayFtsRepository.getCount()
 }

@@ -22,15 +22,16 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import ru.akhilko.christian_calendar.core.model.data.CalendarData
-import ru.akhilko.core.database.repository.CalendarRepository
+import ru.akhilko.christian_calendar.core.model.data.mainscreen.MainScreenCalendarData
+import java.time.Year
 import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    calendarRepository: CalendarRepository,
+    monthRepository: MonthRepository,
 ) : ViewModel() {
-    val uiState: StateFlow<MainActivityUiState> = calendarRepository..map {
+    val uiState: StateFlow<MainActivityUiState> = monthRepository
+        .getMonthsInfoByGregorianYear(Year.now().value).map {
         MainActivityUiState.Success(it)
     }.stateIn(
         scope = viewModelScope,
@@ -41,5 +42,5 @@ class MainActivityViewModel @Inject constructor(
 
 sealed interface MainActivityUiState {
     data object Loading : MainActivityUiState
-    data class Success(val calendarData: CalendarData) : MainActivityUiState
+    data class Success(val mainScreenCalendarData: MainScreenCalendarData) : MainActivityUiState
 }

@@ -6,7 +6,7 @@ import androidx.room.Fts4
 
 @Entity(tableName = "dayResourcesFts")
 @Fts4
-data class DayResourceFtsEntity (
+data class CalendarDayResourceFtsEntity (
     @ColumnInfo(name = "id")
     val id: String,
 

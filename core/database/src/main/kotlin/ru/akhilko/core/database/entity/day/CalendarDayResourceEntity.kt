@@ -1,10 +1,16 @@
 package ru.akhilko.core.database.entity.day
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
-import ru.akhilko.christian_calendar.core.data.model.DayResource
+import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 
-data class DayResourceEntity(
+@Entity(
+    tableName = "calendar_days",
+)
+data class CalendarDayResourceEntity(
+    @PrimaryKey
     val id: String,
     val weekDay: String,
     val oldStyleDate: Instant,
@@ -18,7 +24,7 @@ data class DayResourceEntity(
     val fasting: String?
 )
 
-fun DayResourceEntity.asExternalModel() = DayResource(
+fun CalendarDayResourceEntity.asExternalModel() = CalendarDayResource(
     id = id,
     weekDay = DayOfWeek.valueOf(weekDay),
     oldStyleDate = oldStyleDate,

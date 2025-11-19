@@ -12,7 +12,6 @@ import com.google.samples.apps.nowinandroid.navigation.TopLevelDestination
 import com.google.samples.apps.nowinandroid.navigation.TopLevelDestination.DAY
 import com.google.samples.apps.nowinandroid.navigation.TopLevelDestination.MONTH
 import com.google.samples.apps.nowinandroid.navigation.TopLevelDestination.WEEK
-import ru.akhilko.core.database.repository.CalendarRepository
 import ru.akhilko.day.navigation.DAY_ROUTE
 import ru.akhilko.day.navigation.navigateToDay
 import ru.akhilko.feature.search.navigation.navigateToSearch
@@ -24,7 +23,7 @@ import ru.akhilko.week.navigation.navigateToWeek
 @Stable
 class ChristianCalendarAppState(
     val navController: NavHostController,
-    calendarRepository: CalendarRepository,
+    monthRepository: MonthRepository,
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController

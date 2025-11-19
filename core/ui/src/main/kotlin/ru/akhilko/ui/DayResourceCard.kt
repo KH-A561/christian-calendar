@@ -35,7 +35,7 @@ import kotlinx.datetime.toJavaInstant
 import kotlinx.datetime.toJavaZoneId
 import kotlinx.datetime.toKotlinInstant
 import ru.akhilko.christian_calendar.core.data.model.findByName
-import ru.akhilko.christian_calendar.core.model.data.Day
+import ru.akhilko.christian_calendar.core.model.CalendarDay
 import ru.akhilko.core.designsystem.component.DayTag
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.ui.R
@@ -47,7 +47,7 @@ import java.util.Locale
 
 @Composable
 fun DayResourceCardExpanded(
-    day: Day,
+    day: CalendarDay,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -233,7 +233,7 @@ private fun ExpandedDayResourcePreview() {
         CalendarTheme {
             Surface {
                 DayResourceCardExpanded(
-                    day = Day(
+                    day = CalendarDay(
                         id = "1",
                         weekDay = DayOfWeek.WEDNESDAY,
                         oldStyleDate = dateToInstant(2025, 1, 30),

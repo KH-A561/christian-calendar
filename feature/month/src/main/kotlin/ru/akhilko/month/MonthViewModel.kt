@@ -9,8 +9,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import ru.akhilko.core.database.entity.month.MonthSummaryEntity
-import ru.akhilko.core.database.repository.CalendarRepository
+import ru.akhilko.christian_calendar.core.data.model.MonthResource
 import ru.akhilko.core.result.Result
 import ru.akhilko.core.result.asResult
 import ru.akhilko.month.navigation.CENTERED_MONTH
@@ -18,12 +17,13 @@ import ru.akhilko.month.navigation.DAY_SELECTED
 import java.time.LocalDate
 import java.time.Year
 import java.time.YearMonth
+import java.util.stream.Collectors
 import javax.inject.Inject
 
 @HiltViewModel
 class MonthViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    calendarRepository: CalendarRepository,
+    monthRepository: MonthRepository,
 ) : ViewModel() {
     private val today = LocalDate.now()!!
 
@@ -40,7 +40,7 @@ class MonthViewModel @Inject constructor(
     val monthUiState: StateFlow<MonthUiState> = monthUiState(
         centeredMonth.value,
         daySelected.value,
-        calendarRepository
+        monthRepository
     )
         .stateIn(
             scope = viewModelScope,
@@ -52,10 +52,10 @@ class MonthViewModel @Inject constructor(
 private fun monthUiState(
     centeredMonth: YearMonth?,
     daySelected: String?,
-    calendarRepository: CalendarRepository
+    monthRepository: MonthRepository
 ): Flow<MonthUiState> {
-    val monthsInfo = calendarRepository.getMonthsInfo(
-        false, emptySet(), centeredMonth?.year ?: Year.now().value
+    val monthsInfo = monthRepository.getMonthsInfoByGregorianYear(
+        centeredMonth?.year ?: Year.now().value
     )
     return monthsInfo.asResult().map { monthsResult ->
         when (monthsResult) {
@@ -63,7 +63,9 @@ private fun monthUiState(
                 MonthUiState.MonthsLoaded(
                     centeredMonth = centeredMonth,
                     daySelected = daySelected,
-                    monthSummary = monthsResult.data
+                    monthSummary = monthsResult.data.stream().map {
+                        populatedMonthResource -> populatedMonthResource.asModel()
+                    }.collect(Collectors.toList())
                 )
             }
 
@@ -79,7 +81,7 @@ sealed interface MonthUiState {
     data class MonthsLoaded(
         val centeredMonth: YearMonth?,
         val daySelected: String?,
-        val monthSummary: List<MonthSummaryEntity>
+        val monthSummary: List<MonthResource>
     ) : MonthUiState
 
     data object Empty : MonthUiState

@@ -20,12 +20,19 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import ru.akhilko.core.data.repository.CalendarDayRepository
+import ru.akhilko.core.data.repository.SearchContentsRepository
+import ru.akhilko.core.database.repository.DefaultCalendarDayRepository
 import ru.akhilko.core.database.repository.DefaultSearchContentsRepository
-import ru.akhilko.core.database.repository.SearchContentsRepository
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
+
+    @Binds
+    internal abstract fun bindsCalendarDayRepository(
+        calendarDayRepository: DefaultCalendarDayRepository
+    ): CalendarDayRepository
 
     @Binds
     internal abstract fun bindsSearchContentsRepository(

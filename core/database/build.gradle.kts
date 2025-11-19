@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.christian.calendar.android.library.jacoco)
     alias(libs.plugins.christian.calendar.android.room)
     alias(libs.plugins.christian.calendar.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -14,6 +15,7 @@ dependencies {
     api(projects.core.data)
 
     implementation(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
 
