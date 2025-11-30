@@ -31,7 +31,6 @@ androidxUiAutomator = "2.3.0"
 androidxWindowManager = "1.3.0-alpha03"
 androidxWork = "2.9.0"
 coil = "2.6.0"
-dependencyGuard = "0.5.0"
 firebaseBom = "33.1.1"
 firebaseCrashlyticsPlugin = "2.9.9"
 firebasePerfPlugin = "1.4.2"
@@ -62,7 +61,6 @@ turbine = "1.1.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 material = "1.12.0"
-kotlinVersion = "1.9.0"
 
 [bundles]
 androidx-compose-ui-test = ["androidx-compose-ui-test", "androidx-compose-ui-testManifest"]
@@ -175,7 +173,6 @@ android-library = { id = "com.android.library", version.ref = "androidGradlePlug
 android-test = { id = "com.android.test", version.ref = "androidGradlePlugin" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "androidxMacroBenchmark"}
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-dependencyGuard = { id = "com.dropbox.dependency-guard", version.ref = "dependencyGuard" }
 firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "firebaseCrashlyticsPlugin" }
 firebase-perf = { id = "com.google.firebase.firebase-perf", version.ref = "firebasePerfPlugin" }
 gms = { id = "com.google.gms.google-services", version.ref = "gmsPlugin" }
@@ -204,4 +201,4 @@ christian-calendar-android-room = { id = "christian_calendar.android.room", vers
 christian-calendar-android-test = { id = "christian_calendar.android.test", version = "unspecified" }
 christian-calendar-hilt = { id = "christian_calendar.hilt", version = "unspecified" }
 christian-calendar-jvm-library = { id = "christian_calendar.jvm.library", version = "unspecified" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlinVersion" }
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

@@ -29,8 +29,8 @@ import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
 import ru.akhilko.core.data.repository.SearchContentsRepository
 import ru.akhilko.core.database.dao.CalendarDayDao
-import ru.akhilko.core.database.entity.day.PopulatedCalendarDayResource
-import java.util.stream.Collectors
+import ru.akhilko.core.database.entity.day.asFtsEntity
+import ru.akhilko.core.database.entity.day.asResource
 import javax.inject.Inject
 
 internal class DefaultSearchContentsRepository @Inject constructor(
@@ -44,7 +44,7 @@ internal class DefaultSearchContentsRepository @Inject constructor(
             dayFtsRepository.insertAll(
                 dayDao.getAll()
                     .first()
-                    .map(PopulatedCalendarDayResource::asFtsEntity)
+                    .map { it.asFtsEntity() }
             )
         }
     }
@@ -58,12 +58,12 @@ internal class DefaultSearchContentsRepository @Inject constructor(
             .mapLatest { it.toSet() }
             .distinctUntilChanged()
             .flatMapLatest {
-                dayDao.getDaysByIds(it.toList())
+                dayDao.getDaysByIds(it.map { it.toString() })
             }
 
         return daysResourcesFlow.map { r ->
             SearchResult(
-                dayData = r.stream().map { pr -> pr.asModel() }.collect(Collectors.toList())
+                dayData = r.map { it.asResource() }
             )
         }
     }

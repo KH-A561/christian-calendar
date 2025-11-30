@@ -9,6 +9,11 @@ plugins {
     id("kotlinx-serialization")
 }
 
+ksp {
+    // Set JVM target for KSP
+    arg("org.jetbrains.kotlin.jvm.target", "1.8")
+}
+
 android {
     namespace = "ru.akhilko.christian_calendar"
     compileSdk = 34

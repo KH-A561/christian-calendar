@@ -1,9 +1,7 @@
 package ru.akhilko.christian_calendar.core.model
 
-data class LiturgicalInfo (
-    val weekInfo: String,
+data class LiturgicalInfo(
+    val color: LiturgicalColor,
     val dayType: DayType,
-    val color: LiturgicalColor
-) {
-
-}
+    val importance: Int
+)

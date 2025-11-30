@@ -14,4 +14,6 @@ interface CalendarDayRepository {
     fun getDaysByIds(
         ids: List<String>
     ): Flow<List<CalendarDayResource>>
+
+    suspend fun sync()
 }

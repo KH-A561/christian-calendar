@@ -10,12 +10,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
+import ru.akhilko.christian_calendar.core.model.CalendarDay
+import ru.akhilko.christian_calendar.core.model.DayType
+import ru.akhilko.christian_calendar.core.model.FastingInfo
+import ru.akhilko.christian_calendar.core.model.FastingLevel
+import ru.akhilko.christian_calendar.core.model.LiturgicalColor
+import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
-import java.util.UUID
-import kotlin.time.Duration
 
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyStaggeredGridScope.daysFeed(
@@ -31,7 +34,7 @@ fun LazyStaggeredGridScope.daysFeed(
                 contentType = { "daysFeedItem" },
             ) { dayResource ->
                 DayResourceCardExpanded(
-                    day = dayResource.day(),
+                    day = dayResource.day,
                     onClick = {
                         onExpandedCardClick()
 //                        analyticsHelper.logNewsResourceOpened(
@@ -63,27 +66,39 @@ sealed interface DaysFeedUiState {
 @Preview
 @Composable
 private fun DaysFeedSuccessPreview() {
+    val sampleDay = CalendarDay(
+        dayOfWeek = DayOfWeek.WEDNESDAY,
+        gregorianDay = 12,
+        gregorianMonth = 2,
+        gregorianYear = 2025,
+        lastUpdated = "21 August 2025 at 17:53:08 UTC+3",
+        title = "Предпразднство Преображения Господня",
+        week = "Седмица 11-я по Пятидесятнице.",
+        liturgicalInfo = LiturgicalInfo(
+            color = LiturgicalColor.VIOLET,
+            dayType = DayType.FOREFEAST,
+            importance = 3
+        ),
+        fastingInfo = FastingInfo(
+            fastingLevel = FastingLevel.PARTIAL,
+            allowed = listOf("Вино", "Елей")
+        ),
+        readings = emptyList(),
+        saints = emptyList(),
+        searchText = ""
+    )
+    val sampleResource = CalendarDayResource(
+        id = sampleDay.id,
+        day = sampleDay,
+        holidays = emptyList(),
+        fastingInformation = sampleDay.fastingInfo
+    )
+
     CalendarTheme {
         LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Adaptive(300.dp)) {
             daysFeed(
                 feedState = DaysFeedUiState.Success(
-                    listOf(
-                        CalendarDayResource(
-                            UUID.randomUUID().toString(),
-                            DayOfWeek.WEDNESDAY,
-                            Clock.System.now(),
-                            Clock.System.now().plus(
-                                Duration.Companion.parse("1d")
-                            ),
-                            title = "Title",
-                            weekInfo = "Week Info",
-                            primarySaints = emptyList(),
-                            secondarySaints = emptyList(),
-                            readings = emptyMap(),
-                            tags = emptyList(),
-                            fasting = null
-                        )
-                    )
+                    listOf(sampleResource)
                 )
             )
         }

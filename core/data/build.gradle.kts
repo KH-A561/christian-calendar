@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.christian.calendar.android.library)
     alias(libs.plugins.christian.calendar.hilt)
+    id("com.google.devtools.ksp") // Add KSP plugin
 }
 
 android {
@@ -30,6 +31,16 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    tasks.withType<com.google.devtools.ksp.gradle.KspTask>().configureEach {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+}
+
+// Add KSP configuration
+ksp {
+    arg("org.jetbrains.kotlin.jvm.target", "1.8")
 }
 
 dependencies {

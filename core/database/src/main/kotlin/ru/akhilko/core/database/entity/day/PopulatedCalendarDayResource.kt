@@ -1,43 +1,36 @@
 package ru.akhilko.core.database.entity.day
 
-import androidx.room.Embedded
-import kotlinx.datetime.DayOfWeek
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
+import ru.akhilko.christian_calendar.core.model.CalendarDay
+import ru.akhilko.christian_calendar.core.model.DayType
 
-data class PopulatedCalendarDayResource(
-    @Embedded
-    val entity: CalendarDayResourceEntity
-) {
-    fun asModel(): CalendarDayResource {
-        return CalendarDayResource(
-            id = entity.id,
-            weekDay = DayOfWeek.valueOf(entity.weekDay),
-            oldStyleDate = entity.oldStyleDate,
-            newStyleDate = entity.newStyleDate,
-            title = entity.title,
-            weekInfo = entity.weekInfo,
-            primarySaints = entity.primarySaints,
-            secondarySaints = entity.secondarySaints,
-            readings = entity.readings,
-            tags = entity.tags,
-            fasting = entity.fasting
-        )
-    }
-
-    fun asFtsEntity(): CalendarDayResourceFtsEntity {
-        return CalendarDayResourceFtsEntity(
-            id = entity.id,
-            weekDay = entity.weekDay,
-            title = entity.title,
-            weekInfo = entity.weekInfo,
-            primarySaints = entity.primarySaints.joinToString(),
-            secondarySaints = entity.secondarySaints.joinToString(),
-            readings = entity.readings?.entries?.stream()
-                ?.map { e -> e.key.plus(": ").plus(e.value.joinToString()) }
-                ?.reduce { e1, e2 -> listOf(e1, e2).joinToString("\n") }
-                ?.orElse(""),
-            tags = entity.tags?.joinToString(),
-            fasting = entity.fasting
-        )
-    }
+fun CalendarDayEntity.asResource(): CalendarDayResource {
+    val day = this.asModel()
+    return CalendarDayResource(
+        id = this.id,
+        day = day,
+        holidays = if (day.liturgicalInfo.dayType == DayType.FEAST || day.liturgicalInfo.dayType == DayType.MEMORIAL) listOf(day.title) else emptyList(),
+        fastingInformation = day.fastingInfo
+    )
 }
+
+fun CalendarDayEntity.asFtsEntity(): CalendarDayFtsEntity {
+    return CalendarDayFtsEntity(
+        searchText = this.searchText
+    )
+}
+
+fun CalendarDayEntity.asModel() = CalendarDay(
+    dayOfWeek = this.dayOfWeek,
+    gregorianDay = this.gregorianDay,
+    gregorianMonth = this.gregorianMonth,
+    gregorianYear = this.gregorianYear,
+    lastUpdated = this.lastUpdated,
+    title = this.title,
+    week = this.week,
+    liturgicalInfo = this.liturgicalInfo,
+    fastingInfo = this.fastingInfo,
+    readings = this.readings,
+    saints = this.saints,
+    searchText = this.searchText
+)
