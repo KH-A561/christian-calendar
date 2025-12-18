@@ -196,8 +196,10 @@ private fun MonthFooter(monthDays: List<CalendarDayResource>) {
     // автоматически перезапускаться при смене темы (например, с темной на светлую).
     val legendItems = remember(monthDays, feastColor, memorialColor, fastingColor) {
         val items = mutableSetOf<LegendItem>()
-        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.FEAST }) {
-            items.add(LegendItem(feastColor, "Великий праздник"))
+        monthDays.forEach {
+            if (it.day.liturgicalInfo.dayType == DayType.FEAST) {
+                items.add(LegendItem(feastColor, it.day.title))
+            }
         }
         if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.MEMORIAL }) {
             items.add(LegendItem(memorialColor, "День поминовения"))
