@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import ru.akhilko.christian_calendar.core.data.model.search.SearchResult
-import ru.akhilko.core.database.repository.SearchContentsRepository
+import ru.akhilko.core.data.repository.SearchContentsRepository
 import ru.akhilko.core.domain.GetSearchContentsUseCase
 import javax.inject.Inject
 

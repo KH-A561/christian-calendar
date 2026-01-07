@@ -41,8 +41,10 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.model.DayType
+import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.getGregorianLocalDate
+import ru.akhilko.christian_calendar.core.model.LiturgicalColor
+import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import java.time.LocalDate
 import java.time.YearMonth
@@ -51,7 +53,7 @@ import java.time.format.TextStyle
 import java.util.Locale as JavaLocale
 
 @Composable
-internal fun MonthRoute(
+fun MonthRoute(
     modifier: Modifier = Modifier,
     onDayClick: (String) -> Unit,
     viewModel: MonthViewModel = hiltViewModel()
@@ -145,7 +147,7 @@ internal fun MonthScreen(
                         days.filter {
                             val resourceDate = it.day.getGregorianLocalDate()
                             resourceDate.year == month.yearMonth.year &&
-                                    resourceDate.monthValue == month.yearMonth.monthValue
+                                    resourceDate.monthNumber == month.yearMonth.monthValue
                         }
                     }
                     MonthFooter(monthDays)
@@ -193,15 +195,13 @@ private fun MonthFooter(monthDays: List<CalendarDayResource>) {
 
     val legendItems = remember(monthDays, feastColor, memorialColor, fastingColor) {
         val items = mutableSetOf<LegendItem>()
-        monthDays.forEach {
-            if (it.day.liturgicalInfo.dayType == DayType.FEAST.name) { // Assuming DayType is an enum
-                items.add(LegendItem(feastColor, it.day.title))
-            }
+        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.FEAST }) {
+            items.add(LegendItem(feastColor, "Великий праздник"))
         }
-        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.MEMORIAL.name }) {
+        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.MEMORIAL }) {
             items.add(LegendItem(memorialColor, "День поминовения"))
         }
-        if (monthDays.any { it.day.fastingInfo.fastingLevel != FastingLevel.NONE.name }) {
+        if (monthDays.any { it.day.fastingInfo.fastingLevel != FastingLevel.NONE }) {
             items.add(LegendItem(fastingColor, "Постный день"))
         }
         items.toList()
@@ -306,15 +306,15 @@ private fun Day(
 private fun getIndicatorColor(dayResource: CalendarDayResource?): Color? {
     if (dayResource == null) return null
 
-    if (dayResource.day.liturgicalInfo.dayType == DayType.FEAST.name) {
+    if (dayResource.day.liturgicalInfo.dayType == DayType.FEAST) {
         return colorScheme.error
     }
 
-    if (dayResource.day.liturgicalInfo.dayType == DayType.MEMORIAL.name) {
+    if (dayResource.day.liturgicalInfo.dayType == DayType.MEMORIAL) {
         return colorScheme.outlineVariant
     }
 
-    if (dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE.name) {
+    if (dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE) {
         return colorScheme.inversePrimary
     }
 
@@ -324,12 +324,72 @@ private fun getIndicatorColor(dayResource: CalendarDayResource?): Color? {
 @Preview(showSystemUi = true)
 @Composable
 private fun MonthScreenPreview() {
+    val sampleDays = listOf(
+        CalendarDayResource(
+            id = "1",
+            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
+                dayOfWeek = kotlinx.datetime.DayOfWeek.TUESDAY,
+                gregorianDay = 5,
+                gregorianMonth = 11,
+                gregorianYear = 2024,
+                lastUpdated = "",
+                title = "Предпразднство Введения во храм Пресвятой Богородицы",
+                week = "Седмица 24-я по Пятидесятнице",
+                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.FEAST, 3),
+                fastingInfo = FastingInfo(FastingLevel.NONE, emptyList()),
+                readings = emptyList(),
+                saints = emptyList(),
+                searchText = ""
+            ),
+            holidays = emptyList(),
+            fastingInformation = FastingInfo(FastingLevel.NONE, emptyList())
+        ),
+        CalendarDayResource(
+            id = "2",
+            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
+                dayOfWeek = kotlinx.datetime.DayOfWeek.FRIDAY,
+                gregorianDay = 8,
+                gregorianMonth = 11,
+                gregorianYear = 2024,
+                lastUpdated = "",
+                title = "Отдание праздника Введения во храм Пресвятой Богородицы",
+                week = "Седмица 24-я по Пятидесятнице",
+                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.ORDINARY, 3),
+                fastingInfo = FastingInfo(FastingLevel.STRICT, emptyList()),
+                readings = emptyList(),
+                saints = emptyList(),
+                searchText = ""
+            ),
+            holidays = emptyList(),
+            fastingInformation = FastingInfo(FastingLevel.STRICT, emptyList())
+        ),
+        CalendarDayResource(
+            id = "3",
+            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
+                dayOfWeek = kotlinx.datetime.DayOfWeek.SATURDAY,
+                gregorianDay = 9,
+                gregorianMonth = 11,
+                gregorianYear = 2024,
+                lastUpdated = "",
+                title = "Освящение церкви вмч. Георгия в Киеве",
+                week = "Седмица 24-я по Пятидесятнице",
+                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.MEMORIAL, 3),
+                fastingInfo = FastingInfo(FastingLevel.NONE, emptyList()),
+                readings = emptyList(),
+                saints = emptyList(),
+                searchText = ""
+            ),
+            holidays = emptyList(),
+            fastingInformation = FastingInfo(FastingLevel.NONE, emptyList())
+        )
+    )
+
     CalendarTheme {
         MonthScreen(
             monthUiState = MonthUiState.Success(
                 centeredMonth = YearMonth.now(),
                 daySelected = null,
-                days = emptyList()
+                days = sampleDays
             ),
             onDayClick = {}
         )

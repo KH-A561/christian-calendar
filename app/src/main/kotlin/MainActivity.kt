@@ -1,44 +1,28 @@
+package ru.akhilko.christian_calendar
 
-import MainActivityUiState.Loading
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.month.MonthRoute
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    val viewModel: MainActivityViewModel by viewModels()
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Handle the splash screen transition.
-        val splashScreen = installSplashScreen()
+        // Устанавливаем сплэш-скрин. Он автоматически скроется,
+        // как только первый кадр Compose будет отрисован.
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        var uiState: MainActivityUiState by mutableStateOf(Loading)
-
-        // Update the uiState
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState
-                    .onEach { uiState = it }
-                    .collect()
-            }
-        }
-
         setContent {
-//            Month()
+            // Подключаем вашу тему
+            CalendarTheme {
+                // Отображаем главный экран (NavHost или прямо ваш MonthRoute)
+                MonthRoute(onDayClick = { /* TODO: handle day click */ })
+            }
         }
     }
 }

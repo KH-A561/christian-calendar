@@ -19,11 +19,11 @@ import ru.akhilko.month.navigation.MONTH_ROUTE
 import ru.akhilko.month.navigation.navigateToMonth
 import ru.akhilko.week.navigation.WEEK_ROUTE
 import ru.akhilko.week.navigation.navigateToWeek
+import java.time.LocalDate
 
 @Stable
 class ChristianCalendarAppState(
     val navController: NavHostController,
-    monthRepository: MonthRepository,
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
@@ -47,7 +47,7 @@ class ChristianCalendarAppState(
      * @param topLevelDestination: The destination the app needs to navigate to.
      */
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
-        trace("Navigation: ${topLevelDestination.name}") {
+        trace("Navigation: ${topLevelDestination.name}") { 
             val topLevelNavOptions = navOptions {
                 // Pop up to the start destination of the graph to
                 // avoid building up a large stack of destinations
@@ -65,7 +65,11 @@ class ChristianCalendarAppState(
             when (topLevelDestination) {
                 MONTH -> navController.navigateToMonth(topLevelNavOptions)
                 WEEK -> navController.navigateToWeek(topLevelNavOptions)
-                DAY -> navController.navigateToDay(topLevelNavOptions)
+                // todo: Полностью переделать TopLevelDestination на правильные рельсы
+                DAY -> {
+                    val today = LocalDate.now().toString()
+                    navController.navigateToDay(today, topLevelNavOptions)
+                }
             }
         }
     }
