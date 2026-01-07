@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.ProvideTextStyle
@@ -40,10 +41,8 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.model.DayType
-import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
-import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
+import ru.akhilko.christian_calendar.core.model.getGregorianLocalDate
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import java.time.LocalDate
 import java.time.YearMonth
@@ -73,8 +72,8 @@ internal fun MonthScreen(
     onDayClick: (String) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth.minusMonths(12) }
-    val endMonth = remember { currentMonth.plusMonths(12) }
+    val startMonth = remember { currentMonth.minusMonths(24) }
+    val endMonth = remember { currentMonth.plusMonths(24) }
     val today = remember { LocalDate.now() }
     val daysOfWeek = remember { daysOfWeek() }
 
@@ -102,9 +101,7 @@ internal fun MonthScreen(
                     val dayResource = remember(days, day.date) {
                         days.find {
                             val resourceDate = it.day.getGregorianLocalDate()
-                            resourceDate.year == day.date.year &&
-                                    resourceDate.monthNumber == day.date.monthValue &&
-                                    resourceDate.dayOfMonth == day.date.dayOfMonth
+                            resourceDate == day.date
                         }
                     }
                     Day(
@@ -148,12 +145,16 @@ internal fun MonthScreen(
                         days.filter {
                             val resourceDate = it.day.getGregorianLocalDate()
                             resourceDate.year == month.yearMonth.year &&
-                                    resourceDate.monthNumber == month.yearMonth.monthValue
+                                    resourceDate.monthValue == month.yearMonth.monthValue
                         }
                     }
                     MonthFooter(monthDays)
                 }
             )
+        }
+
+        if (monthUiState is MonthUiState.Loading) {
+            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
 }
@@ -186,25 +187,21 @@ private data class LegendItem(val color: Color, val text: String)
 
 @Composable
 private fun MonthFooter(monthDays: List<CalendarDayResource>) {
-    // Получаем необходимые цвета в @Composable контексте
     val feastColor = MaterialTheme.colorScheme.error
     val memorialColor = MaterialTheme.colorScheme.outlineVariant
     val fastingColor = MaterialTheme.colorScheme.inversePrimary
 
-    // Теперь передаем эти цвета в блок remember.
-    // Так как цвета теперь являются ключами, remember будет
-    // автоматически перезапускаться при смене темы (например, с темной на светлую).
     val legendItems = remember(monthDays, feastColor, memorialColor, fastingColor) {
         val items = mutableSetOf<LegendItem>()
         monthDays.forEach {
-            if (it.day.liturgicalInfo.dayType == DayType.FEAST) {
+            if (it.day.liturgicalInfo.dayType == DayType.FEAST.name) { // Assuming DayType is an enum
                 items.add(LegendItem(feastColor, it.day.title))
             }
         }
-        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.MEMORIAL }) {
+        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.MEMORIAL.name }) {
             items.add(LegendItem(memorialColor, "День поминовения"))
         }
-        if (monthDays.any { it.fastingInformation.fastingLevel != FastingLevel.NONE }) {
+        if (monthDays.any { it.day.fastingInfo.fastingLevel != FastingLevel.NONE.name }) {
             items.add(LegendItem(fastingColor, "Постный день"))
         }
         items.toList()
@@ -309,15 +306,15 @@ private fun Day(
 private fun getIndicatorColor(dayResource: CalendarDayResource?): Color? {
     if (dayResource == null) return null
 
-    if (dayResource.day.liturgicalInfo.dayType == DayType.FEAST) {
+    if (dayResource.day.liturgicalInfo.dayType == DayType.FEAST.name) {
         return colorScheme.error
     }
 
-    if (dayResource.day.liturgicalInfo.dayType == DayType.MEMORIAL) {
+    if (dayResource.day.liturgicalInfo.dayType == DayType.MEMORIAL.name) {
         return colorScheme.outlineVariant
     }
 
-    if (dayResource.fastingInformation.fastingLevel != FastingLevel.NONE) {
+    if (dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE.name) {
         return colorScheme.inversePrimary
     }
 
@@ -327,72 +324,12 @@ private fun getIndicatorColor(dayResource: CalendarDayResource?): Color? {
 @Preview(showSystemUi = true)
 @Composable
 private fun MonthScreenPreview() {
-    val sampleDays = listOf(
-        CalendarDayResource(
-            id = "1",
-            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
-                dayOfWeek = kotlinx.datetime.DayOfWeek.TUESDAY,
-                gregorianDay = 5,
-                gregorianMonth = 11,
-                gregorianYear = 2025,
-                lastUpdated = "",
-                title = "Предпразднство Введения во храм Пресвятой Богородицы",
-                week = "Седмица 24-я по Пятидесятнице",
-                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.FEAST, 3),
-                fastingInfo = FastingInfo(FastingLevel.NONE, emptyList()),
-                readings = emptyList(),
-                saints = emptyList(),
-                searchText = ""
-            ),
-            holidays = emptyList(),
-            fastingInformation = FastingInfo(FastingLevel.NONE, emptyList())
-        ),
-        CalendarDayResource(
-            id = "2",
-            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
-                dayOfWeek = kotlinx.datetime.DayOfWeek.FRIDAY,
-                gregorianDay = 30,
-                gregorianMonth = 11,
-                gregorianYear = 2025,
-                lastUpdated = "",
-                title = "Отдание праздника Введения во храм Пресвятой Богородицы",
-                week = "Седмица 24-я по Пятидесятнице",
-                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.ORDINARY, 3),
-                fastingInfo = FastingInfo(FastingLevel.STRICT, emptyList()),
-                readings = emptyList(),
-                saints = emptyList(),
-                searchText = ""
-            ),
-            holidays = emptyList(),
-            fastingInformation = FastingInfo(FastingLevel.STRICT, emptyList())
-        ),
-        CalendarDayResource(
-            id = "3",
-            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
-                dayOfWeek = kotlinx.datetime.DayOfWeek.SATURDAY,
-                gregorianDay = 9,
-                gregorianMonth = 11,
-                gregorianYear = 2025,
-                lastUpdated = "",
-                title = "Освящение церкви вмч. Георгия в Киеве",
-                week = "Седмица 24-я по Пятидесятнице",
-                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.MEMORIAL, 3),
-                fastingInfo = FastingInfo(FastingLevel.NONE, emptyList()),
-                readings = emptyList(),
-                saints = emptyList(),
-                searchText = ""
-            ),
-            holidays = emptyList(),
-            fastingInformation = FastingInfo(FastingLevel.NONE, emptyList())
-        )
-    )
-
     CalendarTheme {
         MonthScreen(
             monthUiState = MonthUiState.Success(
                 centeredMonth = YearMonth.now(),
                 daySelected = null,
-                days = sampleDays
+                days = emptyList()
             ),
             onDayClick = {}
         )

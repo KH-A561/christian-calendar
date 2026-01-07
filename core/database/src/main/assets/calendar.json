@@ -1,0 +1,68 @@
+[
+  {
+    "id": "2025-07-12",
+    "title": "Предпразднство Преображения Господня. Мч. Евсигния Антиохийского",
+    "dayOfWeek": "MONDAY",
+    "gregorianYear": 2025,
+    "gregorianMonth": 7,
+    "gregorianDay": 12,
+    "julianYear": 2025,
+    "julianMonth": 6,
+    "julianDay": 30,
+    "week": "Седмица 11-я по Пятидесятнице.",
+    "fastingInfo": {
+      "fastingLevel": "PARTIAL",
+      "allowed": [
+        "Рыба",
+        "Вино",
+        "Елей"
+      ]
+    },
+    "liturgicalInfo": {
+      "color": "purple",
+      "dayType": "feast",
+      "importance": 3
+    },
+    "saints": [
+      "АП. И ЕВАНГЕЛИСТА МАТФЕЯ (60)",
+      "Прп. Сергия, игум. Малопинежского (1585)"
+    ],
+    "readings": [
+      "Ряд.: 2 Кор., 171 зач., II, 3–15.",
+      "Мф., 94 зач., XXIII, 13–22"
+    ]
+  },
+  {
+    "id": "2025-07-13",
+    "title": "Семи мчч. отроков Ефесских: Максимилиана, Ексакустодиана, Иамвлиха, Мартиниана, Дионисия, Иоанна и Антонина",
+    "dayOfWeek": "Tuesday",
+    "gregorianYear": 2025,
+    "gregorianMonth": 7,
+    "gregorianDay": 13,
+    "julianYear": 2025,
+    "julianMonth": 6,
+    "julianDay": 31,
+    "week": "Седмица 11-я по Пятидесятнице.",
+    "fastingInfo": {
+      "fastingLevel": "PARTIAL",
+      "allowed": [
+        "Рыба",
+        "Вино",
+        "Елей"
+      ]
+    },
+    "liturgicalInfo": {
+      "color": "purple",
+      "dayType": "feast",
+      "importance": 3
+    },
+    "saints": [
+      "Прпмц. Евдокии Римляныни, Персидской",
+      "Мч. Елевферия Константинопольского (IV)."
+    ],
+    "readings": [
+      "Утр. – Ев. 10-е, Ин., 66 зач., XXI:1-14.",
+      "Лит. - 1 Кор., 131 зач., IV: 9-16, Мф., 72 зач., XVII: 14-23"
+    ]
+  }
+]

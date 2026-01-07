@@ -1,42 +1,60 @@
-/*
- * Copyright 2022 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package ru.akhilko.core.database.di
 
-import dagger.Binds
+import android.content.Context
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.serialization.json.Json
+import ru.akhilko.core.Dispatcher
+import ru.akhilko.core.Dispatchers
 import ru.akhilko.core.data.repository.CalendarDayRepository
 import ru.akhilko.core.data.repository.SearchContentsRepository
+import ru.akhilko.core.database.dao.CalendarDayDao
+import ru.akhilko.core.database.repository.CalendarDayFtsDao
 import ru.akhilko.core.database.repository.DefaultCalendarDayRepository
 import ru.akhilko.core.database.repository.DefaultSearchContentsRepository
+import ru.akhilko.core.database.repository.FirestoreCalendarDataSource
+import ru.akhilko.core.database.repository.LocalCalendarDataSource
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataModule {
+object DataModule {
 
-    @Binds
-    internal abstract fun bindsCalendarDayRepository(
-        calendarDayRepository: DefaultCalendarDayRepository
-    ): CalendarDayRepository
+    @Provides
+    @Singleton
+    fun providesSearchContentsRepository(
+        dayDao: CalendarDayDao,
+        dayFtsRepository: CalendarDayFtsDao,
+        @Dispatcher(Dispatchers.IO) ioDispatcher: CoroutineDispatcher
+    ): SearchContentsRepository = DefaultSearchContentsRepository(dayDao, dayFtsRepository, ioDispatcher)
 
-    @Binds
-    internal abstract fun bindsSearchContentsRepository(
-        searchContentsRepository: DefaultSearchContentsRepository,
-    ): SearchContentsRepository
+    @Provides
+    @Singleton
+    fun providesCalendarDayRepository(
+        calendarDayDao: CalendarDayDao,
+        firestoreDataSource: FirestoreCalendarDataSource,
+        localCalendarDataSource: LocalCalendarDataSource,
+        searchContentsRepository: SearchContentsRepository
+    ): CalendarDayRepository = DefaultCalendarDayRepository(
+        calendarDayDao,
+        firestoreDataSource,
+        localCalendarDataSource,
+        searchContentsRepository
+    )
 
+    @Provides
+    @Singleton
+    fun provideLocalCalendarDataSource(
+        @ApplicationContext context: Context,
+        json: Json
+    ): LocalCalendarDataSource = LocalCalendarDataSource(context, json)
+    
+    @Provides
+    @Dispatcher(Dispatchers.IO)
+    fun providesIoDispatcher(): CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO
 }

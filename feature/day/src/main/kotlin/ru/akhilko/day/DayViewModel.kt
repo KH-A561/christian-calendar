@@ -22,7 +22,8 @@ class DayViewModel @Inject constructor(
     calendarDayRepository: CalendarDayRepository,
 ) : ViewModel() {
 
-    private val dayId: StateFlow<String> = savedStateHandle.getStateFlow(DAY_ID_SAVED_STATE_KEY, "")
+    private val dayId: StateFlow<String> = savedStateHandle.getStateFlow(
+        DAY_ID_SAVED_STATE_KEY, "")
 
     val dayUiState: StateFlow<DayUiState> = dayId.flatMapLatest { id ->
         calendarDayRepository.getDaysByIds(listOf(id))
