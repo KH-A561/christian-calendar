@@ -75,7 +75,7 @@ private fun DaysFeedSuccessPreview() {
         title = "Предпразднство Преображения Господня",
         week = "Седмица 11-я по Пятидесятнице.",
         liturgicalInfo = LiturgicalInfo(
-            color = LiturgicalColor.VIOLET,
+            color = LiturgicalColor.PURPLE,
             dayType = DayType.FOREFEAST,
             importance = 3
         ),

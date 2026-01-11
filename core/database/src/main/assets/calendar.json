@@ -1,68 +1,140 @@
 [
   {
-    "id": "2025-07-12",
-    "title": "Предпразднство Преображения Господня. Мч. Евсигния Антиохийского",
+    "id": "2026-01-05",
+    "title": "Понедельник перед Рождеством",
     "dayOfWeek": "MONDAY",
-    "gregorianYear": 2025,
-    "gregorianMonth": 7,
-    "gregorianDay": 12,
+    "gregorianYear": 2026,
+    "gregorianMonth": 1,
+    "gregorianDay": 5,
     "julianYear": 2025,
-    "julianMonth": 6,
-    "julianDay": 30,
-    "week": "Седмица 11-я по Пятидесятнице.",
+    "julianMonth": 12,
+    "julianDay": 23,
+    "week": "Седмица 31-я по Пятидесятнице.",
     "fastingInfo": {
-      "fastingLevel": "PARTIAL",
-      "allowed": [
-        "Рыба",
-        "Вино",
-        "Елей"
-      ]
+      "fastingLevel": "STRICT",
+      "allowed": []
     },
     "liturgicalInfo": {
-      "color": "purple",
-      "dayType": "feast",
-      "importance": 3
+      "color": "PURPLE",
+      "dayType": "FAST",
+      "importance": 1
     },
-    "saints": [
-      "АП. И ЕВАНГЕЛИСТА МАТФЕЯ (60)",
-      "Прп. Сергия, игум. Малопинежского (1585)"
-    ],
-    "readings": [
-      "Ряд.: 2 Кор., 171 зач., II, 3–15.",
-      "Мф., 94 зач., XXIII, 13–22"
-    ]
+    "saints": ["Свт. Феоктиста, архиеп. Новгородского"],
+    "readings": ["Евр. 10:1-18", "Мк. 8:30-34"]
   },
   {
-    "id": "2025-07-13",
-    "title": "Семи мчч. отроков Ефесских: Максимилиана, Ексакустодиана, Иамвлиха, Мартиниана, Дионисия, Иоанна и Антонина",
-    "dayOfWeek": "Tuesday",
-    "gregorianYear": 2025,
-    "gregorianMonth": 7,
-    "gregorianDay": 13,
+    "id": "2026-01-06",
+    "title": "Навечерие Рождества Христова (Рождественский сочельник)",
+    "dayOfWeek": "TUESDAY",
+    "gregorianYear": 2026,
+    "gregorianMonth": 1,
+    "gregorianDay": 6,
     "julianYear": 2025,
-    "julianMonth": 6,
-    "julianDay": 31,
-    "week": "Седмица 11-я по Пятидесятнице.",
+    "julianMonth": 12,
+    "julianDay": 24,
+    "week": "Седмица 31-я по Пятидесятнице.",
     "fastingInfo": {
-      "fastingLevel": "PARTIAL",
-      "allowed": [
-        "Рыба",
-        "Вино",
-        "Елей"
-      ]
+      "fastingLevel": "STRICT",
+      "allowed": []
     },
     "liturgicalInfo": {
-      "color": "purple",
-      "dayType": "feast",
+      "color": "PURPLE",
+      "dayType": "FOREFEAST",
+      "importance": 2
+    },
+    "saints": ["Прпмч. Евгении"],
+    "readings": ["Гал. 4:4-7", "Мф. 2:1-12"]
+  },
+  {
+    "id": "2026-01-07",
+    "title": "РОЖДЕСТВО ГОСПОДА БОГА И СПАСА НАШЕГО ИИСУСА ХРИСТА",
+    "dayOfWeek": "WEDNESDAY",
+    "gregorianYear": 2026,
+    "gregorianMonth": 1,
+    "gregorianDay": 7,
+    "julianYear": 2025,
+    "julianMonth": 12,
+    "julianDay": 25,
+    "week": "Святки.",
+    "fastingInfo": {
+      "fastingLevel": "NONE",
+      "allowed": []
+    },
+    "liturgicalInfo": {
+      "color": "WHITE",
+      "dayType": "FEAST",
       "importance": 3
     },
-    "saints": [
-      "Прпмц. Евдокии Римляныни, Персидской",
-      "Мч. Елевферия Константинопольского (IV)."
-    ],
-    "readings": [
-      "Утр. – Ев. 10-е, Ин., 66 зач., XXI:1-14.",
-      "Лит. - 1 Кор., 131 зач., IV: 9-16, Мф., 72 зач., XVII: 14-23"
-    ]
+    "saints": [],
+    "readings": ["Гал. 4:4-7", "Мф. 2:1-12"]
+  },
+  {
+    "id": "2026-01-08",
+    "title": "Собор Пресвятой Богородицы",
+    "dayOfWeek": "THURSDAY",
+    "gregorianYear": 2026,
+    "gregorianMonth": 1,
+    "gregorianDay": 8,
+    "julianYear": 2025,
+    "julianMonth": 12,
+    "julianDay": 26,
+    "week": "Святки.",
+    "fastingInfo": {
+      "fastingLevel": "NONE",
+      "allowed": []
+    },
+    "liturgicalInfo": {
+      "color": "WHITE",
+      "dayType": "AFTERFEAST",
+      "importance": 2
+    },
+    "saints": ["Прп. Никодима Святогорца"],
+    "readings": ["Евр. 2:11-18", "Мф. 2:13-23"]
+  },
+  {
+    "id": "2026-01-09",
+    "title": "Ап. первомч. и архидиакона Стефана",
+    "dayOfWeek": "FRIDAY",
+    "gregorianYear": 2026,
+    "gregorianMonth": 1,
+    "gregorianDay": 9,
+    "julianYear": 2025,
+    "julianMonth": 12,
+    "julianDay": 27,
+    "week": "Святки.",
+    "fastingInfo": {
+      "fastingLevel": "NONE",
+      "allowed": []
+    },
+    "liturgicalInfo": {
+      "color": "WHITE",
+      "dayType": "AFTERFEAST",
+      "importance": 1
+    },
+    "saints": ["Прп. Феодора Начертанного"],
+    "readings": ["Деян. 6:8-7:5, 47-60", "Мф. 21:33-43"]
+  },
+  {
+    "id": "2026-01-10",
+    "title": "Суббота по Рождестве Христовом",
+    "dayOfWeek": "SATURDAY",
+    "gregorianYear": 2026,
+    "gregorianMonth": 1,
+    "gregorianDay": 10,
+    "julianYear": 2025,
+    "julianMonth": 12,
+    "julianDay": 28,
+    "week": "Святки.",
+    "fastingInfo": {
+      "fastingLevel": "NONE",
+      "allowed": []
+    },
+    "liturgicalInfo": {
+      "color": "WHITE",
+      "dayType": "AFTERFEAST",
+      "importance": 1
+    },
+    "saints": ["Мчч. 20,000, в Никомидии сожженных"],
+    "readings": ["1 Тим. 6:11-16", "Мф. 12:15-21"]
   }
 ]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,31 @@
  * limitations under the License.
  */
 
-package ru.akhilko.core.network.di
+package ru.akhilko.core.common.di
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import ru.akhilko.core.Dispatcher
+import ru.akhilko.core.Dispatchers
+import javax.inject.Qualifier
+import javax.inject.Singleton
+
+@Retention(AnnotationRetention.RUNTIME)
+@Qualifier
+annotation class ApplicationScope
 
 @Module
 @InstallIn(SingletonComponent::class)
-object DispatchersModule {
+object CoroutineScopesModule {
     @Provides
-    @Dispatcher(ru.akhilko.core.Dispatchers.IO)
-    fun providesIODispatcher(): CoroutineDispatcher = Dispatchers.IO
-
-    @Provides
-    @Dispatcher(ru.akhilko.core.Dispatchers.Default)
-    fun providesDefaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
+    @Singleton
+    @ApplicationScope
+    fun providesCoroutineScope(
+        @Dispatcher(Dispatchers.Default) dispatcher: CoroutineDispatcher,
+    ): CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
 }

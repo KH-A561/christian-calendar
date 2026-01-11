@@ -72,6 +72,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.core.database)
     implementation(projects.core.model)
+    implementation(projects.sync)
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3.adaptive)
@@ -89,6 +90,11 @@ dependencies {
     implementation(libs.androidx.window.core)
     implementation(libs.kotlinx.coroutines.guava)
     implementation(libs.coil.kt)
+    
+    // WorkManager + Hilt dependencies for custom initialization in Application
+    implementation(libs.androidx.work.ktx)
+    implementation(libs.hilt.ext.work)
+    ksp(libs.hilt.ext.compiler)
 
     ksp(libs.hilt.compiler)
 

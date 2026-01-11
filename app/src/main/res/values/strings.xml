@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">christian_calendar</string>
+    <string name="app_name">Сhristian Сalendar</string>
     <string name="week_mode">Week mode</string>
 
     <string name="format_calendar_date">dd MMMM yyyy</string>

@@ -19,7 +19,6 @@ package ru.akhilko.core.database.repository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
@@ -29,7 +28,6 @@ import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
 import ru.akhilko.core.data.repository.SearchContentsRepository
 import ru.akhilko.core.database.dao.CalendarDayDao
-import ru.akhilko.core.database.entity.day.asFtsEntity
 import ru.akhilko.core.database.entity.day.asResource
 import javax.inject.Inject
 
@@ -41,11 +39,7 @@ internal class DefaultSearchContentsRepository @Inject constructor(
 
     override suspend fun populateFtsData() {
         withContext(ioDispatcher) {
-            dayFtsRepository.insertAll(
-                dayDao.getAll()
-                    .first()
-                    .map { it.asFtsEntity() }
-            )
+            dayFtsRepository.rebuildFtsIndex()
         }
     }
 

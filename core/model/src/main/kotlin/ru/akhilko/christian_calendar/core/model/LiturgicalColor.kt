@@ -4,7 +4,7 @@ enum class LiturgicalColor {
     WHITE,
     RED,
     GREEN,
-    VIOLET,
+    PURPLE,
     BLACK,
     ROSE,
     GOLD

@@ -14,24 +14,15 @@
  * limitations under the License.
  */
 
-package ru.akhilko.sync
+package ru.akhilko.sync.initializers
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import ru.akhilko.christian_calendar.core.data.util.SyncManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class SyncModule {
-    @Binds
-    internal abstract fun bindsSyncStatusMonitor(
-        syncStatusMonitor: WorkManagerSyncManager,
-    ): SyncManager
-
-    @Binds
-    internal abstract fun bindsSyncSubscriber(
-        syncSubscriber: StubSyncSubscriber,
-    ): SyncSubscriber
-}
+/**
+ * [Constraints] for worker synchronization
+ */
+val SyncConstraints
+    get() = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()

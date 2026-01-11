@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="christian_calendar_sync_notification_channel_name">Синхронизация календаря</string>
+    <string name="christian_calendar_sync_notification_channel_description">Показывает статус синхронизации календаря</string>
+    <string name="christian_calendar_sync_notification_title">Обновление календаря...</string>
+</resources>

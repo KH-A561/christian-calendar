@@ -1,7 +1,9 @@
-
 package ru.akhilko.core.database.di
 
 import android.content.Context
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,8 +55,14 @@ object DataModule {
         @ApplicationContext context: Context,
         json: Json
     ): LocalCalendarDataSource = LocalCalendarDataSource(context, json)
-    
+
     @Provides
-    @Dispatcher(Dispatchers.IO)
-    fun providesIoDispatcher(): CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO
+    @Singleton
+    fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+    }
 }

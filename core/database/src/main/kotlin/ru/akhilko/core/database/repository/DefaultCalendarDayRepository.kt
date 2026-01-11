@@ -1,6 +1,7 @@
 
 package ru.akhilko.core.database.repository
 
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -44,15 +45,44 @@ internal class DefaultCalendarDayRepository @Inject constructor(
     }
 
     override suspend fun sync() {
-        if (calendarDayDao.getAll().first().isEmpty()) {
-            val localData = localDataSource.getCalendarData().map { it.toEntity() }
-            calendarDayDao.upsertAll(localData)
-        } else {
+        Log.d("Sync", "Starting sync process...")
+
+        // 1. Сначала проверяем, пуста ли база. Если пуста - ОБЯЗАТЕЛЬНО грузим локальные данные.
+        try {
+            val currentDays = calendarDayDao.getAll().first()
+            if (currentDays.isEmpty()) {
+                Log.d("Sync", "Database is empty. Loading local data from assets...")
+                val localData = localDataSource.getCalendarData().map { it.toEntity() }
+                calendarDayDao.upsertAll(localData)
+                Log.d("Sync", "Local data loaded successfully.")
+            }
+        } catch (e: Exception) {
+            Log.e("Sync", "Failed to load local data", e)
+        }
+
+        // 2. Попытка обновиться из Firestore (только если есть интернет, или просто оборачиваем в try-catch)
+        try {
+            Log.d("Sync", "Attempting to fetch data from Firestore...")
             val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
             val remoteData = firestoreDataSource.getYearData(currentYear)
-            // TODO: We need a mapper from the Firestore model to the Entity model as well.
-            // calendarDayDao.upsertAll(remoteData)
+            // TODO: Когда будет готов маппер для Firestore моделей, раскомментировать:
+            /*
+            if (remoteData.isNotEmpty()) {
+                calendarDayDao.upsertAll(remoteData.map { it.toEntity() })
+                Log.d("Sync", "Remote data updated from Firestore.")
+            }
+            */
+        } catch (e: Exception) {
+            Log.w("Sync", "Firestore sync failed (possibly no internet)", e)
         }
-        searchContentsRepository.populateFtsData()
+
+        // 3. Обновляем FTS (поиск) в любом случае
+        try {
+            Log.d("Sync", "Populating FTS data...")
+            searchContentsRepository.populateFtsData()
+            Log.d("Sync", "FTS data populated.")
+        } catch (e: Exception) {
+            Log.e("Sync", "FTS population failed", e)
+        }
     }
 }

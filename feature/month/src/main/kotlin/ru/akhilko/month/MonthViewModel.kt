@@ -4,8 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -23,14 +26,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MonthViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val calendarDayRepository: CalendarDayRepository,
 ) : ViewModel() {
 
-    private val centeredMonth: StateFlow<YearMonth> = savedStateHandle.getStateFlow(
-        CENTERED_MONTH,
-        YearMonth.now()
-    )
+    // Месяц, который сейчас видит пользователь (для заголовка в TopAppBar)
+    private val _currentVisibleMonth = MutableStateFlow(YearMonth.now())
+    val currentVisibleMonth: StateFlow<YearMonth> = _currentVisibleMonth
+
+    // Событие для прокрутки к сегодняшнему дню
+    private val _scrollToTodayRequested = MutableSharedFlow<Unit>()
+    val scrollToTodayRequested = _scrollToTodayRequested.asSharedFlow()
 
     private val daySelected: StateFlow<String?> = savedStateHandle.getStateFlow(
         DAY_SELECTED,
@@ -43,8 +49,18 @@ class MonthViewModel @Inject constructor(
         }
     }
 
+    fun onTodayClick() {
+        viewModelScope.launch {
+            _scrollToTodayRequested.emit(Unit)
+        }
+    }
+
+    fun onVisibleMonthChanged(yearMonth: YearMonth) {
+        _currentVisibleMonth.value = yearMonth
+    }
+
     val monthUiState: StateFlow<MonthUiState> =
-        combine(centeredMonth, daySelected) { month, day ->
+        combine(_currentVisibleMonth, daySelected) { month, day ->
             month to day
         }.flatMapLatest { (yearMonth, selectedDay) ->
             calendarDayRepository.getDaysByMonth(yearMonth.year, yearMonth.monthValue)
@@ -56,7 +72,6 @@ class MonthViewModel @Inject constructor(
                             daySelected = selectedDay,
                             days = result.data,
                         )
-
                         is Result.Loading -> MonthUiState.Loading
                         is Result.Error -> MonthUiState.Error
                     }
@@ -70,12 +85,10 @@ class MonthViewModel @Inject constructor(
 
 sealed interface MonthUiState {
     data object Loading : MonthUiState
-
     data class Success(
         val centeredMonth: YearMonth,
         val daySelected: String?,
         val days: List<CalendarDayResource>,
     ) : MonthUiState
-
     data object Error : MonthUiState
 }

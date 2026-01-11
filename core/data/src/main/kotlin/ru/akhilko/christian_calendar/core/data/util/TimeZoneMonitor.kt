@@ -39,7 +39,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toKotlinTimeZone
 import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
-import ru.akhilko.core.network.di.ApplicationScope
+import ru.akhilko.core.common.di.ApplicationScope
 import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton

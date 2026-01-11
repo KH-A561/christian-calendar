@@ -197,7 +197,7 @@ private fun ExpandedDayResourcePreview() {
         title = "Предпразднство Преображения Господня",
         week = "Седмица 11-я по Пятидесятнице.",
         liturgicalInfo = LiturgicalInfo(
-            color = LiturgicalColor.VIOLET,
+            color = LiturgicalColor.PURPLE,
             dayType = DayType.FEAST,
             importance = 3
         ),

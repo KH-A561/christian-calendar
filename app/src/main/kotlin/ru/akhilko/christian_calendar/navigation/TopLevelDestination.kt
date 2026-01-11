@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.samples.apps.nowinandroid.navigation
+package ru.akhilko.christian_calendar.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import ru.akhilko.core.designsystem.icon.Icons

@@ -17,4 +17,14 @@ interface CalendarDayFtsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(days: List<CalendarDayFtsEntity>)
+
+    @Query("DELETE FROM calendar_days_fts")
+    fun clearAll()
+
+    /**
+     * Выполняет полную пересборку поискового индекса на стороне SQLite.
+     * Это гораздо эффективнее, чем ручная вставка из Kotlin-кода.
+     */
+    @Query("INSERT INTO calendar_days_fts(calendar_days_fts) VALUES('rebuild')")
+    fun rebuildFtsIndex()
 }

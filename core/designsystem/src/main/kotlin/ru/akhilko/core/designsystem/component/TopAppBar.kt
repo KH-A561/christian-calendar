@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import ru.akhilko.core.designsystem.icon.Icons
 import ru.akhilko.core.designsystem.theme.CalendarTheme
@@ -39,34 +40,45 @@ import ru.akhilko.core.designsystem.theme.CalendarTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalendarTopAppBar(
-    @StringRes titleRes: Int,
-    navigationIcon: ImageVector,
-    navigationIconContentDescription: String,
-    actionIcon: ImageVector,
-    actionIconContentDescription: String,
     modifier: Modifier = Modifier,
+    @StringRes titleRes: Int = 0,
+    titleText: String? = null,
+    navigationIcon: ImageVector? = null,
+    navigationIconContentDescription: String? = null,
+    actionIcon: ImageVector? = null,
+    actionIconContentDescription: String? = null,
     colors: TopAppBarColors = TopAppBarDefaults.centerAlignedTopAppBarColors(),
     onNavigationClick: () -> Unit = {},
     onActionClick: () -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(text = stringResource(id = titleRes)) },
+        title = { 
+            Text(
+                text = titleText ?: if (titleRes != 0) stringResource(id = titleRes) else "",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            ) 
+        },
         navigationIcon = {
-            IconButton(onClick = onNavigationClick) {
-                Icon(
-                    imageVector = navigationIcon,
-                    contentDescription = navigationIconContentDescription,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
+            if (navigationIcon != null) {
+                IconButton(onClick = onNavigationClick) {
+                    Icon(
+                        imageVector = navigationIcon,
+                        contentDescription = navigationIconContentDescription,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
         },
         actions = {
-            IconButton(onClick = onActionClick) {
-                Icon(
-                    imageVector = actionIcon,
-                    contentDescription = actionIconContentDescription,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
+            if (actionIcon != null) {
+                IconButton(onClick = onActionClick) {
+                    Icon(
+                        imageVector = actionIcon,
+                        contentDescription = actionIconContentDescription,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
             }
         },
         colors = colors,

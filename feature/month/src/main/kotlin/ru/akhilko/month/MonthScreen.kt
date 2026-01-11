@@ -1,6 +1,7 @@
 package ru.akhilko.month
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,21 +16,25 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,16 +46,20 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.model.DayType
-import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
-import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale as JavaLocale
+
+// Цвета
+private val ColorGreatFeast = Color(0xFFB71C1C) // Кроваво-красный
+private val ColorFeast = Color(0xFFF06292)      // Розовый
+private val ColorFast = Color(0xFF9575CD)       // Фиолетово-серый
+private val ColorMemorial = Color(0xFF64B5F6)   // Голубовато-серый
 
 @Composable
 fun MonthRoute(
@@ -77,186 +86,157 @@ internal fun MonthScreen(
     val startMonth = remember { currentMonth.minusMonths(24) }
     val endMonth = remember { currentMonth.plusMonths(24) }
     val today = remember { LocalDate.now() }
-    val daysOfWeek = remember { daysOfWeek() }
+    val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
+    val scope = rememberCoroutineScope()
 
-    val days = when (monthUiState) {
-        is MonthUiState.Success -> monthUiState.days
-        else -> emptyList()
-    }
+    Box(modifier = modifier.fillMaxSize()) {
+        when (monthUiState) {
+            MonthUiState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center).size(32.dp),
+                    strokeWidth = 3.dp
+                )
+            }
+            is MonthUiState.Success -> {
+                val days = monthUiState.days
+                val state = rememberCalendarState(
+                    startMonth = startMonth,
+                    endMonth = endMonth,
+                    firstVisibleMonth = currentMonth,
+                    firstDayOfWeek = daysOfWeek.first(),
+                )
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colorScheme.secondaryContainer),
-    ) {
-        Column {
-            val state = rememberCalendarState(
-                startMonth = startMonth,
-                endMonth = endMonth,
-                firstVisibleMonth = currentMonth,
-                firstDayOfWeek = daysOfWeek.first(),
-            )
-            VerticalCalendar(
-                state = state,
-                contentPadding = PaddingValues(bottom = 100.dp),
-                dayContent = { day ->
-                    val dayResource = remember(days, day.date) {
-                        days.find {
-                            val resourceDate = it.day.getGregorianLocalDate()
-                            resourceDate == day.date
-                        }
-                    }
-                    Day(
-                        day = day,
-                        today = today,
-                        dayResource = dayResource,
-                        onClick = onDayClick,
-                    )
-                },
-                monthContainer = { _, container ->
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = colorScheme.surface
-                        ),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-                        modifier = Modifier.padding(vertical = 10.dp, horizontal = 5.dp),
-                    ) {
-                        container()
-                    }
-                },
-                monthHeader = { month ->
-                    Column {
-                        Text(
-                            text = month.yearMonth.format(
-                                DateTimeFormatter.ofPattern(
-                                    "LLLL yyyy",
-                                    JavaLocale("ru")
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(colorScheme.surface)
+                ) {
+                    MonthDaysOfWeekHeader(daysOfWeek)
+                    VerticalCalendar(
+                        state = state,
+                        userScrollEnabled = true,
+                        calendarScrollPaged = true,
+                        contentPadding = PaddingValues(bottom = 32.dp),
+                        dayContent = { day ->
+                            val dayResource = days.find {
+                                it.day.getGregorianLocalDate() == day.date
+                            }
+                            Day(
+                                day = day,
+                                today = today,
+                                dayResource = dayResource,
+                                onClick = onDayClick,
+                            )
+                        },
+                        monthHeader = { month ->
+                            MonthLabel(month.yearMonth)
+                        },
+                        monthContainer = { _, container ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 24.dp)
+                            ) {
+                                container()
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp),
+                                    thickness = 1.dp,
+                                    color = colorScheme.outlineVariant.copy(alpha = 0.5f)
                                 )
-                            ).replaceFirstChar { it.uppercase() },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp),
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        MonthHeader(daysOfWeek)
-                    }
-                },
-                monthFooter = { month ->
-                    val monthDays = remember(days, month) {
-                        days.filter {
-                            val resourceDate = it.day.getGregorianLocalDate()
-                            resourceDate.year == month.yearMonth.year &&
-                                    resourceDate.monthNumber == month.yearMonth.monthValue
+                            }
+                        },
+                        monthFooter = { month ->
+                            val monthDays = days.filter {
+                                val date = it.day.getGregorianLocalDate()
+                                date.year == month.yearMonth.year &&
+                                        date.monthNumber == month.yearMonth.monthValue
+                            }
+                            if (monthDays.isNotEmpty()) {
+                                MonthEventSummary(monthDays, onDayClick)
+                            }
                         }
-                    }
-                    MonthFooter(monthDays)
+                    )
                 }
-            )
-        }
-
-        if (monthUiState is MonthUiState.Loading) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            MonthUiState.Error -> {
+                 Text(
+                    text = "Ошибка загрузки данных",
+                    modifier = Modifier.align(Alignment.Center),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = colorScheme.error
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun MonthHeader(daysOfWeek: List<java.time.DayOfWeek>) {
-    val containerColor = colorScheme.secondary
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .background(containerColor)
-            .padding(vertical = 12.dp),
-    ) {
-        for (dayOfWeek in daysOfWeek) {
-            Text(
-                modifier = Modifier.weight(1f),
-                color = colorScheme.onSecondary,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyLarge,
-                text = dayOfWeek.getDisplayName(
-                    TextStyle.SHORT_STANDALONE,
-                    JavaLocale("ru")
-                ),
-            )
-        }
-    }
-}
-
-private data class LegendItem(val color: Color, val text: String)
-
-@Composable
-private fun MonthFooter(monthDays: List<CalendarDayResource>) {
-    val feastColor = MaterialTheme.colorScheme.error
-    val memorialColor = MaterialTheme.colorScheme.outlineVariant
-    val fastingColor = MaterialTheme.colorScheme.inversePrimary
-
-    val legendItems = remember(monthDays, feastColor, memorialColor, fastingColor) {
-        val items = mutableSetOf<LegendItem>()
-        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.FEAST }) {
-            items.add(LegendItem(feastColor, "Великий праздник"))
-        }
-        if (monthDays.any { it.day.liturgicalInfo.dayType == DayType.MEMORIAL }) {
-            items.add(LegendItem(memorialColor, "День поминовения"))
-        }
-        if (monthDays.any { it.day.fastingInfo.fastingLevel != FastingLevel.NONE }) {
-            items.add(LegendItem(fastingColor, "Постный день"))
-        }
-        items.toList()
-    }
-
-
-    if (legendItems.isEmpty()) {
-        Spacer(Modifier.height(20.dp))
-        return
-    }
-
-    Column(
+private fun MonthLabel(yearMonth: YearMonth) {
+    Text(
+        text = yearMonth.format(DateTimeFormatter.ofPattern("LLLL yyyy", JavaLocale("ru")))
+            .replaceFirstChar { it.uppercase() },
+        style = MaterialTheme.typography.titleLarge,
+        fontWeight = FontWeight.Black,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp, bottom = 12.dp, start = 20.dp, end = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
+            .padding(start = 20.dp, top = 16.dp, bottom = 8.dp),
+        color = colorScheme.onSurface
+    )
+}
+
+@Composable
+private fun MonthEventSummary(
+    monthDays: List<CalendarDayResource>,
+    onDayClick: (String) -> Unit
+) {
+    val importantDays = monthDays.filter { 
+        it.day.liturgicalInfo.importance >= 2 || it.day.liturgicalInfo.dayType == DayType.FEAST 
+    }.sortedBy { it.day.gregorianDay }
+
+    if (importantDays.isEmpty()) return
+
+    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
         Text(
-            text = "Легенда:",
-            style = MaterialTheme.typography.titleSmall,
+            text = "События месяца",
+            style = MaterialTheme.typography.labelSmall,
+            color = colorScheme.primary,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 4.dp)
         )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            val half = (legendItems.size + 1) / 2
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+        importantDays.take(4).forEach { day ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically, 
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onDayClick(day.id) }
+                    .padding(vertical = 4.dp)
             ) {
-                legendItems.take(half).forEach { LegendRow(it) }
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                legendItems.drop(half).forEach { LegendRow(it) }
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(getHighlightColor(day))
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    text = "${day.day.gregorianDay}: ${day.day.title}",
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = if (day.day.liturgicalInfo.importance >= 3) FontWeight.Bold else FontWeight.Normal
+                )
             }
         }
     }
 }
 
-@Composable
-private fun LegendRow(item: LegendItem) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier
-                .size(8.dp)
-                .background(item.color)
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(
-            text = item.text,
-            style = MaterialTheme.typography.bodyMedium
-        )
+private fun getHighlightColor(day: CalendarDayResource): Color {
+    return when {
+        day.day.liturgicalInfo.importance >= 3 -> ColorGreatFeast
+        day.day.liturgicalInfo.dayType == DayType.FEAST -> ColorFeast
+        day.day.liturgicalInfo.dayType == DayType.MEMORIAL -> ColorMemorial
+        day.day.fastingInfo.fastingLevel != FastingLevel.NONE -> ColorFast
+        else -> Color.Transparent
     }
 }
 
@@ -268,128 +248,98 @@ private fun Day(
     onClick: (String) -> Unit,
 ) {
     val isCurrentMonth = day.position == DayPosition.MonthDate
-    val containerColor = colorScheme.surface
-    val selectedContainerColor = colorScheme.primaryContainer
-    val disabledTextColor = colorScheme.onSurface.copy(alpha = 0.3f)
+    val isToday = day.date == today && isCurrentMonth
+    
+    val dayType = dayResource?.day?.liturgicalInfo?.dayType
+    val importance = dayResource?.day?.liturgicalInfo?.importance ?: 0
+    val isFast = dayResource != null && (dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE || dayType == DayType.FAST)
+
+    // Фон для праздников
+    val backgroundColor = when {
+        !isCurrentMonth -> Color.Transparent
+        importance >= 3 -> ColorGreatFeast.copy(alpha = 0.12f)
+        dayType == DayType.FEAST -> ColorFeast.copy(alpha = 0.1f)
+        else -> Color.Transparent
+    }
+
+    val textColor = when {
+        !isCurrentMonth -> colorScheme.onSurface.copy(alpha = 0.25f)
+        importance >= 3 -> ColorGreatFeast
+        dayType == DayType.FEAST -> ColorFeast
+        day.date.dayOfWeek == DayOfWeek.SUNDAY -> ColorGreatFeast.copy(alpha = 0.6f)
+        else -> colorScheme.onSurface
+    }
 
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .background(if (day.date == today && isCurrentMonth) selectedContainerColor else containerColor)
-            .clickable(
-                enabled = isCurrentMonth && dayResource != null,
-                onClick = { dayResource?.id?.let(onClick) },
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        val indicatorColor = getIndicatorColor(dayResource)
-        if (indicatorColor != null && isCurrentMonth) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(5.dp)
-                    .background(indicatorColor)
+            .padding(2.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(backgroundColor)
+            .border(
+                width = if (isToday) 2.dp else 0.dp,
+                color = if (isToday) colorScheme.primary else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
             )
-        }
-        ProvideTextStyle(value = MaterialTheme.typography.bodyLarge) {
+            .clickable(
+                enabled = isCurrentMonth,
+                onClick = { dayResource?.id?.let(onClick) ?: onClick(day.date.toString()) },
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                color = if (isCurrentMonth) contentColorFor(backgroundColor = containerColor)
-                else disabledTextColor,
+                style = MaterialTheme.typography.bodyLarge,
+                color = textColor,
+                fontWeight = if (importance >= 2 || isToday) FontWeight.Black else FontWeight.Normal
             )
+            
+            // Полоски под числом (индикаторы)
+            if (isCurrentMonth && (isFast || dayType == DayType.MEMORIAL)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(0.6f).padding(top = 1.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (isFast) {
+                        Box(Modifier.height(3.dp).weight(1f).background(ColorFast, RoundedCornerShape(1.dp)))
+                    }
+                    if (dayType == DayType.MEMORIAL) {
+                        if (isFast) Spacer(Modifier.width(2.dp))
+                        Box(Modifier.height(3.dp).weight(1f).background(ColorMemorial, RoundedCornerShape(1.dp)))
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun getIndicatorColor(dayResource: CalendarDayResource?): Color? {
-    if (dayResource == null) return null
-
-    if (dayResource.day.liturgicalInfo.dayType == DayType.FEAST) {
-        return colorScheme.error
+private fun MonthDaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
+    Surface(tonalElevation = 1.dp) {
+        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+            for (dayOfWeek in daysOfWeek) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant,
+                    text = dayOfWeek.getDisplayName(TextStyle.SHORT, JavaLocale("ru")).uppercase(),
+                )
+            }
+        }
     }
-
-    if (dayResource.day.liturgicalInfo.dayType == DayType.MEMORIAL) {
-        return colorScheme.outlineVariant
-    }
-
-    if (dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE) {
-        return colorScheme.inversePrimary
-    }
-
-    return null
 }
 
 @Preview(showSystemUi = true)
 @Composable
 private fun MonthScreenPreview() {
-    val sampleDays = listOf(
-        CalendarDayResource(
-            id = "1",
-            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
-                dayOfWeek = kotlinx.datetime.DayOfWeek.TUESDAY,
-                gregorianDay = 5,
-                gregorianMonth = 11,
-                gregorianYear = 2024,
-                lastUpdated = "",
-                title = "Предпразднство Введения во храм Пресвятой Богородицы",
-                week = "Седмица 24-я по Пятидесятнице",
-                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.FEAST, 3),
-                fastingInfo = FastingInfo(FastingLevel.NONE, emptyList()),
-                readings = emptyList(),
-                saints = emptyList(),
-                searchText = ""
-            ),
-            holidays = emptyList(),
-            fastingInformation = FastingInfo(FastingLevel.NONE, emptyList())
-        ),
-        CalendarDayResource(
-            id = "2",
-            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
-                dayOfWeek = kotlinx.datetime.DayOfWeek.FRIDAY,
-                gregorianDay = 8,
-                gregorianMonth = 11,
-                gregorianYear = 2024,
-                lastUpdated = "",
-                title = "Отдание праздника Введения во храм Пресвятой Богородицы",
-                week = "Седмица 24-я по Пятидесятнице",
-                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.ORDINARY, 3),
-                fastingInfo = FastingInfo(FastingLevel.STRICT, emptyList()),
-                readings = emptyList(),
-                saints = emptyList(),
-                searchText = ""
-            ),
-            holidays = emptyList(),
-            fastingInformation = FastingInfo(FastingLevel.STRICT, emptyList())
-        ),
-        CalendarDayResource(
-            id = "3",
-            day = ru.akhilko.christian_calendar.core.model.CalendarDay(
-                dayOfWeek = kotlinx.datetime.DayOfWeek.SATURDAY,
-                gregorianDay = 9,
-                gregorianMonth = 11,
-                gregorianYear = 2024,
-                lastUpdated = "",
-                title = "Освящение церкви вмч. Георгия в Киеве",
-                week = "Седмица 24-я по Пятидесятнице",
-                liturgicalInfo = LiturgicalInfo(LiturgicalColor.VIOLET, DayType.MEMORIAL, 3),
-                fastingInfo = FastingInfo(FastingLevel.NONE, emptyList()),
-                readings = emptyList(),
-                saints = emptyList(),
-                searchText = ""
-            ),
-            holidays = emptyList(),
-            fastingInformation = FastingInfo(FastingLevel.NONE, emptyList())
-        )
-    )
-
     CalendarTheme {
         MonthScreen(
             monthUiState = MonthUiState.Success(
                 centeredMonth = YearMonth.now(),
                 daySelected = null,
-                days = sampleDays
+                days = emptyList()
             ),
             onDayClick = {}
         )

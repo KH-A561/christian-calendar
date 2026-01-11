@@ -16,22 +16,27 @@
 
 package ru.akhilko.sync
 
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import ru.akhilko.christian_calendar.core.data.util.SyncManager
+import android.content.Context
+import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkManager
+import ru.akhilko.sync.workers.SyncWorker
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class SyncModule {
-    @Binds
-    internal abstract fun bindsSyncStatusMonitor(
-        syncStatusMonitor: WorkManagerSyncManager,
-    ): SyncManager
-
-    @Binds
-    internal abstract fun bindsSyncSubscriber(
-        syncSubscriber: StubSyncSubscriber,
-    ): SyncSubscriber
+/**
+ * Entry point in the sync module.
+ */
+object Sync {
+    /**
+     * Initializes the sync process by starting the [SyncWorker].
+     */
+    fun initialize(context: Context) {
+        WorkManager.getInstance(context).apply {
+            enqueueUniqueWork(
+                SyncWorkerName,
+                ExistingWorkPolicy.KEEP,
+                SyncWorker.startUpSyncWork(),
+            )
+        }
+    }
 }
+
+private const val SyncWorkerName = "SyncWorker"
