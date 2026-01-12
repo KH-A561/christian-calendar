@@ -1,48 +1,40 @@
-# built application files
-*.apk
-*.ap_
+# IDE files
+.idea/
+*.iml
 
-# files for the dex VM
-*.dex
-
-# Java class files
-*.class
-
-# generated files
-bin/
-gen/
-out/
+# Build files
 build/
-
-# Local configuration file (sdk path, etc)
+.gradle/
 local.properties
 
-# Eclipse project files
-.classpath
-.project
+# Kotlin
+.kotlin/
+
+# Generated files
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Keystore files
+*.jks
+*.keystore
+
+# Dependency-verification metadata file
+./gradlew.bat
+./gradle/wrapper/gradle-wrapper.jar
+
+# Hprof files
+*.hprof
+
+# Lint
+lint/
 
 # Windows thumbnail db
 .DS_Store
-
-# IDEA/Android Studio project files, because
-# the project can be imported from settings.gradle.kts
-*.iml
-.idea/*
-!.idea/copyright
-# Keep the code styles.
-!/.idea/codeStyles
-/.idea/codeStyles/*
-!/.idea/codeStyles/Project.xml
-!/.idea/codeStyles/codeStyleConfig.xml
-
-# Gradle cache
-.gradle
 
 # Sandbox stuff
 _sandbox
 
 # Android Studio captures folder
 captures/
-
-# Kotlin
-.kotlin

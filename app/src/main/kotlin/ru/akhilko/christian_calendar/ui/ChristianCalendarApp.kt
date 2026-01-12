@@ -57,6 +57,7 @@ fun ChristianCalendarApp(
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
 ) {
+    val monthViewModel: MonthViewModel = hiltViewModel()
     CalendarBackground(modifier = modifier) {
         CalendarGradientBackground(
             gradientColors = if (appState.currentTopLevelDestination == TopLevelDestination.MONTH) {
@@ -68,7 +69,8 @@ fun ChristianCalendarApp(
 
             ChristianCalendarAppInternal(
                 appState = appState,
-                windowAdaptiveInfo = windowAdaptiveInfo
+                windowAdaptiveInfo = windowAdaptiveInfo,
+                monthViewModel = monthViewModel
             )
         }
     }
@@ -82,9 +84,9 @@ fun ChristianCalendarApp(
 )
 internal fun ChristianCalendarAppInternal(
     appState: ChristianCalendarAppState,
+    monthViewModel: MonthViewModel,
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
-    monthViewModel: MonthViewModel = hiltViewModel()
 ) {
     val currentDestination = appState.currentDestination
     val snackbarHostState = remember { SnackbarHostState() }
@@ -183,6 +185,7 @@ internal fun ChristianCalendarAppInternal(
                                 duration = Short,
                             ) == ActionPerformed
                         },
+                        monthViewModel = monthViewModel
                     )
                 }
             }

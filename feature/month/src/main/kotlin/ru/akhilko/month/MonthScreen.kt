@@ -25,6 +25,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,13 +38,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
+import com.kizitonwose.calendar.core.yearMonth
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.launch
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingLevel
@@ -65,13 +69,14 @@ private val ColorMemorial = Color(0xFF64B5F6)   // Голубовато-серы
 fun MonthRoute(
     modifier: Modifier = Modifier,
     onDayClick: (String) -> Unit,
-    viewModel: MonthViewModel = hiltViewModel()
+    viewModel: MonthViewModel
 ) {
     val monthUiState: MonthUiState by viewModel.monthUiState.collectAsStateWithLifecycle()
 
     MonthScreen(
         monthUiState = monthUiState,
         onDayClick = onDayClick,
+        scrollToToday = viewModel.scrollToTodayRequested,
         modifier = modifier
     )
 }
@@ -80,7 +85,8 @@ fun MonthRoute(
 internal fun MonthScreen(
     modifier: Modifier = Modifier,
     monthUiState: MonthUiState,
-    onDayClick: (String) -> Unit
+    onDayClick: (String) -> Unit,
+    scrollToToday: Flow<Unit>
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(24) }
@@ -88,6 +94,21 @@ internal fun MonthScreen(
     val today = remember { LocalDate.now() }
     val daysOfWeek = remember { daysOfWeek(firstDayOfWeek = DayOfWeek.MONDAY) }
     val scope = rememberCoroutineScope()
+
+    val state = rememberCalendarState(
+        startMonth = startMonth,
+        endMonth = endMonth,
+        firstVisibleMonth = currentMonth,
+        firstDayOfWeek = daysOfWeek.first(),
+    )
+
+    LaunchedEffect(Unit) {
+        scrollToToday.collect {
+            scope.launch {
+                state.scrollToMonth(today.yearMonth)
+            }
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         when (monthUiState) {
@@ -99,12 +120,6 @@ internal fun MonthScreen(
             }
             is MonthUiState.Success -> {
                 val days = monthUiState.days
-                val state = rememberCalendarState(
-                    startMonth = startMonth,
-                    endMonth = endMonth,
-                    firstVisibleMonth = currentMonth,
-                    firstDayOfWeek = daysOfWeek.first(),
-                )
 
                 Column(
                     modifier = Modifier
@@ -341,7 +356,8 @@ private fun MonthScreenPreview() {
                 daySelected = null,
                 days = emptyList()
             ),
-            onDayClick = {}
+            onDayClick = {},
+            scrollToToday = emptyFlow()
         )
     }
 }

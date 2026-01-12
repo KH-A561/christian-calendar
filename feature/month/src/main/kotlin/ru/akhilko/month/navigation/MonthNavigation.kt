@@ -5,6 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import ru.akhilko.month.MonthRoute
+import ru.akhilko.month.MonthViewModel
 
 const val CENTERED_MONTH = "centeredMonth"
 const val CENTERED_YEAR = "centeredYear"
@@ -13,8 +14,14 @@ const val MONTH_ROUTE = "month_route"
 
 fun NavController.navigateToMonth(navOptions: NavOptions) = navigate(MONTH_ROUTE, navOptions)
 
-fun NavGraphBuilder.monthScreen(onDayClick: (String) -> Unit) {
+fun NavGraphBuilder.monthScreen(
+    onDayClick: (String) -> Unit,
+    viewModel: MonthViewModel
+) {
     composable(route = MONTH_ROUTE) {
-        MonthRoute(onDayClick = onDayClick)
+        MonthRoute(
+            onDayClick = onDayClick,
+            viewModel = viewModel
+        )
     }
 }

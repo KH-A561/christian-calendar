@@ -4,21 +4,20 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.core.data.repository.CalendarDayRepository
 import ru.akhilko.core.result.Result
 import ru.akhilko.core.result.asResult
-import ru.akhilko.month.navigation.CENTERED_MONTH
 import ru.akhilko.month.navigation.DAY_SELECTED
 import java.time.LocalDate
 import java.time.YearMonth
@@ -34,9 +33,9 @@ class MonthViewModel @Inject constructor(
     private val _currentVisibleMonth = MutableStateFlow(YearMonth.now())
     val currentVisibleMonth: StateFlow<YearMonth> = _currentVisibleMonth
 
-    // Событие для прокрутки к сегодняшнему дню
-    private val _scrollToTodayRequested = MutableSharedFlow<Unit>()
-    val scrollToTodayRequested = _scrollToTodayRequested.asSharedFlow()
+    // Канал для отправки одноразовых событий, таких как прокрутка
+    private val _scrollToTodayChannel = Channel<Unit>(Channel.CONFLATED)
+    val scrollToTodayRequested = _scrollToTodayChannel.receiveAsFlow()
 
     private val daySelected: StateFlow<String?> = savedStateHandle.getStateFlow(
         DAY_SELECTED,
@@ -51,7 +50,7 @@ class MonthViewModel @Inject constructor(
 
     fun onTodayClick() {
         viewModelScope.launch {
-            _scrollToTodayRequested.emit(Unit)
+            _scrollToTodayChannel.send(Unit)
         }
     }
 
@@ -90,5 +89,6 @@ sealed interface MonthUiState {
         val daySelected: String?,
         val days: List<CalendarDayResource>,
     ) : MonthUiState
+
     data object Error : MonthUiState
 }
