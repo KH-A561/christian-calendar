@@ -1,4 +1,4 @@
-package ru.akhilko.core.data.repository
+package ru.akhilko.christian_calendar.core.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.akhilko.christian_calendar.core.data.model.search.SearchResult

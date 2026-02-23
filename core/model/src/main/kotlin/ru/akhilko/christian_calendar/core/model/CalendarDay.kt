@@ -9,11 +9,15 @@ data class CalendarDay(
     val gregorianDay: Int,
     val gregorianMonth: Int,
     val gregorianYear: Int,
+    val julianDay: Int,
+    val julianMonth: Int,
+    val julianYear: Int,
     val lastUpdated: String, // Firestore возвращает строку
     val title: String,
     val week: String,
 
     // Вложенные объекты
+    val dayTypes: List<DayType>,
     val liturgicalInfo: LiturgicalInfo,
     val fastingInfo: FastingInfo,
 

@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.datetime.DayOfWeek
 import ru.akhilko.christian_calendar.core.model.CalendarDay
+import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.christian_calendar.core.model.Reading
@@ -27,11 +28,23 @@ data class CalendarDayEntity(
     @ColumnInfo(name = "gregorian_year")
     val gregorianYear: Int,
 
+    @ColumnInfo(name = "julian_day")
+    val julianDay: Int,
+
+    @ColumnInfo(name = "julian_month")
+    val julianMonth: Int,
+
+    @ColumnInfo(name = "julian_year")
+    val julianYear: Int,
+
     @ColumnInfo(name = "last_updated")
     val lastUpdated: String,
 
     val title: String,
     val week: String,
+
+    @ColumnInfo(name = "day_types")
+    val dayTypes: List<DayType>,
 
     // Конвертируемые поля
     @ColumnInfo(name = "liturgical_info")
@@ -59,9 +72,13 @@ data class PopulatedCalendarDay(
         gregorianDay = entity.gregorianDay,
         gregorianMonth = entity.gregorianMonth,
         gregorianYear = entity.gregorianYear,
+        julianDay = entity.julianDay,
+        julianMonth = entity.julianMonth,
+        julianYear = entity.julianYear,
         lastUpdated = entity.lastUpdated,
         title = entity.title,
         week = entity.week,
+        dayTypes = entity.dayTypes,
         liturgicalInfo = entity.liturgicalInfo,
         fastingInfo = entity.fastingInfo,
         readings = entity.readings,
@@ -76,9 +93,13 @@ fun CalendarDay.asEntity() = CalendarDayEntity(
     gregorianDay = this.gregorianDay,
     gregorianMonth = this.gregorianMonth,
     gregorianYear = this.gregorianYear,
+    julianDay = this.julianDay,
+    julianMonth = this.julianMonth,
+    julianYear = this.julianYear,
     lastUpdated = this.lastUpdated,
     title = this.title,
     week = this.week,
+    dayTypes = this.dayTypes,
     liturgicalInfo = this.liturgicalInfo,
     fastingInfo = this.fastingInfo,
     readings = this.readings,

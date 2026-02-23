@@ -18,9 +18,12 @@ package ru.akhilko.christian_calendar.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 import ru.akhilko.core.designsystem.icon.Icons
+import ru.akhilko.day.navigation.DAY_ROUTE_BASE
 import ru.akhilko.feature.day.R as dayR
 import ru.akhilko.feature.month.R as monthR
 import ru.akhilko.feature.week.R as weekR
+import ru.akhilko.month.navigation.MONTH_ROUTE
+import ru.akhilko.week.navigation.WEEK_ROUTE
 
 /**
  * Type for the top level destinations in the application. Each of these destinations
@@ -32,23 +35,27 @@ enum class TopLevelDestination(
     val unselectedIcon: ImageVector,
     val iconTextId: Int,
     val titleTextId: Int,
+    val route: String
 ) {
     MONTH(
         selectedIcon = Icons.CalendarMonth,
         unselectedIcon = Icons.OutlinedCalendarMonth,
         iconTextId = monthR.string.feature_month_title,
         titleTextId = monthR.string.feature_month_title,
+        route = MONTH_ROUTE
     ),
     WEEK(
         selectedIcon = Icons.ViewWeek,
         unselectedIcon = Icons.OutlinedViewWeek,
         iconTextId = weekR.string.feature_week_title,
         titleTextId = weekR.string.feature_week_title,
+        route = WEEK_ROUTE
     ),
     DAY(
         selectedIcon = Icons.ViewDay,
         unselectedIcon = Icons.OutlinedViewDay,
         iconTextId = dayR.string.feature_day_title,
         titleTextId = dayR.string.feature_day_title,
+        route = DAY_ROUTE_BASE
     ),
 }

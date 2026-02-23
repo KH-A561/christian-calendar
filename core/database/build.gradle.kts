@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth) // Добавляем зависимость
     implementation("com.google.code.gson:gson:2.10.1")
 
     androidTestImplementation(libs.androidx.test.core)

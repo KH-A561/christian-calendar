@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.akhilko.core.database.CalendarDatabase
+import ru.akhilko.core.database.MIGRATION_2_3
 import javax.inject.Singleton
 
 @Module
@@ -21,5 +22,5 @@ internal object DatabaseModule {
         context,
         CalendarDatabase::class.java,
         "calendar-database",
-    ).build()
+    ).addMigrations(MIGRATION_2_3).build()
 }

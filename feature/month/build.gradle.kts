@@ -9,7 +9,9 @@ android {
 
 dependencies {
     implementation(projects.core.calendar)
+    implementation(projects.core.data)
     implementation(projects.core.database)
+    implementation(projects.core.domain)
     implementation(projects.core.util)
     implementation(libs.kizitonwose.calendar)
 

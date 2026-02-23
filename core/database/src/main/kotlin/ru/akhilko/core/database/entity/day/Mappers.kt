@@ -1,3 +1,4 @@
+@file:OptIn(kotlinx.serialization.InternalSerializationApi::class)
 
 package ru.akhilko.core.database.entity.day
 
@@ -22,12 +23,15 @@ fun CalendarDayDto.toEntity(): CalendarDayEntity {
         gregorianDay = gregorianDay,
         gregorianMonth = gregorianMonth,
         gregorianYear = gregorianYear,
+        julianDay = julianDay,
+        julianMonth = julianMonth,
+        julianYear = julianYear,
         lastUpdated = "", // This field will be updated from Firestore
         title = title,
         week = week,
+        dayTypes = dayTypes.map { DayType.valueOf(it.uppercase()) },
         liturgicalInfo = LiturgicalInfo(
             color = LiturgicalColor.valueOf(liturgicalInfo.color.uppercase()),
-            dayType = DayType.valueOf(liturgicalInfo.dayType.uppercase()),
             importance = liturgicalInfo.importance
         ),
         fastingInfo = FastingInfo(
@@ -45,4 +49,3 @@ fun CalendarDayDto.toEntity(): CalendarDayEntity {
         searchText = searchText
     )
 }
-

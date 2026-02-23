@@ -2,7 +2,9 @@ package ru.akhilko.christian_calendar.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
+import androidx.navigation.navOptions
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
 import ru.akhilko.day.navigation.dayScreen
 import ru.akhilko.day.navigation.navigateToDay
@@ -35,7 +37,14 @@ fun ChristianCalendarNavHost(
     ) {
         monthScreen(
             onDayClick = { dayId ->
-                navController.navigateToDay(dayId)
+                val navOptions = navOptions {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+                navController.navigateToDay(dayId, navOptions)
             },
             viewModel = monthViewModel
         )

@@ -1,6 +1,8 @@
 package ru.akhilko.core.database.di
 
 import android.content.Context
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -13,8 +15,9 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
 import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
-import ru.akhilko.core.data.repository.CalendarDayRepository
-import ru.akhilko.core.data.repository.SearchContentsRepository
+import ru.akhilko.christian_calendar.core.data.repository.AuthRepository
+import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
+import ru.akhilko.christian_calendar.core.data.repository.SearchContentsRepository
 import ru.akhilko.core.database.dao.CalendarDayDao
 import ru.akhilko.core.database.repository.CalendarDayFtsDao
 import ru.akhilko.core.database.repository.DefaultCalendarDayRepository
@@ -41,12 +44,14 @@ object DataModule {
         calendarDayDao: CalendarDayDao,
         firestoreDataSource: FirestoreCalendarDataSource,
         localCalendarDataSource: LocalCalendarDataSource,
-        searchContentsRepository: SearchContentsRepository
+        searchContentsRepository: SearchContentsRepository,
+        authRepository: AuthRepository
     ): CalendarDayRepository = DefaultCalendarDayRepository(
         calendarDayDao,
         firestoreDataSource,
         localCalendarDataSource,
-        searchContentsRepository
+        searchContentsRepository,
+        authRepository
     )
 
     @Provides
@@ -59,6 +64,10 @@ object DataModule {
     @Provides
     @Singleton
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Provides
+    @Singleton
+    fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth
 
     @Provides
     @Singleton

@@ -26,7 +26,7 @@ import kotlinx.coroutines.withContext
 import ru.akhilko.christian_calendar.core.data.model.search.SearchResult
 import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
-import ru.akhilko.core.data.repository.SearchContentsRepository
+import ru.akhilko.christian_calendar.core.data.repository.SearchContentsRepository
 import ru.akhilko.core.database.dao.CalendarDayDao
 import ru.akhilko.core.database.entity.day.asResource
 import javax.inject.Inject

@@ -24,7 +24,8 @@ fun NavGraphBuilder.dayScreen(
         arguments = listOf(
             navArgument(DAY_ID_SAVED_STATE_KEY) { type = NavType.StringType }
         )
-    ) {
-//        DayRoute(onShowSnackbar = onShowSnackbar)
+    ) { backStackEntry ->
+        val dayId = backStackEntry.arguments?.getString(DAY_ID_SAVED_STATE_KEY) ?: ""
+        DayRoute(dayId = dayId)
     }
 }

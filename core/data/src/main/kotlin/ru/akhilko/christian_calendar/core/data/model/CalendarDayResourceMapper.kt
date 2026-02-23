@@ -6,7 +6,5 @@ fun CalendarDay.toResource(): CalendarDayResource {
     return CalendarDayResource(
         id = this.id,
         day = this,
-        holidays = this.saints.flatMap { it.names },
-        fastingInformation = this.fastingInfo
     )
 }

@@ -9,6 +9,11 @@ import ru.akhilko.core.database.entity.day.CalendarDayEntity
 
 @Dao
 interface CalendarDayDao {
+
+    @Transaction
+    @Query("SELECT * FROM calendar_days WHERE id = :id")
+    fun getDayById(id: String): Flow<CalendarDayEntity?>
+
     @Transaction
     @Query("SELECT * FROM calendar_days WHERE id IN (:ids)")
     fun getDaysByIds(ids: List<String>): Flow<List<CalendarDayEntity>>

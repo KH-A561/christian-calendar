@@ -17,7 +17,7 @@ import ru.akhilko.christian_calendar.navigation.TopLevelDestination
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.DAY
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.MONTH
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.WEEK
-import ru.akhilko.day.navigation.DAY_ROUTE
+import ru.akhilko.day.navigation.DAY_ROUTE_BASE
 import ru.akhilko.day.navigation.navigateToDay
 import ru.akhilko.feature.search.navigation.navigateToSearch
 import ru.akhilko.month.navigation.MONTH_ROUTE
@@ -35,15 +35,12 @@ class ChristianCalendarAppState(
             .currentBackStackEntryAsState().value?.destination
 
     val currentTopLevelDestination: TopLevelDestination?
-        @Composable get() = when (currentDestination?.route) {
-            MONTH_ROUTE -> MONTH
-            WEEK_ROUTE -> WEEK
-            DAY_ROUTE -> DAY
+        @Composable get() = when {
+            currentDestination?.route?.contains(MONTH_ROUTE, ignoreCase = true) == true -> MONTH
+            currentDestination?.route?.contains(WEEK_ROUTE, ignoreCase = true) == true -> WEEK
+            currentDestination?.route?.contains(DAY_ROUTE_BASE, ignoreCase = true) == true -> DAY
             else -> null
         }
-
-    // Динамический заголовок для TopAppBar
-    var topAppBarTitle by mutableStateOf("")
 
     // Событие для прокрутки к сегодняшнему дню
     private val _scrollToTodayRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)

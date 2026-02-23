@@ -66,7 +66,7 @@ fun DayResourceCardExpanded(
             Spacer(modifier = Modifier.height(14.dp))
 
             DayResourceMetaData(
-                date = day.getGregorianLocalDate(),
+                day = day,
                 weekInfo = day.week
             )
             Spacer(modifier = Modifier.height(14.dp))
@@ -102,14 +102,20 @@ fun DayResourceSubtitle(
 
 @Composable
 fun DayResourceMetaData(
-    date: LocalDate,
+    day: CalendarDay,
     weekInfo: String,
 ) {
-    val formattedDate = dateFormatted(date)
+    val formattedDate = dateFormatted(day.getGregorianLocalDate())
+    val julianDate = "${day.julianDay} ${
+        java.time.Month.of(day.julianMonth).getDisplayName(
+            TextStyle.SHORT,
+            Locale("ru")
+        )
+    }"
     val text = if (weekInfo.isNotBlank()) {
-        "$formattedDate, $weekInfo"
+        "$formattedDate ($julianDate), $weekInfo"
     } else {
-        formattedDate
+        "$formattedDate ($julianDate)"
     }
     Text(
         text = text,
@@ -154,7 +160,8 @@ fun FastingInfoFormatted(fastingInfo: FastingInfo) {
                 "Пост с послаблениями"
             }
         }
-        FastingLevel.NONE -> "" // Не будет вызвано из-за проверки выше, но для полноты
+
+        FastingLevel.NONE -> ""
     }
     if (fastingText.isNotBlank()) {
         Text(text = fastingText, style = MaterialTheme.typography.bodySmall)
@@ -187,18 +194,21 @@ fun saintsFormatted(saints: List<SaintInfo>): String =
 
 @Preview("DayResourceCardExpanded")
 @Composable
-private fun ExpandedDayResourcePreview() {
+fun ExpandedDayResourcePreview() {
     val sampleDay = CalendarDay(
         dayOfWeek = KotlinxDayOfWeek.WEDNESDAY,
         gregorianDay = 12,
         gregorianMonth = 2,
         gregorianYear = 2025,
+        julianDay = 30,
+        julianMonth = 1,
+        julianYear = 2025,
         lastUpdated = "21 August 2025 at 17:53:08 UTC+3",
         title = "Предпразднство Преображения Господня",
         week = "Седмица 11-я по Пятидесятнице.",
+        dayTypes = listOf(DayType.FEAST),
         liturgicalInfo = LiturgicalInfo(
             color = LiturgicalColor.PURPLE,
-            dayType = DayType.FEAST,
             importance = 3
         ),
         fastingInfo = FastingInfo(

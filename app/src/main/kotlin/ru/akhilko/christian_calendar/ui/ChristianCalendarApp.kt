@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.Icons as MaterialIcons
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration.Short
@@ -47,8 +45,9 @@ import ru.akhilko.core.designsystem.component.CalendarTopAppBar
 import ru.akhilko.core.designsystem.icon.Icons
 import ru.akhilko.core.designsystem.theme.GradientColors
 import ru.akhilko.core.designsystem.theme.LocalGradientColors
-import ru.akhilko.feature.settings.R as settingsR
 import ru.akhilko.month.MonthViewModel
+import androidx.compose.material.icons.Icons as MaterialIcons
+import ru.akhilko.feature.settings.R as settingsR
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -146,8 +145,7 @@ internal fun ChristianCalendarAppInternal(
                 val shouldShowTopAppBar = destination != null
                 if (destination != null) {
                     CalendarTopAppBar(
-                        // Убираем текст "Month", если выбран календарь
-                        titleRes = if (destination == TopLevelDestination.MONTH) 0 else destination.titleTextId,
+                        titleRes = destination.titleTextId,
                         navigationIcon = Icons.Search,
                         navigationIconContentDescription = stringResource(
                             id = settingsR.string.feature_settings_top_app_bar_navigation_icon_description,
@@ -195,5 +193,5 @@ internal fun ChristianCalendarAppInternal(
 
 private fun NavDestination?.isTopLevelDestinationInHierarchy(destination: TopLevelDestination) =
     this?.hierarchy?.any {
-        it.route?.contains(destination.name, true) ?: false
+        it.route?.contains(destination.route, true) ?: false
     } ?: false

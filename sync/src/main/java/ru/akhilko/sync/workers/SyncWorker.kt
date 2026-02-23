@@ -30,7 +30,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import ru.akhilko.core.Dispatcher
 import ru.akhilko.core.Dispatchers
-import ru.akhilko.core.data.repository.CalendarDayRepository
+import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
 import ru.akhilko.sync.initializers.SyncConstraints
 import ru.akhilko.sync.initializers.SyncForegroundServiceNotification
 

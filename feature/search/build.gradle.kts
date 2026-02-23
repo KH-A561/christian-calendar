@@ -37,3 +37,8 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.ui)
 }
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

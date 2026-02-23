@@ -1,27 +1,39 @@
-
 package ru.akhilko.core.database.repository
 
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.DayOfWeek
+import kotlinx.serialization.InternalSerializationApi
+import ru.akhilko.christian_calendar.core.common.DateConverter
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
-import ru.akhilko.core.data.repository.CalendarDayRepository
-import ru.akhilko.core.data.repository.SearchContentsRepository
+import ru.akhilko.christian_calendar.core.data.repository.AuthRepository
+import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
+import ru.akhilko.christian_calendar.core.data.repository.SearchContentsRepository
+import ru.akhilko.christian_calendar.core.model.DayType
+import ru.akhilko.christian_calendar.core.model.FastingInfo
+import ru.akhilko.christian_calendar.core.model.FastingLevel
+import ru.akhilko.christian_calendar.core.model.LiturgicalColor
+import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.database.dao.CalendarDayDao
+import ru.akhilko.core.database.entity.day.CalendarDayEntity
 import ru.akhilko.core.database.entity.day.asResource
 import ru.akhilko.core.database.entity.day.toEntity
 import javax.inject.Inject
 
+@OptIn(InternalSerializationApi::class)
 internal class DefaultCalendarDayRepository @Inject constructor(
     private val calendarDayDao: CalendarDayDao,
     private val firestoreDataSource: FirestoreCalendarDataSource,
     private val localDataSource: LocalCalendarDataSource,
-    private val searchContentsRepository: SearchContentsRepository
+    private val searchContentsRepository: SearchContentsRepository,
+    private val authRepository: AuthRepository
 ) : CalendarDayRepository {
+
+    override fun getDay(id: String): Flow<CalendarDayResource?> {
+        return calendarDayDao.getDayById(id).map { it?.asResource() }
+    }
 
     override fun getDaysByIds(ids: List<String>): Flow<List<CalendarDayResource>> {
         return calendarDayDao.getDaysByIds(ids).map { populated ->
@@ -44,45 +56,73 @@ internal class DefaultCalendarDayRepository @Inject constructor(
         }
     }
 
-    override suspend fun sync() {
-        Log.d("Sync", "Starting sync process...")
+    override suspend fun sync(year: Int) {
+        authRepository.signInAnonymouslyIfNeeded()
 
-        // 1. Сначала проверяем, пуста ли база. Если пуста - ОБЯЗАТЕЛЬНО грузим локальные данные.
         try {
             val currentDays = calendarDayDao.getAll().first()
             if (currentDays.isEmpty()) {
-                Log.d("Sync", "Database is empty. Loading local data from assets...")
                 val localData = localDataSource.getCalendarData().map { it.toEntity() }
                 calendarDayDao.upsertAll(localData)
-                Log.d("Sync", "Local data loaded successfully.")
             }
         } catch (e: Exception) {
             Log.e("Sync", "Failed to load local data", e)
         }
 
-        // 2. Попытка обновиться из Firestore (только если есть интернет, или просто оборачиваем в try-catch)
         try {
-            Log.d("Sync", "Attempting to fetch data from Firestore...")
-            val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
-            val remoteData = firestoreDataSource.getYearData(currentYear)
-            // TODO: Когда будет готов маппер для Firestore моделей, раскомментировать:
-            /*
+            val remoteData = firestoreDataSource.getYearData(year)
             if (remoteData.isNotEmpty()) {
-                calendarDayDao.upsertAll(remoteData.map { it.toEntity() })
-                Log.d("Sync", "Remote data updated from Firestore.")
+                calendarDayDao.upsertAll(remoteData.map { (id, firestoreDay) ->
+                    firestoreDay.toEntity(id)
+                })
             }
-            */
         } catch (e: Exception) {
-            Log.w("Sync", "Firestore sync failed (possibly no internet)", e)
+            Log.w("Sync", "Firestore sync FAILED for year $year", e)
         }
 
-        // 3. Обновляем FTS (поиск) в любом случае
         try {
-            Log.d("Sync", "Populating FTS data...")
             searchContentsRepository.populateFtsData()
-            Log.d("Sync", "FTS data populated.")
         } catch (e: Exception) {
             Log.e("Sync", "FTS population failed", e)
         }
     }
+}
+
+private fun FirestoreDay.toEntity(id: String): CalendarDayEntity {
+    val liturgicalInfo = LiturgicalInfo(
+        color = LiturgicalColor.valueOf(this.liturgical.color.uppercase()),
+        importance = this.liturgical.importance
+    )
+
+    val fastingInfo = FastingInfo(
+        fastingLevel = FastingLevel.valueOf(this.fastingInfo.fastingLevel.uppercase()),
+        allowed = this.fastingInfo.allowed
+    )
+
+    val (julianYear, julianMonth, julianDay) = DateConverter.gregorianToJulian(
+        this.gregorianYear,
+        this.gregorianMonth,
+        this.gregorianDay
+    )
+
+    return CalendarDayEntity(
+        id = id,
+        dayOfWeek = DayOfWeek.valueOf(this.dayOfWeek.uppercase()),
+        gregorianDay = this.gregorianDay,
+        gregorianMonth = this.gregorianMonth,
+        gregorianYear = this.gregorianYear,
+        julianDay = julianDay,
+        julianMonth = julianMonth,
+        julianYear = julianYear,
+        lastUpdated = this.lastUpdated.toString(),
+        title = this.title,
+        week = this.week,
+        dayTypes = if (this.liturgical.dayType.isNotBlank())
+            listOf(DayType.valueOf(this.liturgical.dayType.uppercase())) else emptyList(),
+        liturgicalInfo = liturgicalInfo,
+        fastingInfo = fastingInfo,
+        readings = emptyList(),
+        saints = emptyList(),
+        searchText = "${this.title} ${this.week}".trim()
+    )
 }

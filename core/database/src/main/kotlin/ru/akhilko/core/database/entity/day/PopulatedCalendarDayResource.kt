@@ -2,15 +2,11 @@ package ru.akhilko.core.database.entity.day
 
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.model.CalendarDay
-import ru.akhilko.christian_calendar.core.model.DayType
 
 fun CalendarDayEntity.asResource(): CalendarDayResource {
-    val day = this.asModel()
     return CalendarDayResource(
         id = this.id,
-        day = day,
-        holidays = if (day.liturgicalInfo.dayType == DayType.FEAST || day.liturgicalInfo.dayType == DayType.MEMORIAL) listOf(day.title) else emptyList(),
-        fastingInformation = day.fastingInfo
+        day = this.asModel()
     )
 }
 
@@ -25,9 +21,13 @@ fun CalendarDayEntity.asModel() = CalendarDay(
     gregorianDay = this.gregorianDay,
     gregorianMonth = this.gregorianMonth,
     gregorianYear = this.gregorianYear,
+    julianDay = this.julianDay,
+    julianMonth = this.julianMonth,
+    julianYear = this.julianYear,
     lastUpdated = this.lastUpdated,
     title = this.title,
     week = this.week,
+    dayTypes = this.dayTypes,
     liturgicalInfo = this.liturgicalInfo,
     fastingInfo = this.fastingInfo,
     readings = this.readings,

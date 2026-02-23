@@ -19,11 +19,12 @@ import ru.akhilko.christian_calendar.core.model.FastingLevel
 import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
+import java.util.Locale
 
 @OptIn(ExperimentalFoundationApi::class)
 fun LazyStaggeredGridScope.daysFeed(
     feedState: DaysFeedUiState,
-    onExpandedCardClick: () -> Unit = {},
+    onExpandedCardClick: (String) -> Unit = {},
 ) {
     when (feedState) {
         DaysFeedUiState.Loading -> Unit
@@ -33,18 +34,11 @@ fun LazyStaggeredGridScope.daysFeed(
                 key = { it.id },
                 contentType = { "daysFeedItem" },
             ) { dayResource ->
-                DayResourceCardExpanded(
+                DaySummaryCard(
                     day = dayResource.day,
-                    onClick = {
-                        onExpandedCardClick()
-//                        analyticsHelper.logNewsResourceOpened(
-//                            newsResourceId = daysResource.id,
-//                        )
-//                      todo: открытие дня на отдельном экране Дня
-                    },
+                    onClick = { onExpandedCardClick(dayResource.id) },
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
-                        .animateItemPlacement(),
                 )
             }
         }
@@ -52,16 +46,13 @@ fun LazyStaggeredGridScope.daysFeed(
 }
 
 sealed interface DaysFeedUiState {
-    /**
-     * The feed is still loading.
-     */
     data object Loading : DaysFeedUiState
-
-    data class Success(
-        val feed: List<CalendarDayResource>,
-    ) : DaysFeedUiState
+    data class Success(val feed: List<CalendarDayResource>) : DaysFeedUiState
 }
 
+fun DayOfWeek.getDisplayName(style: java.time.format.TextStyle, locale: Locale): String {
+    return java.time.DayOfWeek.valueOf(this.name).getDisplayName(style, locale)
+}
 
 @Preview
 @Composable
@@ -71,12 +62,15 @@ private fun DaysFeedSuccessPreview() {
         gregorianDay = 12,
         gregorianMonth = 2,
         gregorianYear = 2025,
+        julianDay = 30,
+        julianMonth = 1,
+        julianYear = 2025,
         lastUpdated = "21 August 2025 at 17:53:08 UTC+3",
         title = "Предпразднство Преображения Господня",
         week = "Седмица 11-я по Пятидесятнице.",
+        dayTypes = listOf(DayType.FOREFEAST),
         liturgicalInfo = LiturgicalInfo(
             color = LiturgicalColor.PURPLE,
-            dayType = DayType.FOREFEAST,
             importance = 3
         ),
         fastingInfo = FastingInfo(
@@ -90,8 +84,6 @@ private fun DaysFeedSuccessPreview() {
     val sampleResource = CalendarDayResource(
         id = sampleDay.id,
         day = sampleDay,
-        holidays = emptyList(),
-        fastingInformation = sampleDay.fastingInfo
     )
 
     CalendarTheme {
