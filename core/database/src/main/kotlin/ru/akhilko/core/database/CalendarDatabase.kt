@@ -16,7 +16,7 @@ import ru.akhilko.core.database.repository.CalendarDayFtsDao
         CalendarDayEntity::class,
         CalendarDayFtsEntity::class
     ],
-    version = 3
+    version = 4
 )
 @TypeConverters(
     Converters::class,
@@ -32,5 +32,11 @@ internal val MIGRATION_2_3 = object : Migration(2, 3) {
         db.execSQL("ALTER TABLE calendar_days ADD COLUMN julian_day INTEGER NOT NULL DEFAULT 0")
         db.execSQL("ALTER TABLE calendar_days ADD COLUMN julian_month INTEGER NOT NULL DEFAULT 0")
         db.execSQL("ALTER TABLE calendar_days ADD COLUMN julian_year INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+internal val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        // Schema remains the same as fastingName and dayTypes are stored within JSON/Converters
     }
 }

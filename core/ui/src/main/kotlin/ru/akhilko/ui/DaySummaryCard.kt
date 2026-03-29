@@ -15,9 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,7 +24,6 @@ import ru.akhilko.christian_calendar.core.model.CalendarDay
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import java.util.Locale
@@ -39,40 +35,20 @@ fun DaySummaryCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val liturgicalColor = when (day.liturgicalInfo.color) {
-        LiturgicalColor.RED -> Color(0xFFB71C1C)
-        LiturgicalColor.BLUE -> Color(0xFF64B5F6)
-        LiturgicalColor.GOLD -> Color(0xFFFFD700)
-        LiturgicalColor.GREEN -> Color(0xFF81C784)
-        LiturgicalColor.PURPLE -> Color(0xFF9575CD)
-        LiturgicalColor.BLACK -> Color.Black
-        LiturgicalColor.WHITE -> Color.White
-        LiturgicalColor.NONE -> Color.Transparent
-    }
-
     Card(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
         modifier = modifier
-            .fillMaxWidth()
-            .drawBehind {
-                val strokeWidth = 6.dp.toPx() // Increased from 4.dp
-                drawLine(
-                    color = liturgicalColor,
-                    start = Offset(0f, 0f),
-                    end = Offset(0f, size.height),
-                    strokeWidth = strokeWidth
-                )
-            },
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column(
             modifier = Modifier
                 .padding(
-                    start = 20.dp, // Increased from 16.dp
-                    end = 16.dp, // Increased from 12.dp
-                    top = 16.dp, // Increased from 12.dp
-                    bottom = 16.dp // Increased from 12.dp
+                    start = 16.dp,
+                    end = 12.dp,
+                    top = 12.dp,
+                    bottom = 12.dp
                 )
         ) {
             Row(
@@ -103,7 +79,8 @@ fun DaySummaryCard(
                     text = day.dayOfWeek
                         .getDisplayName(java.time.format.TextStyle.FULL, Locale("ru"))
                         .uppercase(),
-                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.outline
                 )
             }
@@ -111,7 +88,6 @@ fun DaySummaryCard(
             Text(
                 text = day.title,
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
@@ -129,9 +105,9 @@ fun DaySummaryCard(
             Spacer(Modifier.height(12.dp))
 
             if (day.fastingInfo.fastingLevel != FastingLevel.NONE) {
-
+                val fastingName = day.fastingInfo.fastingName ?: "Пост"
                 Text(
-                    text = "Пост: ${day.fastingInfo.fastingName ?: "Да"}",
+                    text = fastingName,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -170,9 +146,8 @@ private fun DaySummaryCardPreview() {
         lastUpdated = "21 August 2025 at 17:53:08 UTC+3",
         title = "Предпразднство Преображения Господня",
         week = "Седмица 11-я по Пятидесятнице.",
-        dayTypes = listOf(DayType.FOREFEAST),
+        dayTypes = listOf(DayType.FEAST),
         liturgicalInfo = LiturgicalInfo(
-            color = LiturgicalColor.PURPLE,
             importance = 3
         ),
         fastingInfo = FastingInfo(
@@ -186,7 +161,7 @@ private fun DaySummaryCardPreview() {
     )
 
     CalendarTheme {
-        Column(modifier = Modifier.padding(16.dp)) { // Increased padding
+        Column(modifier = Modifier.padding(16.dp)) {
             DaySummaryCard(day = sampleDay, onClick = {})
         }
     }

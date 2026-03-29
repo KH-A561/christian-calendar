@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="core_data_day_type_twelve_great_feasts">One of the Twelve Feasts</string>
     <string name="core_data_day_type_feast">Feast</string>
+    <string name="core_data_day_type_long_fast">Long Fast</string>
     <string name="core_data_day_type_fast">Fast</string>
+    <string name="core_data_day_type_commemoration">Commemoration</string>
+    <string name="core_data_day_type_easter">Easter</string>
+    <string name="core_data_day_type_great_feast">Great Feast</string>
 
 </resources>

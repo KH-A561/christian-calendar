@@ -1,7 +1,5 @@
 package ru.akhilko.christian_calendar.core.domain.model
 
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
-
 data class MonthSummary(
     val year: Int,
     val month: Int,
@@ -15,13 +13,11 @@ data class MonthSummary(
 
 data class HighlightedDay(
     val dayOfMonth: Int,
-    val name: String,
-    val color: LiturgicalColor
+    val name: String
 )
 
 data class HighlightedPeriod(
     val startDay: Int,
     val endDay: Int,
-    val name: String,
-    val color: LiturgicalColor
+    val name: String
 )

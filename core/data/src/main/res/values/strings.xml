@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="core_data_day_type_easter">Пасха Христова</string>
+    <string name="core_data_day_type_great_feast">Великий праздник</string>
+    <string name="core_data_day_type_twelve_great_feasts">Двунадесятый праздник</string>
     <string name="core_data_day_type_feast">Праздник</string>
+    <string name="core_data_day_type_long_fast">Многодневный пост</string>
     <string name="core_data_day_type_fast">Пост</string>
+    <string name="core_data_day_type_commemoration">Родительский день</string>
     <string name="core_data_day_type_unknown" translatable="false"> </string>
 
 </resources>

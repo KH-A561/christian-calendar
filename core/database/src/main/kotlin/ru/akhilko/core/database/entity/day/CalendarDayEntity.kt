@@ -8,8 +8,6 @@ import ru.akhilko.christian_calendar.core.model.CalendarDay
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
-import ru.akhilko.christian_calendar.core.model.Reading
-import ru.akhilko.christian_calendar.core.model.SaintInfo
 
 @Entity(tableName = "calendar_days")
 data class CalendarDayEntity(
@@ -53,8 +51,8 @@ data class CalendarDayEntity(
     @ColumnInfo(name = "fasting_info")
     val fastingInfo: FastingInfo,
 
-    val readings: List<Reading>,
-    val saints: List<SaintInfo>,
+    val readings: List<String>,
+    val saints: List<String>,
 
     @ColumnInfo(name = "search_text")
     val searchText: String

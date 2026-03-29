@@ -1,9 +1,9 @@
 
 package ru.akhilko.core.database.dto
 
-import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.Serializable
 
-@InternalSerializationApi
+@Serializable
 data class CalendarDayDto(
     val id: String,
     val title: String,
@@ -22,15 +22,14 @@ data class CalendarDayDto(
     val readings: List<String>
 )
 
-@InternalSerializationApi
+@Serializable
 data class FastingInfoDto(
     val fastingLevel: String,
-    val allowed: List<String>
+    val allowed: List<String>,
+    val fastingName: String? = null
 )
 
-@InternalSerializationApi
+@Serializable
 data class LiturgicalInfoDto(
-    val color: String,
-    val dayType: String,
     val importance: Int
 )

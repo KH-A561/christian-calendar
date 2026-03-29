@@ -22,8 +22,8 @@ data class CalendarDay(
     val fastingInfo: FastingInfo,
 
     // Данные из сабколлекций
-    val readings: List<Reading>,
-    val saints: List<SaintInfo>,
+    val readings: List<String>,
+    val saints: List<String>,
 
     // Конкатенированный текст для поиска
     val searchText: String

@@ -32,27 +32,15 @@ class Converters {
         return value?.let { gson.fromJson(it, FastingInfo::class.java) }
     }
 
-    // List<Reading>
+    // List<String> for readings
     @TypeConverter
-    fun fromReadingList(value: List<Reading>?): String? {
+    fun fromStringList(value: List<String>?): String? {
         return value?.let { gson.toJson(it) }
     }
 
     @TypeConverter
-    fun toReadingList(value: String?): List<Reading>? {
-        val listType = object : TypeToken<List<Reading>>() {}.type
-        return value?.let { gson.fromJson(it, listType) }
-    }
-
-    // List<SaintInfo>
-    @TypeConverter
-    fun fromSaintInfoList(value: List<SaintInfo>?): String? {
-        return value?.let { gson.toJson(it) }
-    }
-
-    @TypeConverter
-    fun toSaintInfoList(value: String?): List<SaintInfo>? {
-        val listType = object : TypeToken<List<SaintInfo>>() {}.type
+    fun toStringList(value: String?): List<String>? {
+        val listType = object : TypeToken<List<String>>() {}.type
         return value?.let { gson.fromJson(it, listType) }
     }
 

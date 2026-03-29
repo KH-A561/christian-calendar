@@ -12,7 +12,6 @@ import ru.akhilko.christian_calendar.core.model.CalendarDay
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 
 @Composable
@@ -52,8 +51,7 @@ private fun DayScreenSuccessPreview() {
         julianYear = 2023,
         dayTypes = listOf(DayType.FEAST),
         liturgicalInfo = LiturgicalInfo(
-            importance = 3,
-            color = LiturgicalColor.RED
+            importance = 3
         ),
         fastingInfo = FastingInfo(fastingLevel = FastingLevel.NONE, allowed = emptyList()),
         title = "Великий праздник",

@@ -36,19 +36,21 @@ data class FirestoreDay(
     val gregorianMonth: Int = 0,
     val gregorianYear: Int = 0,
     val lastUpdated: Timestamp = Timestamp(Date(0)),
+    val dayTypes: List<String> = emptyList(),
     val liturgical: FirestoreLiturgical = FirestoreLiturgical(),
     val fastingInfo: FirestoreFastingInfo = FirestoreFastingInfo(),
     val title: String = "",
-    val week: String = ""
+    val week: String = "",
+    val readings: List<String> = emptyList(),
+    val saints: List<String> = emptyList()
 )
 
 data class FirestoreLiturgical(
-    val color: String = "",
-    val dayType: String = "",
     val importance: Int = 0
 )
 
 data class FirestoreFastingInfo(
     val allowed: List<String> = emptyList(),
-    val fastingLevel: String = ""
+    val fastingLevel: String = "",
+    val fastingName: String? = null
 )

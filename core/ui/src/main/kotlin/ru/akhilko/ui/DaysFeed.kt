@@ -14,9 +14,7 @@ import kotlinx.datetime.DayOfWeek
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.model.CalendarDay
 import ru.akhilko.christian_calendar.core.model.DayType
-import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import java.util.Locale
@@ -68,12 +66,11 @@ private fun DaysFeedSuccessPreview() {
         lastUpdated = "21 August 2025 at 17:53:08 UTC+3",
         title = "Предпразднство Преображения Господня",
         week = "Седмица 11-я по Пятидесятнице.",
-        dayTypes = listOf(DayType.FOREFEAST),
+        dayTypes = listOf(DayType.FEAST),
         liturgicalInfo = LiturgicalInfo(
-            color = LiturgicalColor.PURPLE,
             importance = 3
         ),
-        fastingInfo = FastingInfo(
+        fastingInfo = ru.akhilko.christian_calendar.core.model.FastingInfo(
             fastingLevel = FastingLevel.PARTIAL,
             allowed = listOf("Вино", "Елей")
         ),

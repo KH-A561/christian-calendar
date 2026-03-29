@@ -1,21 +1,15 @@
-@file:OptIn(kotlinx.serialization.InternalSerializationApi::class)
-
 package ru.akhilko.core.database.entity.day
 
 import kotlinx.datetime.DayOfWeek
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
-import ru.akhilko.christian_calendar.core.model.Reading
-import ru.akhilko.christian_calendar.core.model.ReadingType
-import ru.akhilko.christian_calendar.core.model.SaintInfo
 import ru.akhilko.core.database.dto.CalendarDayDto
 
 fun CalendarDayDto.toEntity(): CalendarDayEntity {
     // Create a simple search string by concatenating title and saints' names.
-    val searchText = title + " " + saints.joinToString(" ")
+    val searchText = (title + " " + week + " " + saints.joinToString(" ")).trim().lowercase()
 
     return CalendarDayEntity(
         id = id,
@@ -29,23 +23,17 @@ fun CalendarDayDto.toEntity(): CalendarDayEntity {
         lastUpdated = "", // This field will be updated from Firestore
         title = title,
         week = week,
-        dayTypes = dayTypes.map { DayType.valueOf(it.uppercase()) },
+        dayTypes = dayTypes.map { DayType.findByName(it) },
         liturgicalInfo = LiturgicalInfo(
-            color = LiturgicalColor.valueOf(liturgicalInfo.color.uppercase()),
             importance = liturgicalInfo.importance
         ),
         fastingInfo = FastingInfo(
             fastingLevel = FastingLevel.valueOf(fastingInfo.fastingLevel.uppercase()),
-            allowed = fastingInfo.allowed
+            allowed = fastingInfo.allowed,
+            fastingName = fastingInfo.fastingName
         ),
-        readings = readings.map { readingString ->
-            Reading(
-                type = ReadingType.UNKNOWN, // Keep it simple for now
-                passage = "",
-                description = readingString
-            )
-        },
-        saints = listOf(SaintInfo(names = saints)),
+        readings = readings,
+        saints = saints,
         searchText = searchText
     )
 }

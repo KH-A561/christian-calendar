@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DayOfWeek
-import kotlinx.serialization.InternalSerializationApi
 import ru.akhilko.christian_calendar.core.common.DateConverter
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.data.repository.AuthRepository
@@ -14,7 +13,6 @@ import ru.akhilko.christian_calendar.core.data.repository.SearchContentsReposito
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.database.dao.CalendarDayDao
 import ru.akhilko.core.database.entity.day.CalendarDayEntity
@@ -22,7 +20,6 @@ import ru.akhilko.core.database.entity.day.asResource
 import ru.akhilko.core.database.entity.day.toEntity
 import javax.inject.Inject
 
-@OptIn(InternalSerializationApi::class)
 internal class DefaultCalendarDayRepository @Inject constructor(
     private val calendarDayDao: CalendarDayDao,
     private val firestoreDataSource: FirestoreCalendarDataSource,
@@ -90,13 +87,13 @@ internal class DefaultCalendarDayRepository @Inject constructor(
 
 private fun FirestoreDay.toEntity(id: String): CalendarDayEntity {
     val liturgicalInfo = LiturgicalInfo(
-        color = LiturgicalColor.valueOf(this.liturgical.color.uppercase()),
         importance = this.liturgical.importance
     )
 
     val fastingInfo = FastingInfo(
-        fastingLevel = FastingLevel.valueOf(this.fastingInfo.fastingLevel.uppercase()),
-        allowed = this.fastingInfo.allowed
+        fastingLevel = if (this.fastingInfo.fastingLevel.isBlank()) FastingLevel.NONE else FastingLevel.valueOf(this.fastingInfo.fastingLevel.uppercase()),
+        allowed = this.fastingInfo.allowed,
+        fastingName = this.fastingInfo.fastingName
     )
 
     val (julianYear, julianMonth, julianDay) = DateConverter.gregorianToJulian(
@@ -117,12 +114,11 @@ private fun FirestoreDay.toEntity(id: String): CalendarDayEntity {
         lastUpdated = this.lastUpdated.toString(),
         title = this.title,
         week = this.week,
-        dayTypes = if (this.liturgical.dayType.isNotBlank())
-            listOf(DayType.valueOf(this.liturgical.dayType.uppercase())) else emptyList(),
+        dayTypes = this.dayTypes.map { DayType.findByName((it)) },
         liturgicalInfo = liturgicalInfo,
         fastingInfo = fastingInfo,
-        readings = emptyList(),
-        saints = emptyList(),
-        searchText = "${this.title} ${this.week}".trim()
+        readings = this.readings,
+        saints = this.saints,
+        searchText = "${this.title} ${this.week} ${this.saints.joinToString(" ")}".trim()
     )
 }

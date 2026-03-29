@@ -25,8 +25,7 @@ class GenerateMonthSummariesUseCase @Inject constructor() {
                     highlightedDays.add(
                         HighlightedDay(
                             dayOfMonth = day.day.gregorianDay,
-                            name = day.day.title,
-                            color = day.day.liturgicalInfo.color
+                            name = day.day.title
                         )
                     )
                 }
@@ -45,8 +44,7 @@ class GenerateMonthSummariesUseCase @Inject constructor() {
                         HighlightedPeriod(
                             startDay = firstDay.day.gregorianDay,
                             endDay = lastDay.day.gregorianDay,
-                            name = name,
-                            color = firstDay.day.liturgicalInfo.color
+                            name = name
                         )
                     )
                 }

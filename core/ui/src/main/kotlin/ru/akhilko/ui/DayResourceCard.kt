@@ -26,11 +26,7 @@ import ru.akhilko.christian_calendar.core.model.CalendarDay
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
-import ru.akhilko.christian_calendar.core.model.Reading
-import ru.akhilko.christian_calendar.core.model.ReadingType
-import ru.akhilko.christian_calendar.core.model.SaintInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.ui.R
 import java.time.format.DateTimeFormatter
@@ -125,8 +121,8 @@ fun DayResourceMetaData(
 
 @Composable
 fun DayResourceShortDescription(
-    saints: List<SaintInfo>,
-    readings: List<Reading>,
+    saints: List<String>,
+    readings: List<String>,
     fastingInfo: FastingInfo
 ) {
     if (saints.isNotEmpty()) {
@@ -156,7 +152,6 @@ fun FastingInfoFormatted(fastingInfo: FastingInfo) {
             if (fastingInfo.allowed.isNotEmpty()) {
                 "Разрешено: ${fastingInfo.allowed.joinToString(separator = ", ")}"
             } else {
-                // Текст по умолчанию, если вдруг список `allowed` окажется пустым
                 "Пост с послаблениями"
             }
         }
@@ -170,9 +165,9 @@ fun FastingInfoFormatted(fastingInfo: FastingInfo) {
 
 
 @Composable
-fun ReadingsFormatted(reading: Reading) {
+fun ReadingsFormatted(reading: String) {
     Text(
-        text = "${reading.description}: ${reading.passage}",
+        text = reading,
         style = MaterialTheme.typography.bodySmall
     )
 }
@@ -189,8 +184,8 @@ fun dateFormatted(date: LocalDate): String {
 }
 
 @Composable
-fun saintsFormatted(saints: List<SaintInfo>): String =
-    saints.flatMap { it.names }.joinToString("\n")
+fun saintsFormatted(saints: List<String>): String =
+    saints.joinToString("\n")
 
 @Preview("DayResourceCardExpanded")
 @Composable
@@ -208,7 +203,6 @@ fun ExpandedDayResourcePreview() {
         week = "Седмица 11-я по Пятидесятнице.",
         dayTypes = listOf(DayType.FEAST),
         liturgicalInfo = LiturgicalInfo(
-            color = LiturgicalColor.PURPLE,
             importance = 3
         ),
         fastingInfo = FastingInfo(
@@ -216,20 +210,12 @@ fun ExpandedDayResourcePreview() {
             allowed = listOf("Вино", "Елей")
         ),
         readings = listOf(
-            Reading(
-                type = ReadingType.GOSPEL,
-                passage = "Мф. 10:1-8",
-                description = "Евангелие утреннее"
-            ),
-            Reading(
-                type = ReadingType.APOSTLE,
-                passage = "Деян. 5:12-20",
-                description = "Апостол"
-            )
+            "Евангелие утреннее: Мф. 10:1-8",
+            "Апостол: Деян. 5:12-20"
         ),
         saints = listOf(
-            SaintInfo(names = listOf("АП. И ЕВАНГЕЛИСТА МАТФЕЯ (60)")),
-            SaintInfo(names = listOf("Сщмч. Ипполита", "мчч. Кенсорина и Савина"))
+            "АП. И ЕВАНГЕЛИСТА МАТФЕЯ (60)",
+            "Сщмч. Ипполита", "мчч. Кенсорина и Савина"
         ),
         searchText = ""
     )

@@ -14,6 +14,6 @@ class DayTypesConverter {
         if (data.isEmpty()) {
             return emptyList()
         }
-        return data.split(",").map { DayType.valueOf(it) }
+        return data.split(",").map { DayType.findByName(it) }
     }
 }

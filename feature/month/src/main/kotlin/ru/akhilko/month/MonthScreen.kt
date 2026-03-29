@@ -64,7 +64,6 @@ import ru.akhilko.christian_calendar.core.domain.model.MonthSummary
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalColor
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.ui.DaySummaryCard
@@ -77,10 +76,9 @@ import java.util.Locale as JavaLocale
 
 // ============== Стилизация дней ============== //
 
-private val ColorGreatFeast = Color(0xFFB71C1C) // Кроваво-красный
-private val ColorFeast = Color(0xFFF06292)      // Розовый
-private val ColorFast = Color(0xFF9575CD)       // Фиолетово-серый
-private val ColorMemorial = Color(0xFF64B5F6)   // Голубовато-серый
+private val ColorFeast = Color(0xFFD32F2F)      // Красный — праздники
+private val ColorFast = Color(0xFF7E57C2)       // Фиолетовый — пост
+private val ColorMemorial = Color(0xFF1565C0)   // Синий — поминовение
 
 private data class DayStyle(
     val backgroundColor: Color,
@@ -95,31 +93,32 @@ private fun resolveDayStyle(
     isCurrentMonth: Boolean,
     isToday: Boolean,
 ): DayStyle {
-    val importance = dayResource?.day?.liturgicalInfo?.importance ?: 0
-    val dayTypes = dayResource?.day?.dayTypes ?: listOf(DayType.ORDINARY)
+    val dayTypes = dayResource?.day?.dayTypes ?: emptyList()
 
+    // Фон: только многодневный пост — лёгкий тон, чтобы показать «зону поста».
+    // Праздники и однодневные посты обозначаются полосками, не фоном.
     val backgroundColor = when {
-        importance >= 3 -> ColorGreatFeast.copy(alpha = 0.12f)
-        dayTypes.contains(DayType.FEAST) -> ColorFeast.copy(alpha = 0.1f)
-        dayTypes.contains(DayType.LONG_FAST) -> ColorFast.copy(alpha = 0.1f)
+        !isCurrentMonth -> Color.Transparent
+        dayTypes.contains(DayType.LONG_FAST) -> ColorFast.copy(alpha = 0.07f)
         else -> Color.Transparent
     }
 
+    // Цвет текста = тип праздника (главный сигнал).
+    // Многодневный пост НЕ окрашивает текст — у него фон.
     val textColor = when {
         !isCurrentMonth -> colorScheme.onSurface.copy(alpha = 0.25f)
-        importance >= 3 -> ColorGreatFeast
-        dayTypes.contains(DayType.FEAST) -> ColorFeast
-        dayTypes.contains(DayType.LONG_FAST) || dayTypes.contains(DayType.FAST) -> ColorFast
-        dayTypes.contains(DayType.MEMORIAL) -> ColorMemorial
-        day.date.dayOfWeek == DayOfWeek.SUNDAY -> ColorGreatFeast.copy(alpha = 0.6f)
+        dayTypes.any { dayType -> dayType.isFeast() } -> ColorFeast
+        dayTypes.contains(DayType.COMMEMORATION) -> ColorMemorial
+        day.date.dayOfWeek == DayOfWeek.SUNDAY -> Color(0xFFE57373)
         else -> colorScheme.onSurface
     }
 
-    val fontWeight =
-        if (!dayTypes.contains(DayType.ORDINARY)
-            || day.date.dayOfWeek == DayOfWeek.SUNDAY
-            || isToday) FontWeight.Black
-        else FontWeight.Normal
+    val fontWeight = when {
+        isToday -> FontWeight.Black
+        dayTypes.any { dayType -> dayType.isFeast() } -> FontWeight.Bold
+        day.date.dayOfWeek == DayOfWeek.SUNDAY -> FontWeight.SemiBold
+        else -> FontWeight.Normal
+    }
 
     return DayStyle(backgroundColor, textColor, fontWeight)
 }
@@ -376,7 +375,7 @@ private fun MonthEventSummary(
                             .width(4.dp)
                             .height(16.dp)
                             .clip(RoundedCornerShape(2.dp))
-                            .background(if (day.color == LiturgicalColor.RED) ColorGreatFeast else ColorFeast),
+                            .background(ColorFeast), // Using a default feast color since LiturgicalColor is gone
                     )
                     Spacer(Modifier.width(12.dp))
                     Text(
@@ -429,35 +428,39 @@ private fun Day(
                 fontWeight = style.fontWeight,
             )
 
-            // Полоски под числом (индикаторы)
+            // Полоски-индикаторы под числом.
+            // Многодневный пост обозначен фоном — полоска ему не нужна.
+            // Полоски = акцентные события: праздники, поминовения, однодневный пост.
             val indicators = remember(dayResource) {
                 if (!isCurrentMonth || dayResource == null) {
                     return@remember emptyList()
                 }
 
                 val list = mutableListOf<Color>()
-                val localImportance = dayResource.day.liturgicalInfo.importance
                 val localDayTypes = dayResource.day.dayTypes
-                val localIsFast =
-                    dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE ||
-                            localDayTypes.contains(DayType.FAST)
+                val isLongFast = localDayTypes.contains(DayType.LONG_FAST)
+                val isSingleDayFast =
+                    !isLongFast && (
+                            dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE ||
+                                    localDayTypes.contains(DayType.FAST)
+                            )
 
-                if (localImportance >= 3 && localDayTypes.contains(DayType.FEAST)) {
-                    list.add(ColorGreatFeast)
-                } else if (localImportance < 3
-                    && localDayTypes.contains(DayType.FEAST)
-                ) {
+                // 1. Праздник
+                if (localDayTypes.any { dayType -> dayType.isFeast() }) {
                     list.add(ColorFeast)
                 }
 
-                if (localIsFast) {
+                // 2. Поминовение
+                if (localDayTypes.contains(DayType.COMMEMORATION)) {
+                    list.add(ColorMemorial)
+                }
+
+                // 3. Однодневный пост (многодневный уже показан фоном)
+                if (isSingleDayFast) {
                     list.add(ColorFast)
                 }
 
-                if (localDayTypes.contains(DayType.MEMORIAL)) {
-                    list.add(ColorMemorial)
-                }
-                return@remember list.distinct()
+                return@remember list
             }
 
             if (indicators.isNotEmpty()) {
@@ -467,10 +470,10 @@ private fun Day(
                         .padding(top = 2.dp),
                     horizontalArrangement = Arrangement.spacedBy(
                         2.dp,
-                        Alignment.CenterHorizontally
+                        Alignment.CenterHorizontally,
                     ),
                 ) {
-                    indicators.take(4).forEach { color ->
+                    indicators.take(3).forEach { color ->
                         Box(
                             modifier = Modifier
                                 .weight(1f)
@@ -537,7 +540,7 @@ private fun MonthScreenFullPreview() {
                 julianYear = today.year,
                 dayTypes = listOf(DayType.FEAST),
                 liturgicalInfo = LiturgicalInfo(
-                    importance = 3, color = LiturgicalColor.RED
+                    importance = 3
                 ),
                 fastingInfo = FastingInfo(fastingLevel = FastingLevel.NONE, allowed = emptyList()),
                 title = "Великий праздник",
@@ -560,8 +563,7 @@ private fun MonthScreenFullPreview() {
                 julianYear = today.year,
                 dayTypes = listOf(DayType.LONG_FAST),
                 liturgicalInfo = LiturgicalInfo(
-                    importance = 0,
-                    color = LiturgicalColor.PURPLE
+                    importance = 0
                 ),
                 fastingInfo = FastingInfo(
                     fastingLevel = FastingLevel.STRICT,
@@ -588,7 +590,6 @@ private fun MonthScreenFullPreview() {
                 julianYear = today.year,
                 dayTypes = listOf(DayType.LONG_FAST),
                 liturgicalInfo = LiturgicalInfo(
-                    color = LiturgicalColor.PURPLE,
                     importance = 0
                 ),
                 fastingInfo = FastingInfo(
@@ -614,9 +615,8 @@ private fun MonthScreenFullPreview() {
                 julianDay = today.dayOfMonth - 8,
                 julianMonth = today.monthValue,
                 julianYear = today.year,
-                dayTypes = listOf(DayType.MEMORIAL),
+                dayTypes = listOf(DayType.COMMEMORATION),
                 liturgicalInfo = LiturgicalInfo(
-                    color = LiturgicalColor.BLUE,
                     importance = 2
                 ),
                 fastingInfo = FastingInfo(fastingLevel = FastingLevel.NONE, allowed = emptyList()),
@@ -665,7 +665,7 @@ private fun MonthScreenWithDayCardPreview() {
                 julianYear = today.year,
                 dayTypes = listOf(DayType.FEAST),
                 liturgicalInfo = LiturgicalInfo(
-                    importance = 3, color = LiturgicalColor.RED
+                    importance = 3
                 ),
                 fastingInfo = FastingInfo(fastingLevel = FastingLevel.NONE, allowed = emptyList()),
                 title = "Великий праздник",
@@ -688,8 +688,7 @@ private fun MonthScreenWithDayCardPreview() {
                 julianYear = today.year,
                 dayTypes = listOf(DayType.LONG_FAST),
                 liturgicalInfo = LiturgicalInfo(
-                    importance = 0,
-                    color = LiturgicalColor.PURPLE
+                    importance = 0
                 ),
                 fastingInfo = FastingInfo(
                     fastingLevel = FastingLevel.STRICT,
@@ -716,7 +715,6 @@ private fun MonthScreenWithDayCardPreview() {
                 julianYear = today.year,
                 dayTypes = listOf(DayType.LONG_FAST),
                 liturgicalInfo = LiturgicalInfo(
-                    color = LiturgicalColor.PURPLE,
                     importance = 0
                 ),
                 fastingInfo = FastingInfo(
@@ -742,9 +740,8 @@ private fun MonthScreenWithDayCardPreview() {
                 julianDay = today.dayOfMonth - 8,
                 julianMonth = today.monthValue,
                 julianYear = today.year,
-                dayTypes = listOf(DayType.MEMORIAL),
+                dayTypes = listOf(DayType.COMMEMORATION),
                 liturgicalInfo = LiturgicalInfo(
-                    color = LiturgicalColor.BLUE,
                     importance = 2
                 ),
                 fastingInfo = FastingInfo(fastingLevel = FastingLevel.NONE, allowed = emptyList()),
