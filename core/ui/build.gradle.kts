@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.christian.calendar.android.library)
     alias(libs.plugins.christian.calendar.android.library.compose)
+    alias(libs.plugins.christian.calendar.hilt)
 }
 
 android {

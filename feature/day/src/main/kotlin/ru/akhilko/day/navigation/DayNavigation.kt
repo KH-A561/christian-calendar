@@ -17,6 +17,8 @@ fun NavController.navigateToDay(dayId: String, navOptions: NavOptions? = null) {
 }
 
 fun NavGraphBuilder.dayScreen(
+    onBack: () -> Unit,
+    onNavigateToDay: (String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
 ) {
     composable(
@@ -24,8 +26,10 @@ fun NavGraphBuilder.dayScreen(
         arguments = listOf(
             navArgument(DAY_ID_SAVED_STATE_KEY) { type = NavType.StringType }
         )
-    ) { backStackEntry ->
-        val dayId = backStackEntry.arguments?.getString(DAY_ID_SAVED_STATE_KEY) ?: ""
-        DayRoute(dayId = dayId)
+    ) {
+        DayRoute(
+            onBack = onBack,
+            onNavigateToDay = onNavigateToDay,
+        )
     }
 }

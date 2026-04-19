@@ -2,9 +2,6 @@ package ru.akhilko.christian_calendar.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.navigation.NavDestination
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -17,6 +14,7 @@ import ru.akhilko.christian_calendar.navigation.TopLevelDestination
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.DAY
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.MONTH
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.WEEK
+import ru.akhilko.core.ui.state.SelectedDayHolder
 import ru.akhilko.day.navigation.DAY_ROUTE_BASE
 import ru.akhilko.day.navigation.navigateToDay
 import ru.akhilko.feature.search.navigation.navigateToSearch
@@ -24,11 +22,11 @@ import ru.akhilko.month.navigation.MONTH_ROUTE
 import ru.akhilko.month.navigation.navigateToMonth
 import ru.akhilko.week.navigation.WEEK_ROUTE
 import ru.akhilko.week.navigation.navigateToWeek
-import java.time.LocalDate
 
 @Stable
 class ChristianCalendarAppState(
     val navController: NavHostController,
+    private val selectedDayHolder: SelectedDayHolder,
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
@@ -42,7 +40,6 @@ class ChristianCalendarAppState(
             else -> null
         }
 
-    // Событие для прокрутки к сегодняшнему дню
     private val _scrollToTodayRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val scrollToTodayRequests = _scrollToTodayRequests.asSharedFlow()
 
@@ -53,7 +50,7 @@ class ChristianCalendarAppState(
     val topLevelDestinations: List<TopLevelDestination> = TopLevelDestination.entries
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
-        trace("Navigation: ${topLevelDestination.name}") { 
+        trace("Navigation: ${topLevelDestination.name}") {
             val topLevelNavOptions = navOptions {
                 popUpTo(navController.graph.findStartDestination().id) {
                     saveState = true
@@ -66,8 +63,9 @@ class ChristianCalendarAppState(
                 MONTH -> navController.navigateToMonth(topLevelNavOptions)
                 WEEK -> navController.navigateToWeek(topLevelNavOptions)
                 DAY -> {
-                    val today = LocalDate.now().toString()
-                    navController.navigateToDay(today, topLevelNavOptions)
+                    // Открываем последний просмотренный день, а не «сегодня».
+                    val targetId = selectedDayHolder.selectedDayId.value
+                    navController.navigateToDay(targetId, topLevelNavOptions)
                 }
             }
         }
