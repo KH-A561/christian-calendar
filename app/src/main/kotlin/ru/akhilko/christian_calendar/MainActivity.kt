@@ -11,25 +11,26 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.akhilko.christian_calendar.ui.ChristianCalendarApp
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
 import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.core.ui.state.SelectedDayHolder
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject lateinit var selectedDayHolder: SelectedDayHolder
+
     @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
-        // Устанавливаем сплэш-скрин. Он автоматически скроется,
-        // как только первый кадр Compose будет отрисован.
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
         setContent {
             val appState = ChristianCalendarAppState(
-                navController = rememberNavController()
+                navController = rememberNavController(),
+                selectedDayHolder = selectedDayHolder,
             )
 
-            // Подключаем вашу тему
             CalendarTheme {
-                // Отображаем главный компонент приложения
                 ChristianCalendarApp(
                     appState = appState,
                     windowAdaptiveInfo = currentWindowAdaptiveInfo()

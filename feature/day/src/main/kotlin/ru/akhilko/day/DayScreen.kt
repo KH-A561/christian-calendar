@@ -1,66 +1,130 @@
 package ru.akhilko.day
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons as MaterialIcons
+import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import ru.akhilko.christian_calendar.core.model.CalendarDay
-import ru.akhilko.christian_calendar.core.model.DayType
-import ru.akhilko.christian_calendar.core.model.FastingInfo
-import ru.akhilko.christian_calendar.core.model.FastingLevel
-import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import java.time.LocalDate
+import ru.akhilko.day.ui.DayHero
+import ru.akhilko.day.ui.DayTab
+import ru.akhilko.day.ui.DayTabs
+import ru.akhilko.day.ui.DayTopBar
+import ru.akhilko.day.ui.tab.FastTabContent
+import ru.akhilko.day.ui.tab.GeneralTabContent
+import ru.akhilko.day.ui.tab.ReadingsTabContent
+import ru.akhilko.day.ui.tab.SaintsTabContent
 
 @Composable
-fun DayScreen(uiState: DayScreenUiState) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        when (uiState) {
-            is DayScreenUiState.Loading -> {
-                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            }
+fun DayScreen(
+    uiState: DayScreenUiState,
+    onBack: () -> Unit,
+    onNavigateToDay: (String) -> Unit,
+) {
+    when (uiState) {
+        DayScreenUiState.Loading -> CenteredLoading()
+        DayScreenUiState.Error -> CenteredError("Не удалось загрузить день")
+        is DayScreenUiState.Success -> DaySuccessContent(
+            state = uiState,
+            onBack = onBack,
+            onNavigateToDay = onNavigateToDay,
+        )
+    }
+}
 
-            is DayScreenUiState.Success -> {
-                Text(text = uiState.day.title)
+@Composable
+private fun DaySuccessContent(
+    state: DayScreenUiState.Success,
+    onBack: () -> Unit,
+    onNavigateToDay: (String) -> Unit,
+) {
+    var selectedTab by rememberSaveable { mutableStateOf(DayTab.GENERAL) }
+    Scaffold(
+        topBar = {
+            DayTopBar(
+                title = state.day.monthYearRu,
+                onBack = onBack,
+                onPrev = { onNavigateToDay(state.prevId) },
+                onNext = { onNavigateToDay(state.nextId) },
+            )
+        },
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = !state.day.isToday,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut(),
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = { onNavigateToDay(LocalDate.now().toString()) },
+                    icon = {
+                        Icon(
+                            imageVector = MaterialIcons.Default.Today,
+                            contentDescription = null,
+                        )
+                    },
+                    text = { Text("К сегодня") },
+                )
             }
-
-            is DayScreenUiState.Error -> {
-                Text(text = "Error", modifier = Modifier.align(Alignment.Center))
+        },
+        containerColor = Color.Transparent,
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+        ) {
+            DayHero(presentation = state.day)
+            Spacer(Modifier.height(12.dp))
+            DayTabs(selected = selectedTab, onSelect = { selectedTab = it })
+            AnimatedContent(
+                targetState = selectedTab,
+                label = "DayTabContent",
+                modifier = Modifier.fillMaxSize(),
+            ) { tab ->
+                when (tab) {
+                    DayTab.GENERAL -> GeneralTabContent(state.day)
+                    DayTab.FAST -> FastTabContent(state.day)
+                    DayTab.READINGS -> ReadingsTabContent(state.day)
+                    DayTab.SAINTS -> SaintsTabContent(state.day)
+                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun DayScreenLoadingPreview() {
-    DayScreen(uiState = DayScreenUiState.Loading)
+private fun CenteredLoading() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-private fun DayScreenSuccessPreview() {
-    val sampleDay = CalendarDay(
-        gregorianDay = 1,
-        gregorianMonth = 1,
-        gregorianYear = 2024,
-        julianDay = 19,
-        julianMonth = 12,
-        julianYear = 2023,
-        dayTypes = listOf(DayType.FEAST),
-        liturgicalInfo = LiturgicalInfo(
-            importance = 3
-        ),
-        fastingInfo = FastingInfo(fastingLevel = FastingLevel.NONE, allowed = emptyList()),
-        title = "Великий праздник",
-        dayOfWeek = kotlinx.datetime.DayOfWeek.MONDAY,
-        lastUpdated = "",
-        week = "",
-        readings = emptyList(),
-        saints = emptyList(),
-        searchText = ""
-    )
-    DayScreen(uiState = DayScreenUiState.Success(sampleDay))
+private fun CenteredError(message: String) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text = message)
+    }
 }

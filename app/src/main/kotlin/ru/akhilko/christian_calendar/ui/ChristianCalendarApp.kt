@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +32,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import ru.akhilko.christian_calendar.navigation.ChristianCalendarNavHost
@@ -45,8 +43,6 @@ import ru.akhilko.core.designsystem.component.CalendarTopAppBar
 import ru.akhilko.core.designsystem.icon.Icons
 import ru.akhilko.core.designsystem.theme.GradientColors
 import ru.akhilko.core.designsystem.theme.LocalGradientColors
-import ru.akhilko.month.MonthViewModel
-import androidx.compose.material.icons.Icons as MaterialIcons
 import ru.akhilko.feature.settings.R as settingsR
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -56,7 +52,6 @@ fun ChristianCalendarApp(
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
 ) {
-    val monthViewModel: MonthViewModel = hiltViewModel()
     CalendarBackground(modifier = modifier) {
         CalendarGradientBackground(
             gradientColors = if (appState.currentTopLevelDestination == TopLevelDestination.MONTH) {
@@ -65,11 +60,9 @@ fun ChristianCalendarApp(
                 GradientColors()
             },
         ) {
-
             ChristianCalendarAppInternal(
                 appState = appState,
                 windowAdaptiveInfo = windowAdaptiveInfo,
-                monthViewModel = monthViewModel
             )
         }
     }
@@ -83,7 +76,6 @@ fun ChristianCalendarApp(
 )
 internal fun ChristianCalendarAppInternal(
     appState: ChristianCalendarAppState,
-    monthViewModel: MonthViewModel,
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
 ) {
@@ -141,26 +133,19 @@ internal fun ChristianCalendarAppInternal(
                     ),
             ) {
                 // Show the top app bar on top level destinations.
+                // На Day-экране собственный TopAppBar (с back/prev/next), общий скрываем.
                 val destination = appState.currentTopLevelDestination
-                val shouldShowTopAppBar = destination != null
-                if (destination != null) {
+                val shouldShowTopAppBar = destination != null && destination != TopLevelDestination.DAY
+                if (shouldShowTopAppBar && destination != null) {
                     CalendarTopAppBar(
                         titleRes = destination.titleTextId,
                         navigationIcon = Icons.Search,
                         navigationIconContentDescription = stringResource(
                             id = settingsR.string.feature_settings_top_app_bar_navigation_icon_description,
                         ),
-                        // Кнопка "Сегодня" в действиях
-                        actionIcon = MaterialIcons.Default.Today,
-                        actionIconContentDescription = "К сегодня",
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                             containerColor = Color.Transparent,
                         ),
-                        onActionClick = { 
-                            if (destination == TopLevelDestination.MONTH) {
-                                monthViewModel.onTodayClick()
-                            }
-                        },
                         onNavigationClick = { appState.navigateToSearch() },
                     )
                 }
@@ -183,7 +168,6 @@ internal fun ChristianCalendarAppInternal(
                                 duration = Short,
                             ) == ActionPerformed
                         },
-                        monthViewModel = monthViewModel
                     )
                 }
             }

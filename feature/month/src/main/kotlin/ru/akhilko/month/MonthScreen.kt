@@ -129,7 +129,7 @@ private fun resolveDayStyle(
 fun MonthRoute(
     modifier: Modifier = Modifier,
     onDayClick: (String) -> Unit,
-    viewModel: MonthViewModel,
+    viewModel: MonthViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
 ) {
     val monthUiState: MonthScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
 

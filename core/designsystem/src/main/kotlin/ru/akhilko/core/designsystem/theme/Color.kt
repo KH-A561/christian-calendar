@@ -83,3 +83,12 @@ internal val Teal30 = Color(0xFF214D56)
 internal val Teal40 = Color(0xFF3A656F)
 internal val Teal80 = Color(0xFFA2CED9)
 internal val Teal90 = Color(0xFFBEEAF6)
+
+// ============== Семантические цвета календаря ============== //
+// Единые цвета для типов дней — используются и в Month-сетке, и в бейджах.
+
+val ColorFeast = Color(0xFFD32F2F)        // Праздник — красный
+val ColorFast = Color(0xFF7E57C2)         // Пост — фиолетовый (единый для всех типов поста)
+val ColorMemorial = Color(0xFF1565C0)     // Поминовение — синий
+val ColorGreat = Color(0xFFC9A227)        // Великий праздник — золотой
+val ColorRemembrance = Color(0xFF6D4C41)  // Память (особое) — тёмно-серо-коричневый
