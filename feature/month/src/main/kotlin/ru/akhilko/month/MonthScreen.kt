@@ -2,12 +2,16 @@ package ru.akhilko.month
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +22,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,7 +33,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -37,14 +45,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kizitonwose.calendar.compose.VerticalCalendar
@@ -55,7 +68,9 @@ import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.yearMonth
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toKotlinLocalDate
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
@@ -72,6 +87,7 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import kotlin.math.roundToInt
 import java.util.Locale as JavaLocale
 
 // ============== Стилизация дней ============== //
@@ -266,17 +282,69 @@ internal fun MonthScreen(
             }
         }
 
+        val dismissState = rememberSwipeToDismissBoxState()
+        val verticalOffset = remember { Animatable(0f) }
+        val screenHeight = with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
+
+        LaunchedEffect(dismissState) {
+            snapshotFlow { dismissState.currentValue }
+                .filter { it != SwipeToDismissBoxValue.Settled }
+                .distinctUntilChanged()
+                .collect {
+                    selectedDay = null
+                }
+        }
+
+        LaunchedEffect(selectedDay) {
+            if (selectedDay != null) {
+                dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                verticalOffset.snapTo(0f)
+            }
+        }
+
         AnimatedVisibility(
             visible = selectedDay != null,
             modifier = Modifier.align(Alignment.BottomCenter),
-            enter = slideInVertically(initialOffsetY = { it }),
-            exit = slideOutVertically(targetOffsetY = { it })
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = fadeOut(animationSpec = tween(durationMillis = 200))
         ) {
             selectedDay?.let { dayRes ->
-                DaySummaryCard(
-                    day = dayRes.day,
-                    onClick = { onDayClick(dayRes.id) },
-                    modifier = Modifier.padding(16.dp)
+                SwipeToDismissBox(
+                    state = dismissState,
+                    enableDismissFromStartToEnd = true,
+                    enableDismissFromEndToStart = true,
+                    backgroundContent = {},
+                    content = {
+                        DaySummaryCard(
+                            day = dayRes.day,
+                            onClick = { onDayClick(dayRes.id) },
+                            onDismiss = { selectedDay = null },
+                            modifier = Modifier
+                                .padding(16.dp)
+                                .offset { IntOffset(0, verticalOffset.value.roundToInt()) }
+                                .pointerInput(Unit) {
+                                    detectVerticalDragGestures(
+                                        onVerticalDrag = { _, dragAmount ->
+                                            scope.launch {
+                                                verticalOffset.snapTo(verticalOffset.value + dragAmount)
+                                            }
+                                        },
+                                        onDragEnd = {
+                                            if (verticalOffset.value > 150) {
+                                                scope.launch {
+                                                    verticalOffset.animateTo(screenHeight, tween(300))
+                                                    selectedDay = null
+                                                }
+                                            } else {
+                                                scope.launch {
+                                                    verticalOffset.animateTo(0f, tween(300))
+                                                }
+                                            }
+                                        }
+                                    )
+                                }
+                        )
+                    }
                 )
             }
         }

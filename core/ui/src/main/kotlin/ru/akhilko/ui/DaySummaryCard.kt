@@ -1,15 +1,21 @@
 package ru.akhilko.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +40,7 @@ fun DaySummaryCard(
     day: CalendarDay,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onDismiss: (() -> Unit)? = null,
 ) {
     Card(
         onClick = onClick,
@@ -42,91 +49,110 @@ fun DaySummaryCard(
             .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .padding(
-                    start = 16.dp,
-                    end = 12.dp,
-                    top = 12.dp,
-                    bottom = 12.dp
-                )
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .padding(
+                        start = 16.dp,
+                        end = 40.dp, // Extra padding for the close button
+                        top = 12.dp,
+                        bottom = 12.dp
+                    )
             ) {
-                Text(
-                    text = "${day.gregorianDay} ${
-                        day.gregorianMonth.let {
-                            java.time.Month.of(it).getDisplayName(
-                                java.time.format.TextStyle.FULL,
-                                Locale("ru")
-                            )
-                        }
-                    } / ${day.julianDay} ${
-                        day.julianMonth.let {
-                            java.time.Month.of(it).getDisplayName(
-                                java.time.format.TextStyle.FULL,
-                                Locale("ru")
-                            )
-                        }
-                    }",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(Modifier.width(12.dp))
-                Text(
-                    text = day.dayOfWeek
-                        .getDisplayName(java.time.format.TextStyle.FULL, Locale("ru"))
-                        .uppercase(),
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = day.title,
-                style = MaterialTheme.typography.headlineSmall,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (day.week.isNotBlank()) {
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = day.week,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            Spacer(Modifier.height(12.dp))
-
-            if (day.fastingInfo.fastingLevel != FastingLevel.NONE) {
-                val fastingName = day.fastingInfo.fastingName ?: "Пост"
-                Text(
-                    text = fastingName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                if (day.fastingInfo.allowed.isNotEmpty()) {
-                    Spacer(Modifier.height(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        text = "Разрешено: ${day.fastingInfo.allowed.joinToString()}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "${day.gregorianDay} ${
+                            day.gregorianMonth.let {
+                                java.time.Month.of(it).getDisplayName(
+                                    java.time.format.TextStyle.FULL,
+                                    Locale("ru")
+                                )
+                            }
+                        } / ${day.julianDay} ${
+                            day.julianMonth.let {
+                                java.time.Month.of(it).getDisplayName(
+                                    java.time.format.TextStyle.FULL,
+                                    Locale("ru")
+                                )
+                            }
+                        }",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.width(12.dp))
+                    Text(
+                        text = day.dayOfWeek
+                            .getDisplayName(java.time.format.TextStyle.FULL, Locale("ru"))
+                            .uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.outline
                     )
                 }
-            } else {
+                Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Поста нет",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    text = day.title,
+                    style = MaterialTheme.typography.headlineSmall,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
                 )
+                if (day.week.isNotBlank()) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = day.week,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                if (day.fastingInfo.fastingLevel != FastingLevel.NONE) {
+                    val fastingName = day.fastingInfo.fastingName ?: "Пост"
+                    Text(
+                        text = fastingName,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    if (day.fastingInfo.allowed.isNotEmpty()) {
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            text = "Разрешено: ${day.fastingInfo.allowed.joinToString()}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else {
+                    Text(
+                        text = "Поста нет",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            if (onDismiss != null) {
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Закрыть",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.outline
+                    )
+                }
             }
         }
     }
@@ -162,7 +188,7 @@ private fun DaySummaryCardPreview() {
 
     CalendarTheme {
         Column(modifier = Modifier.padding(16.dp)) {
-            DaySummaryCard(day = sampleDay, onClick = {})
+            DaySummaryCard(day = sampleDay, onClick = {}, onDismiss = {})
         }
     }
 }
