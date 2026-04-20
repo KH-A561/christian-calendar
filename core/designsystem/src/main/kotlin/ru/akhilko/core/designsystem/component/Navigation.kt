@@ -71,6 +71,9 @@ fun CalendarNavigationSuiteScaffold(
         layoutType = layoutType,
         containerColor = Color.Transparent,
         navigationSuiteColors = NavigationSuiteDefaults.colors(
+            // Явно задаём контейнер бара — иначе M3 тянет surfaceContainer,
+            // который смешивается с primary-tint и уходит в розоватый.
+            navigationBarContainerColor = MaterialTheme.colorScheme.surface,
             navigationBarContentColor = CalendarNavigationDefaults.navigationContentColor(),
             navigationRailContainerColor = Color.Transparent,
         ),

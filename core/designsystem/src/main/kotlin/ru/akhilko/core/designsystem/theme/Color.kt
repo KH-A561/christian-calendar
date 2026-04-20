@@ -84,11 +84,33 @@ internal val Teal40 = Color(0xFF3A656F)
 internal val Teal80 = Color(0xFFA2CED9)
 internal val Teal90 = Color(0xFFBEEAF6)
 
+// ============== Палитра дизайн-документа (светлая, «пергамент») ============== //
+// Токены из tokens.jsx: тёплая кремовая подложка, мягкий чёрный «ink», акценты.
+
+internal val PaperBg = Color(0xFFFBF8F3)          // bg — общий фон
+internal val PaperSurface = Color(0xFFFFFFFF)      // surface — карточки
+internal val PaperSurfaceAlt = Color(0xFFF4EFE6)   // surfaceAlt — вторичные блоки
+internal val PaperBorder = Color(0xFFE5DCC9)       // border / outlineVariant
+internal val PaperOutline = Color(0xFFBFB294)      // outline
+
+internal val Ink = Color(0xFF1A1613)               // основной текст
+internal val InkSoft = Color(0xFF433D34)           // вторичный текст
+internal val InkMuted = Color(0xFF766D5E)          // третичный / подписи
+
+// Тёмная «бумажная» тема (приблизительная инверсия — до настроек её не трогаем).
+internal val InkPaperBg = Color(0xFF14110E)
+internal val InkPaperSurface = Color(0xFF1F1B17)
+internal val InkPaperSurfaceAlt = Color(0xFF2A2520)
+internal val InkPaperOnSurface = Color(0xFFF0E9D9)
+internal val InkPaperOnSurfaceVariant = Color(0xFFB9AE97)
+internal val InkPaperOutline = Color(0xFF6B604E)
+
 // ============== Семантические цвета календаря ============== //
 // Единые цвета для типов дней — используются и в Month-сетке, и в бейджах.
+// Значения из дизайн-документа (light theme).
 
-val ColorFeast = Color(0xFFD32F2F)        // Праздник — красный
-val ColorFast = Color(0xFF7E57C2)         // Пост — фиолетовый (единый для всех типов поста)
-val ColorMemorial = Color(0xFF1565C0)     // Поминовение — синий
-val ColorGreat = Color(0xFFC9A227)        // Великий праздник — золотой
-val ColorRemembrance = Color(0xFF6D4C41)  // Память (особое) — тёмно-серо-коричневый
+val ColorGreat = Color(0xFFA5842A)         // Великий праздник — золото
+val ColorFeast = Color(0xFF8A2B2B)         // Праздник — бордовый
+val ColorFast = Color(0xFF7B5D87)          // Пост — приглушённый фиолетовый (единый для всех типов)
+val ColorRemembrance = Color(0xFF6F8599)   // Память / поминовение — серо-синий
+val ColorMemorial = ColorRemembrance       // Исторический алиас (обратная совместимость)

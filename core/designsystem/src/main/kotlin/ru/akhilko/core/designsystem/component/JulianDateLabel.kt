@@ -17,7 +17,7 @@ fun JulianDateLabel(
     style: JulianStyle = JulianStyle.Inline,
 ) {
     val monthGenitive = remember(julianMonth) { monthGenitiveRu(julianMonth) }
-    val text = "ст. ст. $julianDay $monthGenitive"
+    val text = "$julianDay $monthGenitive"
     Text(
         text = text,
         style = when (style) {

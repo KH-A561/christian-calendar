@@ -3,6 +3,7 @@ package ru.akhilko.christian_calendar.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -15,12 +16,12 @@ import ru.akhilko.christian_calendar.navigation.TopLevelDestination.DAY
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.MONTH
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.WEEK
 import ru.akhilko.core.ui.state.SelectedDayHolder
-import ru.akhilko.day.navigation.DAY_ROUTE_BASE
+import ru.akhilko.day.navigation.DAY_GRAPH_ROUTE
 import ru.akhilko.day.navigation.navigateToDay
 import ru.akhilko.feature.search.navigation.navigateToSearch
-import ru.akhilko.month.navigation.MONTH_ROUTE
+import ru.akhilko.month.navigation.MONTH_GRAPH_ROUTE
 import ru.akhilko.month.navigation.navigateToMonth
-import ru.akhilko.week.navigation.WEEK_ROUTE
+import ru.akhilko.week.navigation.WEEK_GRAPH_ROUTE
 import ru.akhilko.week.navigation.navigateToWeek
 
 @Stable
@@ -33,11 +34,11 @@ class ChristianCalendarAppState(
             .currentBackStackEntryAsState().value?.destination
 
     val currentTopLevelDestination: TopLevelDestination?
-        @Composable get() = when {
-            currentDestination?.route?.contains(MONTH_ROUTE, ignoreCase = true) == true -> MONTH
-            currentDestination?.route?.contains(WEEK_ROUTE, ignoreCase = true) == true -> WEEK
-            currentDestination?.route?.contains(DAY_ROUTE_BASE, ignoreCase = true) == true -> DAY
-            else -> null
+        @Composable get() {
+            val destination = currentDestination
+            return topLevelDestinations.firstOrNull { topLevelDestination ->
+                destination?.hierarchy?.any { it.route == topLevelDestination.route } == true
+            }
         }
 
     private val _scrollToTodayRequests = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -60,14 +61,32 @@ class ChristianCalendarAppState(
             }
 
             when (topLevelDestination) {
-                MONTH -> navController.navigateToMonth(topLevelNavOptions)
-                WEEK -> navController.navigateToWeek(topLevelNavOptions)
+                MONTH -> navigateToRestoredTopLevel(MONTH_GRAPH_ROUTE) {
+                    navController.navigateToMonth(topLevelNavOptions)
+                }
+
+                WEEK -> navigateToRestoredTopLevel(WEEK_GRAPH_ROUTE) {
+                    navController.navigateToWeek(topLevelNavOptions)
+                }
+
                 DAY -> {
                     // Открываем последний просмотренный день, а не «сегодня».
                     val targetId = selectedDayHolder.selectedDayId.value
-                    navController.navigateToDay(targetId, topLevelNavOptions)
+                    navigateToRestoredTopLevel(DAY_GRAPH_ROUTE) {
+                        navController.navigateToDay(targetId, topLevelNavOptions)
+                    }
                 }
             }
+        }
+    }
+
+    private fun navigateToRestoredTopLevel(
+        route: String,
+        fallbackNavigate: () -> Unit,
+    ) {
+        val restored = navController.popBackStack(route, inclusive = false)
+        if (!restored) {
+            fallbackNavigate()
         }
     }
 

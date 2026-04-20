@@ -81,6 +81,9 @@ import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.core.designsystem.theme.ColorFast
+import ru.akhilko.core.designsystem.theme.ColorFeast
+import ru.akhilko.core.designsystem.theme.ColorMemorial
 import ru.akhilko.ui.DaySummaryCard
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -91,10 +94,8 @@ import kotlin.math.roundToInt
 import java.util.Locale as JavaLocale
 
 // ============== Стилизация дней ============== //
-
-private val ColorFeast = Color(0xFFD32F2F)      // Красный — праздники
-private val ColorFast = Color(0xFF7E57C2)       // Фиолетовый — пост
-private val ColorMemorial = Color(0xFF1565C0)   // Синий — поминовение
+// Семантические цвета (ColorFeast / ColorFast / ColorMemorial) импортируются из
+// core.designsystem.theme — единый источник правды, совпадает с дизайн-доком.
 
 private data class DayStyle(
     val backgroundColor: Color,
@@ -125,7 +126,8 @@ private fun resolveDayStyle(
         !isCurrentMonth -> colorScheme.onSurface.copy(alpha = 0.25f)
         dayTypes.any { dayType -> dayType.isFeast() } -> ColorFeast
         dayTypes.contains(DayType.COMMEMORATION) -> ColorMemorial
-        day.date.dayOfWeek == DayOfWeek.SUNDAY -> Color(0xFFE57373)
+        // Воскресенье — «малая пасха»: окрашиваем праздничным бордовым, не розовым.
+        day.date.dayOfWeek == DayOfWeek.SUNDAY -> ColorFeast
         else -> colorScheme.onSurface
     }
 
