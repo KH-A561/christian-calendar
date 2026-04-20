@@ -26,7 +26,7 @@ import ru.akhilko.week.navigation.navigateToWeek
 @Stable
 class ChristianCalendarAppState(
     val navController: NavHostController,
-    private val selectedDayHolder: SelectedDayHolder,
+    val selectedDayHolder: SelectedDayHolder,
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController
