@@ -46,6 +46,16 @@ fun ChristianCalendarNavHost(
             },
         )
         weekScreen(
+            onDayClick = { dayId ->
+                val navOptions = navOptions {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        saveState = true
+                    }
+                    launchSingleTop = true
+                    restoreState = true
+                }
+                navController.navigateToDay(dayId, navOptions)
+            },
             onShowSnackbar = onShowSnackbar,
         )
         dayScreen(
