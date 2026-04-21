@@ -38,7 +38,6 @@ import ru.akhilko.day.ui.DayTab
 import ru.akhilko.day.ui.DayTabs
 import ru.akhilko.day.ui.DayTopBar
 import ru.akhilko.day.ui.tab.FastTabContent
-import ru.akhilko.day.ui.tab.GeneralTabContent
 import ru.akhilko.day.ui.tab.ReadingsTabContent
 import ru.akhilko.day.ui.tab.SaintsTabContent
 import java.time.LocalDate
@@ -67,7 +66,7 @@ private fun DaySuccessContent(
     onBack: () -> Unit,
     onNavigateToDay: (String) -> Unit,
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(DayTab.GENERAL) }
+    var selectedTab by rememberSaveable { mutableStateOf(DayTab.SAINTS) }
     Scaffold(
         topBar = {
             DayTopBar(
@@ -111,10 +110,9 @@ private fun DaySuccessContent(
                 modifier = Modifier.fillMaxSize(),
             ) { tab ->
                 when (tab) {
-                    DayTab.GENERAL -> GeneralTabContent(state.day)
-                    DayTab.FAST -> FastTabContent(state.day)
-                    DayTab.READINGS -> ReadingsTabContent(state.day)
                     DayTab.SAINTS -> SaintsTabContent(state.day)
+                    DayTab.READINGS -> ReadingsTabContent(state.day)
+                    DayTab.FAST -> FastTabContent(state.day)
                 }
             }
         }

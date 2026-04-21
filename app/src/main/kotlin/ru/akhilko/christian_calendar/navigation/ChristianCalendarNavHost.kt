@@ -2,14 +2,14 @@ package ru.akhilko.christian_calendar.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
+import ru.akhilko.day.navigation.DAY_ROUTE
 import ru.akhilko.day.navigation.dayScreen
 import ru.akhilko.day.navigation.navigateToDay
+import ru.akhilko.month.navigation.MONTH_GRAPH_ROUTE
 import ru.akhilko.feature.search.navigation.searchScreen
-import ru.akhilko.month.navigation.MONTH_ROUTE
 import ru.akhilko.month.navigation.monthScreen
 import ru.akhilko.week.navigation.weekScreen
 
@@ -25,7 +25,7 @@ fun ChristianCalendarNavHost(
     appState: ChristianCalendarAppState,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     modifier: Modifier = Modifier,
-    startDestination: String = MONTH_ROUTE,
+    startDestination: String = MONTH_GRAPH_ROUTE,
 ) {
     val navController = appState.navController
     NavHost(
@@ -34,16 +34,8 @@ fun ChristianCalendarNavHost(
         modifier = modifier,
     ) {
         monthScreen(
-            onDayClick = { dayId ->
-                val navOptions = navOptions {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-                navController.navigateToDay(dayId, navOptions)
-            },
+            // Month → Day: обычный переход, Back возвращает на Month.
+            onDayClick = { dayId -> navController.navigateToDay(dayId) },
         )
         weekScreen(
             onDayClick = { dayId ->
@@ -60,13 +52,12 @@ fun ChristianCalendarNavHost(
         )
         dayScreen(
             onBack = navController::popBackStack,
+            // Day → Day (prev/next / FAB «К сегодня»): заменяем текущую Day-запись,
+            // чтобы Back возвращал туда, откуда пришли, а не листал по дням.
             onNavigateToDay = { dayId ->
                 val navOptions = navOptions {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                    }
+                    popUpTo(DAY_ROUTE) { inclusive = true }
                     launchSingleTop = true
-                    restoreState = true
                 }
                 navController.navigateToDay(dayId, navOptions)
             },

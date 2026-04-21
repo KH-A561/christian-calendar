@@ -1,17 +1,21 @@
 package ru.akhilko.day.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
@@ -19,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import ru.akhilko.core.designsystem.component.DayTypeBadgeRow
 import ru.akhilko.core.designsystem.component.JulianDateLabel
 import ru.akhilko.core.designsystem.component.JulianStyle
+import ru.akhilko.core.ui.format.monthGenitiveRu
 import ru.akhilko.core.ui.mapper.CalendarDayPresentation
 
 @Composable
@@ -26,41 +31,67 @@ fun DayHero(
     presentation: CalendarDayPresentation,
     modifier: Modifier = Modifier,
 ) {
+    val shape = RoundedCornerShape(20.dp)
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+            .clip(shape)
+            // «Бумажный» белый hero-блок, возвышающийся над кремовым фоном страницы,
+            // с тонкой тёплой рамкой из outlineVariant (PaperBorder).
+            .background(MaterialTheme.colorScheme.surface)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = shape,
+            )
             .padding(PaddingValues(horizontal = 20.dp, vertical = 20.dp)),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            text = presentation.gregorianDayNum.toString(),
-            style = MaterialTheme.typography.displayLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Text(
-            text = presentation.monthYearRu,
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        JulianDateLabel(
-            julianYear = presentation.julianYear,
-            julianMonth = presentation.julianMonth,
-            julianDay = presentation.julianDay,
-            style = JulianStyle.Large,
-        )
-        Text(
-            text = presentation.weekdayRu,
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        // Строка 1: [большое число] [месяц год]  ...................  [Пн]
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Text(
+                text = presentation.gregorianDayNum.toString(),
+                style = MaterialTheme.typography.displayLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(Modifier.padding(horizontal = 6.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 18.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = "${monthGenitiveRu(presentation.gregorianMonth)} ${presentation.gregorianYear}",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                JulianDateLabel(
+                    julianYear = presentation.julianYear,
+                    julianMonth = presentation.julianMonth,
+                    julianDay = presentation.julianDay,
+                    style = JulianStyle.Inline,
+                )
+            }
+            Text(
+                text = presentation.weekdayShortRu.uppercase(),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 18.dp),
+            )
+        }
+
         if (presentation.badges.isNotEmpty()) {
             Spacer(Modifier.height(4.dp))
             DayTypeBadgeRow(presentation.badges)
         }
+
         if (presentation.title.isNotBlank()) {
             Spacer(Modifier.height(4.dp))
             Text(
@@ -70,9 +101,17 @@ fun DayHero(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
-        presentation.weekText?.let {
+
+        // weekText показываем только если он отличается от title —
+        // иначе получается визуальное дублирование.
+        val weekText = presentation.weekText
+        if (weekText != null && weekText != presentation.title) {
+            HorizontalDivider(
+                modifier = Modifier.padding(top = 4.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
             Text(
-                text = it,
+                text = weekText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
