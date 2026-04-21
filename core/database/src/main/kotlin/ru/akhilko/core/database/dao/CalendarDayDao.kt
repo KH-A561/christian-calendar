@@ -31,6 +31,12 @@ interface CalendarDayDao {
     )
     fun getDaysByMonth(year: Int, month: Int): Flow<List<CalendarDayEntity>>
 
+    @Query("SELECT * FROM calendar_days WHERE search_text LIKE '%' || :query || '%'")
+    fun searchByText(query: String): Flow<List<CalendarDayEntity>>
+
+    @Query("SELECT COUNT(*) FROM calendar_days")
+    fun getCount(): Flow<Int>
+
     @Upsert
     suspend fun upsert(day: CalendarDayEntity)
 

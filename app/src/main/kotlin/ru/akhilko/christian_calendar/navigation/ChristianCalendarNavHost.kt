@@ -2,14 +2,15 @@ package ru.akhilko.christian_calendar.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
 import ru.akhilko.day.navigation.DAY_ROUTE
 import ru.akhilko.day.navigation.dayScreen
 import ru.akhilko.day.navigation.navigateToDay
-import ru.akhilko.month.navigation.MONTH_GRAPH_ROUTE
 import ru.akhilko.feature.search.navigation.searchScreen
+import ru.akhilko.month.navigation.MONTH_GRAPH_ROUTE
 import ru.akhilko.month.navigation.monthScreen
 import ru.akhilko.week.navigation.weekScreen
 

@@ -8,22 +8,18 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import ru.akhilko.core.database.dao.CalendarDayDao
 import ru.akhilko.core.database.entity.Converters
 import ru.akhilko.core.database.entity.day.CalendarDayEntity
-import ru.akhilko.core.database.entity.day.CalendarDayFtsEntity
-import ru.akhilko.core.database.repository.CalendarDayFtsDao
 
 @Database(
     entities = [
         CalendarDayEntity::class,
-        CalendarDayFtsEntity::class
     ],
-    version = 4
+    version = 5
 )
 @TypeConverters(
     Converters::class,
     DayTypesConverter::class
 )
 internal abstract class CalendarDatabase : RoomDatabase() {
-    abstract fun calendarFtsRepository(): CalendarDayFtsDao
     abstract fun calendarDayDao(): CalendarDayDao
 }
 
@@ -38,5 +34,11 @@ internal val MIGRATION_2_3 = object : Migration(2, 3) {
 internal val MIGRATION_3_4 = object : Migration(3, 4) {
     override fun migrate(db: SupportSQLiteDatabase) {
         // Schema remains the same as fastingName and dayTypes are stored within JSON/Converters
+    }
+}
+
+internal val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS calendar_days_fts")
     }
 }

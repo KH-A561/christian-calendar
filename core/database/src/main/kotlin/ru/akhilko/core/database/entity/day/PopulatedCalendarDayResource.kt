@@ -10,12 +10,6 @@ fun CalendarDayEntity.asResource(): CalendarDayResource {
     )
 }
 
-fun CalendarDayEntity.asFtsEntity(): CalendarDayFtsEntity {
-    return CalendarDayFtsEntity(
-        searchText = this.searchText
-    )
-}
-
 fun CalendarDayEntity.asModel() = CalendarDay(
     dayOfWeek = this.dayOfWeek,
     gregorianDay = this.gregorianDay,

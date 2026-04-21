@@ -1,5 +1,6 @@
 package ru.akhilko.week.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,13 +39,9 @@ fun WeekDayRow(
     compact: Boolean = false,
 ) {
     Surface(
-        shape = RoundedCornerShape(14.dp),
-        tonalElevation = if (day.isToday) 3.dp else 1.dp,
-        color = if (day.isToday) {
-            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.45f)
-        } else {
-            MaterialTheme.colorScheme.surface
-        },
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(day.id) },

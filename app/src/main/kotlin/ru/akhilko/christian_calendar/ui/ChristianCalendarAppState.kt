@@ -16,12 +16,9 @@ import ru.akhilko.christian_calendar.navigation.TopLevelDestination.DAY
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.MONTH
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination.WEEK
 import ru.akhilko.core.ui.state.SelectedDayHolder
-import ru.akhilko.day.navigation.DAY_GRAPH_ROUTE
 import ru.akhilko.day.navigation.navigateToDay
 import ru.akhilko.feature.search.navigation.navigateToSearch
-import ru.akhilko.month.navigation.MONTH_GRAPH_ROUTE
 import ru.akhilko.month.navigation.navigateToMonth
-import ru.akhilko.week.navigation.WEEK_GRAPH_ROUTE
 import ru.akhilko.week.navigation.navigateToWeek
 
 @Stable
@@ -61,32 +58,15 @@ class ChristianCalendarAppState(
             }
 
             when (topLevelDestination) {
-                MONTH -> navigateToRestoredTopLevel(MONTH_GRAPH_ROUTE) {
-                    navController.navigateToMonth(topLevelNavOptions)
-                }
-
-                WEEK -> navigateToRestoredTopLevel(WEEK_GRAPH_ROUTE) {
-                    navController.navigateToWeek(topLevelNavOptions)
-                }
+                MONTH -> navController.navigateToMonth(topLevelNavOptions)
+                WEEK -> navController.navigateToWeek(topLevelNavOptions)
 
                 DAY -> {
                     // Открываем последний просмотренный день, а не «сегодня».
                     val targetId = selectedDayHolder.selectedDayId.value
-                    navigateToRestoredTopLevel(DAY_GRAPH_ROUTE) {
-                        navController.navigateToDay(targetId, topLevelNavOptions)
-                    }
+                    navController.navigateToDay(targetId, topLevelNavOptions)
                 }
             }
-        }
-    }
-
-    private fun navigateToRestoredTopLevel(
-        route: String,
-        fallbackNavigate: () -> Unit,
-    ) {
-        val restored = navController.popBackStack(route, inclusive = false)
-        if (!restored) {
-            fallbackNavigate()
         }
     }
 

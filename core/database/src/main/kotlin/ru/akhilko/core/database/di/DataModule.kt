@@ -11,15 +11,11 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.serialization.json.Json
-import ru.akhilko.core.Dispatcher
-import ru.akhilko.core.Dispatchers
 import ru.akhilko.christian_calendar.core.data.repository.AuthRepository
 import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
 import ru.akhilko.christian_calendar.core.data.repository.SearchContentsRepository
 import ru.akhilko.core.database.dao.CalendarDayDao
-import ru.akhilko.core.database.repository.CalendarDayFtsDao
 import ru.akhilko.core.database.repository.DefaultCalendarDayRepository
 import ru.akhilko.core.database.repository.DefaultSearchContentsRepository
 import ru.akhilko.core.database.repository.FirestoreCalendarDataSource
@@ -34,9 +30,7 @@ object DataModule {
     @Singleton
     fun providesSearchContentsRepository(
         dayDao: CalendarDayDao,
-        dayFtsRepository: CalendarDayFtsDao,
-        @Dispatcher(Dispatchers.IO) ioDispatcher: CoroutineDispatcher
-    ): SearchContentsRepository = DefaultSearchContentsRepository(dayDao, dayFtsRepository, ioDispatcher)
+    ): SearchContentsRepository = DefaultSearchContentsRepository(dayDao)
 
     @Provides
     @Singleton
@@ -44,14 +38,12 @@ object DataModule {
         calendarDayDao: CalendarDayDao,
         firestoreDataSource: FirestoreCalendarDataSource,
         localCalendarDataSource: LocalCalendarDataSource,
-        searchContentsRepository: SearchContentsRepository,
-        authRepository: AuthRepository
+        authRepository: AuthRepository,
     ): CalendarDayRepository = DefaultCalendarDayRepository(
         calendarDayDao,
         firestoreDataSource,
         localCalendarDataSource,
-        searchContentsRepository,
-        authRepository
+        authRepository,
     )
 
     @Provides

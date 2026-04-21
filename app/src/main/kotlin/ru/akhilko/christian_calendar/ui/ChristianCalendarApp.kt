@@ -145,6 +145,7 @@ internal fun ChristianCalendarAppInternal(
                         ),
                         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                             containerColor = Color.Transparent,
+                            scrolledContainerColor = MaterialTheme.colorScheme.background,
                         ),
                         onNavigationClick = { appState.navigateToSearch() },
                     )

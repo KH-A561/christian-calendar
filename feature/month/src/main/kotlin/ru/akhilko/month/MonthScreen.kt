@@ -28,6 +28,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -222,7 +224,7 @@ internal fun MonthScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(colorScheme.surface),
+                        .background(Color.Transparent),
                 ) {
                     MonthDaysOfWeekHeader(daysOfWeek)
                     VerticalCalendar(
@@ -378,13 +380,18 @@ private fun MonthEventSummary(
                         && summary.highlightedPeriods.isEmpty())
     ) return
 
-    Surface(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         shape = RoundedCornerShape(16.dp),
-        tonalElevation = 2.dp,
-        border = BorderStroke(1.dp, colorScheme.outline.copy(alpha = 0.1f)),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        border = BorderStroke(1.dp, colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp,
+        ),
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
             Text(
@@ -559,7 +566,7 @@ private fun Day(
 
 @Composable
 private fun MonthDaysOfWeekHeader(daysOfWeek: List<DayOfWeek>) {
-    Surface(tonalElevation = 1.dp) {
+    Surface(color = colorScheme.background) {
         Row(
             Modifier
                 .fillMaxWidth()

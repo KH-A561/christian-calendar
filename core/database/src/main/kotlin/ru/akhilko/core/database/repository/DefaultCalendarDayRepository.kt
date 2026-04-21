@@ -9,7 +9,6 @@ import ru.akhilko.christian_calendar.core.common.DateConverter
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.data.repository.AuthRepository
 import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
-import ru.akhilko.christian_calendar.core.data.repository.SearchContentsRepository
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
@@ -24,8 +23,7 @@ internal class DefaultCalendarDayRepository @Inject constructor(
     private val calendarDayDao: CalendarDayDao,
     private val firestoreDataSource: FirestoreCalendarDataSource,
     private val localDataSource: LocalCalendarDataSource,
-    private val searchContentsRepository: SearchContentsRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
 ) : CalendarDayRepository {
 
     override fun getDay(id: String): Flow<CalendarDayResource?> {
@@ -77,11 +75,6 @@ internal class DefaultCalendarDayRepository @Inject constructor(
             Log.w("Sync", "Firestore sync FAILED for year $year", e)
         }
 
-        try {
-            searchContentsRepository.populateFtsData()
-        } catch (e: Exception) {
-            Log.e("Sync", "FTS population failed", e)
-        }
     }
 }
 
@@ -119,6 +112,6 @@ private fun FirestoreDay.toEntity(id: String): CalendarDayEntity {
         fastingInfo = fastingInfo,
         readings = this.readings,
         saints = this.saints,
-        searchText = "${this.title} ${this.week} ${this.saints.joinToString(" ")}".trim()
+        searchText = "${this.title} ${this.week} ${this.saints.joinToString(" ")}".trim().lowercase()
     )
 }
