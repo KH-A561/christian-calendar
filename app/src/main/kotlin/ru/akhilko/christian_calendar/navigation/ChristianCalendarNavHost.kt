@@ -9,6 +9,7 @@ import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
 import ru.akhilko.day.navigation.DAY_ROUTE
 import ru.akhilko.day.navigation.dayScreen
 import ru.akhilko.day.navigation.navigateToDay
+import ru.akhilko.feature.search.navigation.navigateToSearch
 import ru.akhilko.feature.search.navigation.searchScreen
 import ru.akhilko.month.navigation.MONTH_GRAPH_ROUTE
 import ru.akhilko.month.navigation.monthScreen
@@ -37,6 +38,7 @@ fun ChristianCalendarNavHost(
         monthScreen(
             // Month → Day: обычный переход, Back возвращает на Month.
             onDayClick = { dayId -> navController.navigateToDay(dayId) },
+            onNavigateToSearch = { navController.navigateToSearch() },
         )
         weekScreen(
             onDayClick = { dayId ->
@@ -50,6 +52,7 @@ fun ChristianCalendarNavHost(
                 navController.navigateToDay(dayId, navOptions)
             },
             onShowSnackbar = onShowSnackbar,
+            onNavigateToSearch = { navController.navigateToSearch() },
         )
         dayScreen(
             onBack = navController::popBackStack,

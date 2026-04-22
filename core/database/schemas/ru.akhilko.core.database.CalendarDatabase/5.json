@@ -1,0 +1,130 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "344c178371b5af3c61dc654759057736",
+    "entities": [
+      {
+        "tableName": "calendar_days",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `day_of_week` TEXT NOT NULL, `gregorian_day` INTEGER NOT NULL, `gregorian_month` INTEGER NOT NULL, `gregorian_year` INTEGER NOT NULL, `julian_day` INTEGER NOT NULL, `julian_month` INTEGER NOT NULL, `julian_year` INTEGER NOT NULL, `last_updated` TEXT NOT NULL, `title` TEXT NOT NULL, `week` TEXT NOT NULL, `day_types` TEXT NOT NULL, `liturgical_info` TEXT NOT NULL, `fasting_info` TEXT NOT NULL, `readings` TEXT NOT NULL, `saints` TEXT NOT NULL, `search_text` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dayOfWeek",
+            "columnName": "day_of_week",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gregorianDay",
+            "columnName": "gregorian_day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gregorianMonth",
+            "columnName": "gregorian_month",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gregorianYear",
+            "columnName": "gregorian_year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "julianDay",
+            "columnName": "julian_day",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "julianMonth",
+            "columnName": "julian_month",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "julianYear",
+            "columnName": "julian_year",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "last_updated",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "week",
+            "columnName": "week",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dayTypes",
+            "columnName": "day_types",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "liturgicalInfo",
+            "columnName": "liturgical_info",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fastingInfo",
+            "columnName": "fasting_info",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "readings",
+            "columnName": "readings",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saints",
+            "columnName": "saints",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "searchText",
+            "columnName": "search_text",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '344c178371b5af3c61dc654759057736')"
+    ]
+  }
+}

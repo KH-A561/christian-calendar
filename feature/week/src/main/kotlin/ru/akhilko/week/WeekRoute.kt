@@ -33,6 +33,7 @@ import java.time.temporal.TemporalAdjusters
 @Composable
 fun WeekRoute(
     onDayClick: (String) -> Unit,
+    onNavigateToSearch: () -> Unit,
     viewModel: WeekViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -59,11 +60,9 @@ fun WeekRoute(
     ) { padding ->
         WeekScreen(
             uiState = uiState,
+            onNavigateToSearch = onNavigateToSearch,
             onPrevWeek = viewModel::prevWeek,
             onNextWeek = viewModel::nextWeek,
-            onToggleMode = viewModel::toggleMode,
-            onQueryChanged = viewModel::onQueryChanged,
-            onFilterSelected = viewModel::onFilterSelected,
             onDayClick = { id ->
                 selectedDayHolder.setSelectedDay(id)
                 onDayClick(id)

@@ -135,10 +135,13 @@ internal fun ChristianCalendarAppInternal(
                 // Show the top app bar on top level destinations.
                 // На Day-экране собственный TopAppBar (с back/prev/next), общий скрываем.
                 val destination = appState.currentTopLevelDestination
-                val shouldShowTopAppBar = destination != null && destination != TopLevelDestination.DAY
-                if (shouldShowTopAppBar && destination != null) {
+                val shouldShowTopAppBar = destination != null &&
+                    destination != TopLevelDestination.DAY &&
+                    destination != TopLevelDestination.MONTH &&
+                    destination != TopLevelDestination.WEEK
+                destination?.takeIf { shouldShowTopAppBar }?.let { topLevelDestination ->
                     CalendarTopAppBar(
-                        titleRes = destination.titleTextId,
+                        titleRes = topLevelDestination.titleTextId,
                         navigationIcon = Icons.Search,
                         navigationIconContentDescription = stringResource(
                             id = settingsR.string.feature_settings_top_app_bar_navigation_icon_description,

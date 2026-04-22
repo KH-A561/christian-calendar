@@ -34,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
@@ -85,7 +86,12 @@ import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.designsystem.theme.ColorFast
 import ru.akhilko.core.designsystem.theme.ColorFeast
-import ru.akhilko.core.designsystem.theme.ColorMemorial
+import ru.akhilko.core.designsystem.theme.ColorGreat
+import ru.akhilko.core.designsystem.theme.ColorRemembrance
+import ru.akhilko.core.ui.format.monthNominativeRu
+import ru.akhilko.month.ui.MonthEventSummary
+import ru.akhilko.month.ui.MonthLegend
+import ru.akhilko.month.ui.MonthTopBar
 import ru.akhilko.ui.DaySummaryCard
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -95,14 +101,11 @@ import java.time.format.TextStyle
 import kotlin.math.roundToInt
 import java.util.Locale as JavaLocale
 
-// ============== Стилизация дней ============== //
-// Семантические цвета (ColorFeast / ColorFast / ColorMemorial) импортируются из
-// core.designsystem.theme — единый источник правды, совпадает с дизайн-доком.
-
 private data class DayStyle(
     val backgroundColor: Color,
     val textColor: Color,
     val fontWeight: FontWeight,
+    val isFast: Boolean,
 )
 
 @Composable
@@ -112,43 +115,47 @@ private fun resolveDayStyle(
     isCurrentMonth: Boolean,
     isToday: Boolean,
 ): DayStyle {
-    val dayTypes = dayResource?.day?.dayTypes ?: emptyList()
+    val dayData = dayResource?.day
+    val dayTypes = dayData?.dayTypes ?: emptyList()
 
-    // Фон: только многодневный пост — лёгкий тон, чтобы показать «зону поста».
-    // Праздники и однодневные посты обозначаются полосками, не фоном.
+    val isGreat = dayTypes.any {
+        it == DayType.EASTER || it == DayType.TWELVE_GREAT_FEASTS || it == DayType.GREAT_FEAST
+    }
+    val isFeast = dayTypes.contains(DayType.FEAST)
+    val isRemembrance = dayTypes.contains(DayType.COMMEMORATION)
+    val isFast = dayTypes.contains(DayType.LONG_FAST) ||
+        dayTypes.contains(DayType.FAST) ||
+        dayData?.fastingInfo?.fastingLevel != FastingLevel.NONE
+
     val backgroundColor = when {
         !isCurrentMonth -> Color.Transparent
-        dayTypes.contains(DayType.LONG_FAST) -> ColorFast.copy(alpha = 0.07f)
+        isGreat -> ColorGreat.copy(alpha = 0.15f)
+        isFeast -> ColorFeast.copy(alpha = 0.15f)
+        isRemembrance -> ColorRemembrance.copy(alpha = 0.15f)
         else -> Color.Transparent
     }
 
-    // Цвет текста = тип праздника (главный сигнал).
-    // Многодневный пост НЕ окрашивает текст — у него фон.
-    val textColor = when {
-        !isCurrentMonth -> colorScheme.onSurface.copy(alpha = 0.25f)
-        dayTypes.any { dayType -> dayType.isFeast() } -> ColorFeast
-        dayTypes.contains(DayType.COMMEMORATION) -> ColorMemorial
-        // Воскресенье — «малая пасха»: окрашиваем праздничным бордовым, не розовым.
-        day.date.dayOfWeek == DayOfWeek.SUNDAY -> ColorFeast
-        else -> colorScheme.onSurface
+    val textColor = if (isCurrentMonth) {
+        colorScheme.onSurface
+    } else {
+        colorScheme.onSurface.copy(alpha = 0.25f)
     }
 
     val fontWeight = when {
         isToday -> FontWeight.Black
-        dayTypes.any { dayType -> dayType.isFeast() } -> FontWeight.Bold
+        isGreat || isFeast -> FontWeight.SemiBold
         day.date.dayOfWeek == DayOfWeek.SUNDAY -> FontWeight.SemiBold
         else -> FontWeight.Normal
     }
 
-    return DayStyle(backgroundColor, textColor, fontWeight)
+    return DayStyle(backgroundColor, textColor, fontWeight, isFast)
 }
-
-// =========================================== //
 
 @Composable
 fun MonthRoute(
     modifier: Modifier = Modifier,
     onDayClick: (String) -> Unit,
+    onNavigateToSearch: () -> Unit,
     viewModel: MonthViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
 ) {
     val monthUiState: MonthScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -156,6 +163,7 @@ fun MonthRoute(
     MonthScreen(
         monthUiState = monthUiState,
         onDayClick = onDayClick,
+        onNavigateToSearch = onNavigateToSearch,
         scrollToToday = viewModel.scrollToTodayRequested,
         onVisibleYearChanged = viewModel::onVisibleYearChanged,
         modifier = modifier,
@@ -168,6 +176,7 @@ internal fun MonthScreen(
     modifier: Modifier = Modifier,
     monthUiState: MonthScreenUiState,
     onDayClick: (String) -> Unit,
+    onNavigateToSearch: () -> Unit,
     scrollToToday: Flow<Unit>,
     onVisibleYearChanged: (Int) -> Unit,
     initialSelectedDay: CalendarDayResource? = null,
@@ -220,59 +229,86 @@ internal fun MonthScreen(
 
             is MonthScreenUiState.Success -> {
                 val days = monthUiState.days
+                val dayResourcesByDate = remember(days) {
+                    days.associateBy { it.day.getGregorianLocalDate() }
+                }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Transparent),
-                ) {
-                    MonthDaysOfWeekHeader(daysOfWeek)
-                    VerticalCalendar(
-                        state = state,
-                        userScrollEnabled = true,
-                        calendarScrollPaged = true,
-                        contentPadding = PaddingValues(bottom = 32.dp),
-                        dayContent = { day ->
-                            val dayResource = days.find {
-                                it.day.getGregorianLocalDate() == day.date.toKotlinLocalDate()
-                            }
-                            Day(
-                                day = day,
-                                today = today,
-                                dayResource = dayResource,
-                                onClick = { dayRes ->
-                                    selectedDay = if (selectedDay == dayRes) null else dayRes
-                                },
-                            )
-                        },
-                        monthHeader = { month ->
-                            MonthLabel(month.yearMonth)
-                        },
-                        monthContainer = { _, container ->
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 24.dp),
-                            ) {
-                                container()
-                                HorizontalDivider(
-                                    modifier = Modifier.padding(
-                                        start = 16.dp,
-                                        end = 16.dp,
-                                        top = 16.dp
-                                    ),
-                                    thickness = 1.dp,
-                                    color = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                Scaffold(
+                    topBar = {
+                        MonthTopBar(
+                            visibleMonth = visibleMonth,
+                            onPrevMonth = {
+                                scope.launch {
+                                    state.animateScrollToMonth(visibleMonth.minusMonths(1))
+                                }
+                            },
+                            onNextMonth = {
+                                scope.launch {
+                                    state.animateScrollToMonth(visibleMonth.plusMonths(1))
+                                }
+                            },
+                            onSearchClick = onNavigateToSearch,
+                        )
+                    },
+                    containerColor = Color.Transparent,
+                ) { padding ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                    ) {
+                        MonthDaysOfWeekHeader(daysOfWeek)
+                        VerticalCalendar(
+                            state = state,
+                            userScrollEnabled = true,
+                            calendarScrollPaged = true,
+                            dayContent = { day ->
+                                val dayResource = dayResourcesByDate[day.date.toKotlinLocalDate()]
+                                Day(
+                                    day = day,
+                                    today = today,
+                                    dayResource = dayResource,
+                                    isSelected = selectedDay?.id == dayResource?.id,
+                                    onClick = { dayRes ->
+                                        selectedDay = if (selectedDay == dayRes) null else dayRes
+                                    },
                                 )
-                            }
-                        },
-                        monthFooter = { month ->
-                            MonthEventSummary(
-                                summaries = monthUiState.summaries,
-                                month = month
-                            )
-                        },
-                    )
+                            },
+                            monthHeader = { month ->
+                                MonthSectionHeader(month.yearMonth)
+                            },
+                            monthContainer = { _, container ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                ) {
+                                    container()
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 16.dp,
+                                        ),
+                                        thickness = 1.dp,
+                                        color = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                    )
+                                }
+                            },
+                            monthFooter = { month ->
+                                Column {
+                                    Spacer(Modifier.height(8.dp))
+                                    MonthLegend()
+                                    Spacer(Modifier.height(8.dp))
+                                    MonthEventSummary(
+                                        summaries = monthUiState.summaries,
+                                        month = month,
+                                    )
+                                    Spacer(Modifier.height(16.dp))
+                                }
+                            },
+                        )
+                    }
                 }
             }
 
@@ -356,123 +392,24 @@ internal fun MonthScreen(
 }
 
 @Composable
-private fun MonthLabel(yearMonth: YearMonth) {
+private fun MonthSectionHeader(yearMonth: YearMonth) {
     Text(
-        text = yearMonth.format(DateTimeFormatter.ofPattern("LLLL yyyy", JavaLocale("ru")))
-            .replaceFirstChar { it.uppercase() },
-        style = MaterialTheme.typography.titleLarge,
-        fontWeight = FontWeight.Black,
+        text = "${monthNominativeRu(yearMonth.monthValue)} ${yearMonth.year}",
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 20.dp, top = 16.dp, bottom = 8.dp),
-        color = colorScheme.onSurface,
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        color = colorScheme.onSurfaceVariant,
     )
 }
-
-@Composable
-private fun MonthEventSummary(
-    summaries: Map<Int, List<MonthSummary>>,
-    month: CalendarMonth
-) {
-    val summary = summaries[month.yearMonth.year]?.find { it.month == month.yearMonth.monthValue }
-    if (summary == null || (
-                summary.highlightedDays.isEmpty()
-                        && summary.highlightedPeriods.isEmpty())
-    ) return
-
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        border = BorderStroke(1.dp, colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp,
-        ),
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text(
-                text = "События месяца",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp),
-                color = colorScheme.primary,
-            )
-
-            summary.highlightedPeriods.forEach { period ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                ) {
-                    Text(
-                        text = "${period.startDay} - ${period.endDay}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.width(56.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(4.dp)
-                            .height(16.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(ColorFast), // Assuming periods are always fasts
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = period.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-
-            summary.highlightedDays.forEach { day ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable { /* Add navigation later */ }
-                        .padding(vertical = 4.dp),
-                ) {
-                    Text(
-                        text = day.dayOfMonth.toString(),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.width(56.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .width(4.dp)
-                            .height(16.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(ColorFeast), // Using a default feast color since LiturgicalColor is gone
-                    )
-                    Spacer(Modifier.width(12.dp))
-                    Text(
-                        text = day.name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
-    }
-}
-
 
 @Composable
 private fun Day(
     day: CalendarDay,
     today: LocalDate,
     dayResource: CalendarDayResource?,
+    isSelected: Boolean,
     onClick: (CalendarDayResource?) -> Unit,
 ) {
     val isCurrentMonth = day.position == DayPosition.MonthDate
@@ -483,82 +420,64 @@ private fun Day(
     Box(
         modifier = Modifier
             .aspectRatio(1f)
-            .padding(2.dp)
+            .padding(1.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(style.backgroundColor)
-            .border(
-                width = if (isToday) 2.dp else 0.dp,
-                color = if (isToday) colorScheme.primary else Color.Transparent,
-                shape = RoundedCornerShape(8.dp),
+            .then(
+                if (isToday) {
+                    Modifier.border(
+                        width = 1.5.dp,
+                        color = colorScheme.onSurface,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                } else {
+                    Modifier
+                }
+            )
+            .then(
+                if (isSelected && !isToday) {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = ColorGreat,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                } else {
+                    Modifier
+                }
             )
             .clickable(
                 enabled = isCurrentMonth,
                 onClick = { onClick(dayResource) },
             ),
-        contentAlignment = Alignment.Center,
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (style.isFast && isCurrentMonth) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .fillMaxWidth()
+                    .height(5.dp)
+                    .background(ColorFast),
+            )
+        }
+
+        Column(
+            modifier = Modifier.align(Alignment.Center),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
             Text(
                 text = day.date.dayOfMonth.toString(),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.titleLarge,
                 color = style.textColor,
                 fontWeight = style.fontWeight,
             )
-
-            // Полоски-индикаторы под числом.
-            // Многодневный пост обозначен фоном — полоска ему не нужна.
-            // Полоски = акцентные события: праздники, поминовения, однодневный пост.
-            val indicators = remember(dayResource) {
-                if (!isCurrentMonth || dayResource == null) {
-                    return@remember emptyList()
-                }
-
-                val list = mutableListOf<Color>()
-                val localDayTypes = dayResource.day.dayTypes
-                val isLongFast = localDayTypes.contains(DayType.LONG_FAST)
-                val isSingleDayFast =
-                    !isLongFast && (
-                            dayResource.day.fastingInfo.fastingLevel != FastingLevel.NONE ||
-                                    localDayTypes.contains(DayType.FAST)
-                            )
-
-                // 1. Праздник
-                if (localDayTypes.any { dayType -> dayType.isFeast() }) {
-                    list.add(ColorFeast)
-                }
-
-                // 2. Поминовение
-                if (localDayTypes.contains(DayType.COMMEMORATION)) {
-                    list.add(ColorMemorial)
-                }
-
-                // 3. Однодневный пост (многодневный уже показан фоном)
-                if (isSingleDayFast) {
-                    list.add(ColorFast)
-                }
-
-                return@remember list
-            }
-
-            if (indicators.isNotEmpty()) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(0.8f)
-                        .padding(top = 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(
-                        2.dp,
-                        Alignment.CenterHorizontally,
-                    ),
-                ) {
-                    indicators.take(3).forEach { color ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(3.dp)
-                                .background(color, RoundedCornerShape(2.dp)),
-                        )
-                    }
-                }
+            val julianDay = dayResource?.day?.julianDay
+            if (isCurrentMonth && julianDay != null) {
+                Text(
+                    text = julianDay.toString(),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                )
             }
         }
     }
@@ -595,6 +514,7 @@ private fun MonthScreenPreview() {
                 summaries = emptyMap()
             ),
             onDayClick = {},
+            onNavigateToSearch = {},
             scrollToToday = emptyFlow(),
             onVisibleYearChanged = {},
         )
@@ -720,6 +640,7 @@ private fun MonthScreenFullPreview() {
                 summaries = summariesMap
             ),
             onDayClick = {},
+            onNavigateToSearch = {},
             scrollToToday = emptyFlow(),
             onVisibleYearChanged = {},
         )
@@ -845,6 +766,7 @@ private fun MonthScreenWithDayCardPreview() {
                 summaries = summariesMap
             ),
             onDayClick = {},
+            onNavigateToSearch = {},
             scrollToToday = emptyFlow(),
             onVisibleYearChanged = {},
             initialSelectedDay = sampleDays.first()

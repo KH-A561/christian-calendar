@@ -1,8 +1,12 @@
 package ru.akhilko.week
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -11,23 +15,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import ru.akhilko.core.designsystem.component.BadgeKind
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.ui.mapper.CalendarDayPresentation
-import ru.akhilko.week.ui.WeekHeader
-import ru.akhilko.week.ui.WeekList
-import ru.akhilko.week.ui.search.SearchModeBar
-import ru.akhilko.week.ui.search.SearchResultsList
+import ru.akhilko.week.ui.WeekDayRow
+import ru.akhilko.week.ui.WeekTopBar
+import ru.akhilko.week.ui.formatWeekRange
 import java.time.LocalDate
 
 @Composable
 fun WeekScreen(
     uiState: WeekUiState,
+    onNavigateToSearch: () -> Unit,
     onPrevWeek: () -> Unit,
     onNextWeek: () -> Unit,
-    onToggleMode: () -> Unit,
-    onQueryChanged: (String) -> Unit,
-    onFilterSelected: (BadgeKind?) -> Unit,
     onDayClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -50,34 +53,32 @@ fun WeekScreen(
         }
 
         is WeekUiState.Success -> {
-            Column(modifier = modifier.fillMaxSize()) {
-                WeekHeader(
-                    weekStart = uiState.weekStart,
-                    mode = uiState.mode,
-                    onPrevWeek = onPrevWeek,
-                    onNextWeek = onNextWeek,
-                    onToggleMode = onToggleMode,
-                )
-
-                if (uiState.mode == WeekMode.SEARCH) {
-                    SearchModeBar(
-                        query = uiState.query,
-                        selectedFilter = uiState.filter,
-                        onQueryChanged = onQueryChanged,
-                        onFilterSelected = onFilterSelected,
+            Scaffold(
+                topBar = {
+                    WeekTopBar(
+                        dateRange = formatWeekRange(uiState.weekStart),
+                        sedmicaText = uiState.days.firstOrNull()?.weekText,
+                        onPrevWeek = onPrevWeek,
+                        onNextWeek = onNextWeek,
+                        onSearchClick = onNavigateToSearch,
                     )
-                    SearchResultsList(
-                        results = uiState.results,
-                        query = uiState.query,
-                        onDayClick = onDayClick,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                } else {
-                    WeekList(
-                        days = uiState.days,
-                        onDayClick = onDayClick,
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                },
+                modifier = modifier,
+                containerColor = Color.Transparent,
+            ) { padding ->
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(vertical = 16.dp),
+                    verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(12.dp),
+                ) {
+                    items(uiState.days, key = { it.id }) { day ->
+                        WeekDayRow(
+                            day = day,
+                            onDayClick = onDayClick,
+                        )
+                    }
                 }
             }
         }
@@ -93,41 +94,10 @@ private fun WeekScreenListPreview() {
                 uiState = WeekUiState.Success(
                     weekStart = LocalDate.of(2026, 4, 20),
                     days = previewDays(),
-                    mode = WeekMode.LIST,
-                    query = "",
-                    filter = null,
-                    results = emptyList(),
                 ),
+                onNavigateToSearch = {},
                 onPrevWeek = {},
                 onNextWeek = {},
-                onToggleMode = {},
-                onQueryChanged = {},
-                onFilterSelected = {},
-                onDayClick = {},
-            )
-        }
-    }
-}
-
-@Preview(name = "WeekScreen - Search")
-@Composable
-private fun WeekScreenSearchPreview() {
-    CalendarTheme {
-        Surface {
-            WeekScreen(
-                uiState = WeekUiState.Success(
-                    weekStart = LocalDate.of(2026, 4, 20),
-                    days = previewDays(),
-                    mode = WeekMode.SEARCH,
-                    query = "Сергий",
-                    filter = BadgeKind.GREAT,
-                    results = previewDays().take(2),
-                ),
-                onPrevWeek = {},
-                onNextWeek = {},
-                onToggleMode = {},
-                onQueryChanged = {},
-                onFilterSelected = {},
                 onDayClick = {},
             )
         }
@@ -141,11 +111,9 @@ private fun WeekScreenLoadingPreview() {
         Surface {
             WeekScreen(
                 uiState = WeekUiState.Loading,
+                onNavigateToSearch = {},
                 onPrevWeek = {},
                 onNextWeek = {},
-                onToggleMode = {},
-                onQueryChanged = {},
-                onFilterSelected = {},
                 onDayClick = {},
             )
         }
@@ -159,11 +127,9 @@ private fun WeekScreenErrorPreview() {
         Surface {
             WeekScreen(
                 uiState = WeekUiState.Error,
+                onNavigateToSearch = {},
                 onPrevWeek = {},
                 onNextWeek = {},
-                onToggleMode = {},
-                onQueryChanged = {},
-                onFilterSelected = {},
                 onDayClick = {},
             )
         }

@@ -17,13 +17,17 @@ fun NavController.navigateToMonth(navOptions: NavOptions) = navigate(MONTH_GRAPH
 
 fun NavGraphBuilder.monthScreen(
     onDayClick: (String) -> Unit,
+    onNavigateToSearch: () -> Unit,
 ) {
     navigation(
         route = MONTH_GRAPH_ROUTE,
         startDestination = MONTH_ROUTE,
     ) {
         composable(route = MONTH_ROUTE) {
-            MonthRoute(onDayClick = onDayClick)
+            MonthRoute(
+                onDayClick = onDayClick,
+                onNavigateToSearch = onNavigateToSearch,
+            )
         }
     }
 }

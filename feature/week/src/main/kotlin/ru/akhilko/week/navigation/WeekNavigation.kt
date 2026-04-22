@@ -15,13 +15,17 @@ fun NavController.navigateToWeek(navOptions: NavOptions) = navigate(WEEK_GRAPH_R
 fun NavGraphBuilder.weekScreen(
     onDayClick: (String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    onNavigateToSearch: () -> Unit,
 ) {
     navigation(
         route = WEEK_GRAPH_ROUTE,
         startDestination = WEEK_ROUTE,
     ) {
         composable(route = WEEK_ROUTE) {
-            WeekRoute(onDayClick = onDayClick)
+            WeekRoute(
+                onDayClick = onDayClick,
+                onNavigateToSearch = onNavigateToSearch,
+            )
         }
     }
 }
