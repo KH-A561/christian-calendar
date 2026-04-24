@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -104,17 +103,25 @@ fun WeekDayRow(
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min),
-            verticalAlignment = Alignment.Top,
-        ) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            // Фоновый слой: растягивается под фактическую высоту Row выше,
+            // чтобы цветная полоса слева всегда доходила до низа карточки,
+            // даже если правая колонка выросла из-за FlowRow/переносов текста.
+            Row(modifier = Modifier.matchParentSize()) {
+                Box(
+                    modifier = Modifier
+                        .width(72.dp)
+                        .fillMaxHeight()
+                        .background(leftBg),
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+            ) {
             Column(
                 modifier = Modifier
                     .width(72.dp)
-                    .fillMaxHeight()
-                    .background(leftBg)
                     .padding(vertical = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
@@ -198,13 +205,14 @@ fun WeekDayRow(
 
                 day.fastingName?.let { FastingChip(it) }
 
-                if (day.julianDay > 0 && day.julianMonth in 1..12) {
+                if (day.julianMonth in 1..12 && day.julianDay in 1..31) {
                     Text(
                         text = "${day.julianDay} ${monthGenitiveRu(day.julianMonth)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+            }
             }
         }
     }

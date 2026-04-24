@@ -84,7 +84,9 @@ import ru.akhilko.core.designsystem.theme.ColorGreatFeast
 import ru.akhilko.core.designsystem.theme.ColorRemembrance
 import ru.akhilko.core.designsystem.theme.ColorTwelveFeast
 import ru.akhilko.core.ui.format.monthNominativeRu
+import com.kizitonwose.calendar.core.CalendarMonth
 import ru.akhilko.month.ui.MonthEventSummary
+import ru.akhilko.month.ui.MonthEventsSheet
 import ru.akhilko.month.ui.MonthTopBar
 import ru.akhilko.ui.DaySummaryCard
 import java.time.DayOfWeek
@@ -256,6 +258,11 @@ internal fun MonthScreen(
                     },
                     containerColor = Color.Transparent,
                 ) { padding ->
+                    // Месяц, для которого сейчас открыт bottom sheet со списком событий.
+                    // null → sheet закрыт. MonthEventSummary сидит внутри monthFooter
+                    // календаря (скроллится вместе с месяцем), но его развёрнутый список
+                    // вынесен в ModalBottomSheet, чтобы не ломать paged-fling.
+                    var sheetForMonth by remember { mutableStateOf<CalendarMonth?>(null) }
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -263,57 +270,70 @@ internal fun MonthScreen(
                     ) {
                         MonthDaysOfWeekHeader(daysOfWeek)
                         VerticalCalendar(
-                                state = state,
-                                userScrollEnabled = true,
-                                calendarScrollPaged = false,
-                                dayContent = { day ->
-                                    val dayResource = dayResourcesByDate[day.date.toKotlinLocalDate()]
-                                    Day(
-                                        day = day,
-                                        today = today,
-                                        dayResource = dayResource,
-                                        isSelected = selectedDay?.id == dayResource?.id,
-                                        onClick = { dayRes ->
-                                            selectedDay = if (selectedDay == dayRes) null else dayRes
-                                        },
+                            state = state,
+                            userScrollEnabled = true,
+                            calendarScrollPaged = true,
+                            dayContent = { day ->
+                                val dayResource = dayResourcesByDate[day.date.toKotlinLocalDate()]
+                                Day(
+                                    day = day,
+                                    today = today,
+                                    dayResource = dayResource,
+                                    isSelected = selectedDay?.id == dayResource?.id,
+                                    onClick = { dayRes ->
+                                        selectedDay = if (selectedDay == dayRes) null else dayRes
+                                    },
+                                )
+                            },
+                            monthHeader = { month ->
+                                MonthSectionHeader(
+                                    yearMonth = month.yearMonth,
+                                )
+                            },
+                            monthContainer = { _, container ->
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 8.dp),
+                                ) {
+                                    container()
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(
+                                            start = 16.dp,
+                                            end = 16.dp,
+                                            top = 16.dp,
+                                        ),
+                                        thickness = 1.dp,
+                                        color = colorScheme.outlineVariant.copy(alpha = 0.5f),
                                     )
-                                },
-                                monthHeader = { month ->
-                                    MonthSectionHeader(
-                                        yearMonth = month.yearMonth,
+                                }
+                            },
+                            monthFooter = { month ->
+                                Column {
+                                    Spacer(Modifier.height(8.dp))
+                                    MonthEventSummary(
+                                        summaries = monthUiState.summaries,
+                                        month = month,
+                                        dayResources = monthUiState.days,
+                                        onShowEvents = { sheetForMonth = it },
                                     )
-                                },
-                                monthContainer = { _, container ->
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(bottom = 8.dp),
-                                    ) {
-                                        container()
-                                        HorizontalDivider(
-                                            modifier = Modifier.padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                top = 16.dp,
-                                            ),
-                                            thickness = 1.dp,
-                                            color = colorScheme.outlineVariant.copy(alpha = 0.5f),
-                                        )
-                                    }
-                                },
-                                monthFooter = { month ->
-                                    Column {
-                                        Spacer(Modifier.height(8.dp))
-                                        MonthEventSummary(
-                                            summaries = monthUiState.summaries,
-                                            month = month,
-                                            dayResources = monthUiState.days,
-                                            onEventClick = onDayClick,
-                                        )
-                                        Spacer(Modifier.height(16.dp))
-                                    }
-                                },
-                            )
+                                    Spacer(Modifier.height(16.dp))
+                                }
+                            },
+                        )
+                    }
+
+                    sheetForMonth?.let { month ->
+                        MonthEventsSheet(
+                            month = month,
+                            summaries = monthUiState.summaries,
+                            dayResources = monthUiState.days,
+                            onEventClick = { id ->
+                                sheetForMonth = null
+                                onDayClick(id)
+                            },
+                            onDismiss = { sheetForMonth = null },
+                        )
                     }
                 }
             }

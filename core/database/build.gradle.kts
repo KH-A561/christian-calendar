@@ -13,12 +13,14 @@ android {
 dependencies {
     api(projects.core.model)
     api(projects.core.data)
+    implementation(projects.core.datastore)
 
     implementation(libs.kotlinx.datetime)
     implementation(libs.kotlinx.serialization.json)
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth) // Добавляем зависимость
+    implementation(libs.firebase.crashlytics)
     implementation("com.google.code.gson:gson:2.10.1")
 
     androidTestImplementation(libs.androidx.test.core)

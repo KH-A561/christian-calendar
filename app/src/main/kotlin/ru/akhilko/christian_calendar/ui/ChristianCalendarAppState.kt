@@ -49,12 +49,15 @@ class ChristianCalendarAppState(
 
     fun navigateToTopLevelDestination(topLevelDestination: TopLevelDestination) {
         trace("Navigation: ${topLevelDestination.name}") {
+            // saveState/restoreState намеренно НЕ используем: при возврате на Month после
+            // Day они в редких сценариях восстанавливают сохранённый Day-стек поверх Month
+            // (баг известен для вложенных графов с аргументами в route). Для этого приложения
+            // состояние табов мгновенно восстанавливается из VM, поэтому потеря не критична.
             val topLevelNavOptions = navOptions {
                 popUpTo(navController.graph.findStartDestination().id) {
-                    saveState = true
+                    inclusive = false
                 }
                 launchSingleTop = true
-                restoreState = true
             }
 
             when (topLevelDestination) {

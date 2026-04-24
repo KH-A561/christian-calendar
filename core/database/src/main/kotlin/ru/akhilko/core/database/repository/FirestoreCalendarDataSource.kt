@@ -12,10 +12,11 @@ class FirestoreCalendarDataSource @Inject constructor(
     private val firestore: FirebaseFirestore
 ) {
 
-    suspend fun getYearData(year: Int): List<Pair<String, FirestoreDay>> {
+    suspend fun getDeltaUpdates(sinceMillis: Long): List<Pair<String, FirestoreDay>> {
+        val sinceTimestamp = Timestamp(Date(sinceMillis))
         return try {
             firestore.collection(COLLECTION)
-                .whereEqualTo("gregorianYear", year)
+                .whereGreaterThan("lastUpdated", sinceTimestamp)
                 .get()
                 .await()
                 .documents

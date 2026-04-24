@@ -10,6 +10,8 @@ android {
 dependencies {
     implementation(projects.core.data)
     implementation(projects.core.common)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
     
     implementation(libs.androidx.work.ktx)
     implementation(libs.hilt.ext.work)

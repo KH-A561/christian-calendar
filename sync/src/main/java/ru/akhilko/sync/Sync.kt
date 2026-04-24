@@ -17,6 +17,7 @@
 package ru.akhilko.sync
 
 import android.content.Context
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import ru.akhilko.sync.workers.SyncWorker
@@ -29,13 +30,15 @@ object Sync {
      * Initializes the sync process by starting the [SyncWorker].
      */
     fun initialize(context: Context) {
-        WorkManager.getInstance(context).apply {
-            enqueueUniqueWork(
-                SYNC_WORK_NAME,
-                ExistingWorkPolicy.KEEP,
-                SyncWorker.startUpSyncWork(),
-            )
-        }
+        schedulePeriodicSync(context)
+    }
+
+    fun schedulePeriodicSync(context: Context) {
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            SYNC_WORK_NAME,
+            ExistingPeriodicWorkPolicy.UPDATE,
+            SyncWorker.periodicSyncWork(),
+        )
     }
 
     fun forceSync(context: Context) {

@@ -37,6 +37,9 @@ interface CalendarDayDao {
     @Query("SELECT COUNT(*) FROM calendar_days")
     fun getCount(): Flow<Int>
 
+    @Query("SELECT COUNT(*) = 0 FROM calendar_days")
+    suspend fun isDbEmpty(): Boolean
+
     @Upsert
     suspend fun upsert(day: CalendarDayEntity)
 

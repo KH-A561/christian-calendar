@@ -1,6 +1,5 @@
 package ru.akhilko.month.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -26,14 +25,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -52,30 +46,34 @@ import ru.akhilko.core.designsystem.theme.ColorTwelveFeast
 import java.time.LocalDate
 import java.time.YearMonth
 
+/**
+ * Свёрнутая карточка-легенда: только список цветовых меток + кнопка
+ * «События месяца», которая открывает [MonthEventsSheet] (модальный bottom sheet).
+ *
+ * Развёрнутый список событий вынесен в отдельный sheet, чтобы внутренний скролл
+ * не конфликтовал с paged-flingом VerticalCalendar.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MonthEventSummary(
     summaries: Map<Int, List<MonthSummary>>,
     month: CalendarMonth,
     dayResources: List<CalendarDayResource>,
-    onEventClick: (String) -> Unit,
+    onShowEvents: (CalendarMonth) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val summary =
         summaries[month.yearMonth.year]?.find { it.month == month.yearMonth.monthValue } ?: return
     if (summary.highlightedDays.isEmpty() && summary.highlightedPeriods.isEmpty()) return
 
-    var expanded by rememberSaveable { mutableStateOf(false) }
     val monthDays = dayResources
         .asSequence()
         .filter {
             it.day.gregorianYear == month.yearMonth.year &&
                     it.day.gregorianMonth == month.yearMonth.monthValue
         }
-    val gregorianDayToMonthDays = monthDays.associateBy { it.day.gregorianDay }
     val monthDayTypes = monthDays.flatMap { it.day.dayTypes }.filter { it != DayType.UNKNOWN }
         .toSet()
-    val yearMonth = month.yearMonth
 
     Card(
         modifier = modifier
@@ -111,7 +109,7 @@ fun MonthEventSummary(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded }
+                    .clickable { onShowEvents(month) }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -122,51 +120,56 @@ fun MonthEventSummary(
                     modifier = Modifier.weight(1f),
                 )
                 Icon(
-                    imageVector = Icons.Default.ExpandMore,
-                    contentDescription = if (expanded) "Свернуть" else "Развернуть",
-                    modifier = Modifier.rotate(if (expanded) 180f else 0f),
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "Открыть события месяца",
                 )
-            }
-
-            AnimatedVisibility(visible = expanded) {
-                Column(
-                    modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    summary.highlightedPeriods.forEach { period ->
-                        val resource = gregorianDayToMonthDays[period.startDay]
-                        EventRow(
-                            dateLabel = "${period.startDay}-${period.endDay}",
-                            title = period.name,
-                            color = eventColorFor(resource, isPeriod = true),
-                            onClick = {
-                                onEventClick(
-                                    resource?.id ?: dayIdFrom(yearMonth, period.startDay),
-                                )
-                            },
-                        )
-                    }
-                    summary.highlightedDays.forEach { day ->
-                        val resource = gregorianDayToMonthDays[day.dayOfMonth]
-                        EventRow(
-                            dateLabel = day.dayOfMonth.toString(),
-                            title = day.name,
-                            color = eventColorFor(resource, isPeriod = false),
-                            onClick = {
-                                onEventClick(
-                                    resource?.id ?: dayIdFrom(yearMonth, day.dayOfMonth),
-                                )
-                            },
-                        )
-                    }
-                }
             }
         }
     }
 }
 
+internal fun monthEventRows(
+    summary: MonthSummary,
+    dayResources: List<CalendarDayResource>,
+    yearMonth: YearMonth,
+): List<MonthEventRowData> {
+    val gregorianDayToMonthDays = dayResources
+        .filter {
+            it.day.gregorianYear == yearMonth.year &&
+                    it.day.gregorianMonth == yearMonth.monthValue
+        }
+        .associateBy { it.day.gregorianDay }
+    val rows = mutableListOf<MonthEventRowData>()
+    summary.highlightedPeriods.forEach { period ->
+        val resource = gregorianDayToMonthDays[period.startDay]
+        rows += MonthEventRowData(
+            dateLabel = "${period.startDay}-${period.endDay}",
+            title = period.name,
+            color = eventColorFor(resource, isPeriod = true),
+            navigateId = resource?.id ?: dayIdFrom(yearMonth, period.startDay),
+        )
+    }
+    summary.highlightedDays.forEach { day ->
+        val resource = gregorianDayToMonthDays[day.dayOfMonth]
+        rows += MonthEventRowData(
+            dateLabel = day.dayOfMonth.toString(),
+            title = day.name,
+            color = eventColorFor(resource, isPeriod = false),
+            navigateId = resource?.id ?: dayIdFrom(yearMonth, day.dayOfMonth),
+        )
+    }
+    return rows
+}
+
+internal data class MonthEventRowData(
+    val dateLabel: String,
+    val title: String,
+    val color: Color,
+    val navigateId: String,
+)
+
 @Composable
-private fun EventRow(
+internal fun EventRow(
     dateLabel: String,
     title: String,
     color: Color,

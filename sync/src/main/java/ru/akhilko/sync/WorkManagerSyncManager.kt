@@ -17,7 +17,6 @@
 package ru.akhilko.sync
 
 import android.content.Context
-import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,12 +36,7 @@ internal class WorkManagerSyncManager @Inject constructor(
             .conflate()
 
     override fun requestSync() {
-        val workManager = WorkManager.getInstance(context)
-        workManager.enqueueUniqueWork(
-            SyncWorkerName,
-            ExistingWorkPolicy.KEEP,
-            SyncWorker.startUpSyncWork(),
-        )
+        Sync.schedulePeriodicSync(context)
     }
 }
 

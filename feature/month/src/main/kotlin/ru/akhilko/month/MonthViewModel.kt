@@ -63,7 +63,7 @@ class MonthViewModel @Inject constructor(
         if (year !in syncedYears) {
             syncedYears.add(year)
             viewModelScope.launch {
-                calendarDayRepository.sync(year)
+                calendarDayRepository.sync()
                 (uiState.value as? MonthScreenUiState.Success)?.let { currentState ->
                     val newSummaries = generateMonthSummariesUseCase(currentState.days, year)
                     val updatedSummaries = _summaries.value.toMutableMap()

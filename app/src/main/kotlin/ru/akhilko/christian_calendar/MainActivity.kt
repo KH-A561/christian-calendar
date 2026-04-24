@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import ru.akhilko.christian_calendar.ui.ChristianCalendarApp
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
+import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.ui.state.SelectedDayHolder
 import ru.akhilko.settings.SettingsViewModel
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject lateinit var selectedDayHolder: SelectedDayHolder
+    @Inject lateinit var calendarDayRepository: CalendarDayRepository
 
     @OptIn(ExperimentalMaterial3AdaptiveApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +41,8 @@ class MainActivity : ComponentActivity() {
             CalendarTheme(darkTheme = isDark) {
                 ChristianCalendarApp(
                     appState = appState,
-                    windowAdaptiveInfo = currentWindowAdaptiveInfo()
+                    windowAdaptiveInfo = currentWindowAdaptiveInfo(),
+                    calendarDayRepository = calendarDayRepository,
                 )
             }
         }

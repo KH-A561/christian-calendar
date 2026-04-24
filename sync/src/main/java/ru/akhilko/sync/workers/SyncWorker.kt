@@ -17,12 +17,14 @@
 package ru.akhilko.sync.workers
 
 import android.content.Context
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import androidx.hilt.work.HiltWorker
 import androidx.tracing.traceAsync
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -33,6 +35,7 @@ import ru.akhilko.core.Dispatchers
 import ru.akhilko.christian_calendar.core.data.repository.CalendarDayRepository
 import ru.akhilko.sync.initializers.SyncConstraints
 import ru.akhilko.sync.initializers.SyncForegroundServiceNotification
+import java.util.concurrent.TimeUnit
 
 /**
  * Syncs the data layer by delegates should the sync be necessary.
@@ -54,6 +57,7 @@ internal class SyncWorker @AssistedInject constructor(
                 calendarDayRepository.sync()
                 true
             } catch (e: Exception) {
+                FirebaseCrashlytics.getInstance().recordException(e)
                 false
             }
 
@@ -71,6 +75,10 @@ internal class SyncWorker @AssistedInject constructor(
          */
         fun startUpSyncWork() = OneTimeWorkRequestBuilder<SyncWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setConstraints(SyncConstraints)
+            .build()
+
+        fun periodicSyncWork() = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
             .setConstraints(SyncConstraints)
             .build()
     }

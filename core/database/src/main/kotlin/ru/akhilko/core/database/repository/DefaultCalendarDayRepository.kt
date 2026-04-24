@@ -1,6 +1,7 @@
 package ru.akhilko.core.database.repository
 
 import android.util.Log
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DayOfWeek
@@ -12,6 +13,7 @@ import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
+import ru.akhilko.core.datastore.SyncPreferencesDataStore
 import ru.akhilko.core.database.dao.CalendarDayDao
 import ru.akhilko.core.database.entity.day.CalendarDayEntity
 import ru.akhilko.core.database.entity.day.asResource
@@ -23,6 +25,7 @@ internal class DefaultCalendarDayRepository @Inject constructor(
     private val firestoreDataSource: FirestoreCalendarDataSource,
     private val localDataSource: LocalCalendarDataSource,
     private val authRepository: AuthRepository,
+    private val syncPreferencesDataStore: SyncPreferencesDataStore,
 ) : CalendarDayRepository {
 
     override fun getDay(id: String): Flow<CalendarDayResource?> {
@@ -50,26 +53,24 @@ internal class DefaultCalendarDayRepository @Inject constructor(
         }
     }
 
-    override suspend fun sync(year: Int) {
-        // 1) Сначала seed из assets — не требует сети.
-        // Апсертим всегда: assets могут содержать обновлённые поля (например, julianDay),
-        // а старые записи в БД не должны переживать апдейты calendar.json.
+    override suspend fun sync() {
         try {
-            val localData = localDataSource.getCalendarData().map { it.toEntity() }
-            calendarDayDao.upsertAll(localData)
-        } catch (e: Exception) {
-            Log.e("Sync", "Failed to load local data", e)
-        }
+            if (calendarDayDao.isDbEmpty()) {
+                val localData = localDataSource.getCalendarData().map { it.toEntity() }
+                calendarDayDao.upsertAll(localData)
+            }
 
-        // 2) Потом auth + Firestore — могут зависнуть в офлайне, но БД уже наполнена
-        authRepository.signInAnonymouslyIfNeeded()
-        try {
-            val remoteData = firestoreDataSource.getYearData(year)
+            authRepository.signInAnonymouslyIfNeeded()
+
+            val lastSync = syncPreferencesDataStore.getLastSyncTimestamp()
+            val remoteData = firestoreDataSource.getDeltaUpdates(lastSync)
             if (remoteData.isNotEmpty()) {
                 calendarDayDao.upsertAll(remoteData.map { (id, fd) -> fd.toEntity(id) })
+                syncPreferencesDataStore.updateLastSyncTimestamp(System.currentTimeMillis())
             }
         } catch (e: Exception) {
-            Log.w("Sync", "Firestore sync FAILED for year $year", e)
+            FirebaseCrashlytics.getInstance().recordException(e)
+            Log.e("Sync", "Sync failed", e)
         }
     }
 }
