@@ -2,7 +2,6 @@ package ru.akhilko.core.database.repository
 
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.DayOfWeek
 import ru.akhilko.christian_calendar.core.common.DateConverter
@@ -52,13 +51,12 @@ internal class DefaultCalendarDayRepository @Inject constructor(
     }
 
     override suspend fun sync(year: Int) {
-        // 1) Сначала seed из assets — не требует сети
+        // 1) Сначала seed из assets — не требует сети.
+        // Апсертим всегда: assets могут содержать обновлённые поля (например, julianDay),
+        // а старые записи в БД не должны переживать апдейты calendar.json.
         try {
-            val currentDays = calendarDayDao.getAll().first()
-            if (currentDays.isEmpty()) {
-                val localData = localDataSource.getCalendarData().map { it.toEntity() }
-                calendarDayDao.upsertAll(localData)
-            }
+            val localData = localDataSource.getCalendarData().map { it.toEntity() }
+            calendarDayDao.upsertAll(localData)
         } catch (e: Exception) {
             Log.e("Sync", "Failed to load local data", e)
         }

@@ -265,7 +265,7 @@ internal fun MonthScreen(
                         VerticalCalendar(
                                 state = state,
                                 userScrollEnabled = true,
-                                calendarScrollPaged = true,
+                                calendarScrollPaged = false,
                                 dayContent = { day ->
                                     val dayResource = dayResourcesByDate[day.date.toKotlinLocalDate()]
                                     Day(
