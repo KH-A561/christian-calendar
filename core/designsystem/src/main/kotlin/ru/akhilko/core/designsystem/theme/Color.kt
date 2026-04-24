@@ -109,8 +109,17 @@ internal val InkPaperOutline = Color(0xFF6B604E)
 // Единые цвета для типов дней — используются и в Month-сетке, и в бейджах.
 // Значения из дизайн-документа (light theme).
 
-val ColorGreat = Color(0xFFA5842A)         // Великий праздник — золото
-val ColorFeast = Color(0xFF8A2B2B)         // Праздник — бордовый
+val ColorEaster = Color(0xFFA5842A)        // Пасха — золото
+val ColorEasterSurface = Color(0xFFFFF8E1) // Пасха — очень светлый золотой фон
+val ColorTwelveFeast = Color(0xFFC53E3E)   // Двунадесятый — глубокий красный
+val ColorGreatFeast = Color(0xFFE57373)    // Великий праздник — светлый красный
+
+@Deprecated("Use ColorEaster", ReplaceWith("ColorEaster"))
+val ColorGreat = ColorEaster
+
+@Deprecated("Use ColorTwelveFeast", ReplaceWith("ColorTwelveFeast"))
+val ColorFeast = ColorTwelveFeast
+
 val ColorFast = Color(0xFF7B5D87)          // Пост — приглушённый фиолетовый (единый для всех типов)
 val ColorRemembrance = Color(0xFF6F8599)   // Память / поминовение — серо-синий
 val ColorMemorial = ColorRemembrance       // Исторический алиас (обратная совместимость)

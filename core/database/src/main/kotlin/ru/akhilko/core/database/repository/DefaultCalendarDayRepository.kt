@@ -52,8 +52,7 @@ internal class DefaultCalendarDayRepository @Inject constructor(
     }
 
     override suspend fun sync(year: Int) {
-        authRepository.signInAnonymouslyIfNeeded()
-
+        // 1) Сначала seed из assets — не требует сети
         try {
             val currentDays = calendarDayDao.getAll().first()
             if (currentDays.isEmpty()) {
@@ -64,17 +63,16 @@ internal class DefaultCalendarDayRepository @Inject constructor(
             Log.e("Sync", "Failed to load local data", e)
         }
 
+        // 2) Потом auth + Firestore — могут зависнуть в офлайне, но БД уже наполнена
+        authRepository.signInAnonymouslyIfNeeded()
         try {
             val remoteData = firestoreDataSource.getYearData(year)
             if (remoteData.isNotEmpty()) {
-                calendarDayDao.upsertAll(remoteData.map { (id, firestoreDay) ->
-                    firestoreDay.toEntity(id)
-                })
+                calendarDayDao.upsertAll(remoteData.map { (id, fd) -> fd.toEntity(id) })
             }
         } catch (e: Exception) {
             Log.w("Sync", "Firestore sync FAILED for year $year", e)
         }
-
     }
 }
 

@@ -14,13 +14,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import ru.akhilko.core.designsystem.theme.ColorEaster
+import ru.akhilko.core.designsystem.theme.ColorGreatFeast
 import ru.akhilko.core.designsystem.theme.ColorFast
 import ru.akhilko.core.designsystem.theme.ColorFeast
-import ru.akhilko.core.designsystem.theme.ColorGreat
 import ru.akhilko.core.designsystem.theme.ColorRemembrance
+import ru.akhilko.core.designsystem.theme.ColorTwelveFeast
 
-enum class BadgeKind(val label: String, val color: Color) {
-    GREAT("Великий", ColorGreat),
+enum class BadgeKind(val label: String, val color: Color, val onColor: Color = Color.White) {
+    EASTER("Пасха", ColorEaster),
+    TWELVE("Двунадесятый", ColorTwelveFeast),
+    GREAT("Великий праздник", ColorGreatFeast, onColor = Color(0xFF5C0000)),
     FEAST("Праздник", ColorFeast),
     REMEMBRANCE("Память", ColorRemembrance),
     FAST("Пост", ColorFast),
@@ -35,7 +39,7 @@ fun DayTypeBadge(
         text = kind.label,
         style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.SemiBold,
-        color = Color.White,
+        color = kind.onColor,
         modifier = modifier
             .clip(RoundedCornerShape(100))
             .background(kind.color)

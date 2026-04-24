@@ -9,6 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun DayRoute(
     onBack: () -> Unit,
     onNavigateToDay: (String) -> Unit,
+    onMenuClick: () -> Unit,
     viewModel: DayViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -16,5 +17,6 @@ fun DayRoute(
         uiState = uiState,
         onBack = onBack,
         onNavigateToDay = onNavigateToDay,
+        onMenuClick = onMenuClick,
     )
 }

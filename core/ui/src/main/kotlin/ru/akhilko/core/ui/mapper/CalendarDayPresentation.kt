@@ -74,17 +74,19 @@ private fun deriveBadges(
     fastingLevel: FastingLevel,
 ): List<BadgeKind> {
     val result = mutableListOf<BadgeKind>()
-    val isGreat = dayTypes.any {
-        it == DayType.EASTER || it == DayType.TWELVE_GREAT_FEASTS || it == DayType.GREAT_FEAST
-    }
+    val isEaster = dayTypes.contains(DayType.EASTER)
+    val isTwelve = dayTypes.contains(DayType.TWELVE_GREAT_FEASTS)
+    val isGreat = dayTypes.contains(DayType.GREAT_FEAST)
     val isFeast = dayTypes.contains(DayType.FEAST)
     val isRemembrance = dayTypes.contains(DayType.COMMEMORATION)
     val isFast = dayTypes.contains(DayType.LONG_FAST) ||
             dayTypes.contains(DayType.FAST) ||
             fastingLevel != FastingLevel.NONE
 
+    if (isEaster) result += BadgeKind.EASTER
+    if (isTwelve) result += BadgeKind.TWELVE
     if (isGreat) result += BadgeKind.GREAT
-    if (isFeast && !isGreat) result += BadgeKind.FEAST
+    if (isFeast) result += BadgeKind.FEAST
     if (isRemembrance) result += BadgeKind.REMEMBRANCE
     if (isFast) result += BadgeKind.FAST
     return result

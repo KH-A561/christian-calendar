@@ -11,8 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration.Short
 import androidx.compose.material3.SnackbarHost
@@ -20,11 +23,14 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult.ActionPerformed
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +40,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import ru.akhilko.christian_calendar.navigation.ChristianCalendarNavHost
 import ru.akhilko.christian_calendar.navigation.TopLevelDestination
 import ru.akhilko.core.designsystem.component.CalendarBackground
@@ -44,6 +53,8 @@ import ru.akhilko.core.designsystem.icon.Icons
 import ru.akhilko.core.designsystem.theme.GradientColors
 import ru.akhilko.core.designsystem.theme.LocalGradientColors
 import ru.akhilko.feature.settings.R as settingsR
+import ru.akhilko.settings.SettingsDrawerContent
+import ru.akhilko.settings.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
@@ -79,6 +90,11 @@ internal fun ChristianCalendarAppInternal(
     modifier: Modifier = Modifier,
     windowAdaptiveInfo: WindowAdaptiveInfo = currentWindowAdaptiveInfo(),
 ) {
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val isDarkTheme by settingsViewModel.isDarkTheme.collectAsStateWithLifecycle()
+    val isSyncing by settingsViewModel.isSyncing.collectAsStateWithLifecycle()
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
     val currentDestination = appState.currentDestination
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -112,67 +128,83 @@ internal fun ChristianCalendarAppInternal(
         },
         windowAdaptiveInfo = windowAdaptiveInfo,
     ) {
-        Scaffold(
-            modifier = modifier.semantics {
-                testTagsAsResourceId = true
-            },
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onBackground,
-            contentWindowInsets = WindowInsets(0, 0, 0, 0),
-            snackbarHost = { SnackbarHost(snackbarHostState) },
-        ) { padding ->
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .consumeWindowInsets(padding)
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(
-                            WindowInsetsSides.Horizontal,
-                        ),
-                    ),
-            ) {
-                // Show the top app bar on top level destinations.
-                // На Day-экране собственный TopAppBar (с back/prev/next), общий скрываем.
-                val destination = appState.currentTopLevelDestination
-                val shouldShowTopAppBar = destination != null &&
-                    destination != TopLevelDestination.DAY &&
-                    destination != TopLevelDestination.MONTH &&
-                    destination != TopLevelDestination.WEEK
-                destination?.takeIf { shouldShowTopAppBar }?.let { topLevelDestination ->
-                    CalendarTopAppBar(
-                        titleRes = topLevelDestination.titleTextId,
-                        navigationIcon = Icons.Search,
-                        navigationIconContentDescription = stringResource(
-                            id = settingsR.string.feature_settings_top_app_bar_navigation_icon_description,
-                        ),
-                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                            containerColor = Color.Transparent,
-                            scrolledContainerColor = MaterialTheme.colorScheme.background,
-                        ),
-                        onNavigationClick = { appState.navigateToSearch() },
+        ModalNavigationDrawer(
+            drawerState = drawerState,
+            drawerContent = {
+                ModalDrawerSheet(
+                    drawerContainerColor = MaterialTheme.colorScheme.surface,
+                ) {
+                    SettingsDrawerContent(
+                        isDarkTheme = isDarkTheme,
+                        isSyncing = isSyncing,
+                        onOpenYear = { scope.launch { drawerState.close() } },
+                        onToggleTheme = settingsViewModel::toggleTheme,
+                        onTriggerSync = settingsViewModel::triggerSync,
                     )
                 }
-
-                Box(
-                    modifier = Modifier.consumeWindowInsets(
-                        if (shouldShowTopAppBar) {
-                            WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
-                        } else {
-                            WindowInsets(0, 0, 0, 0)
-                        },
-                    ),
+            },
+        ) {
+            Scaffold(
+                modifier = modifier.semantics {
+                    testTagsAsResourceId = true
+                },
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                contentWindowInsets = WindowInsets(0, 0, 0, 0),
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+            ) { padding ->
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .consumeWindowInsets(padding)
+                        .windowInsetsPadding(
+                            WindowInsets.safeDrawing.only(
+                                WindowInsetsSides.Horizontal,
+                            ),
+                        ),
                 ) {
-                    ChristianCalendarNavHost(
-                        appState = appState,
-                        onShowSnackbar = { message, action ->
-                            snackbarHostState.showSnackbar(
-                                message = message,
-                                actionLabel = action,
-                                duration = Short,
-                            ) == ActionPerformed
-                        },
-                    )
+                    val destination = appState.currentTopLevelDestination
+                    val shouldShowTopAppBar = destination != null &&
+                        destination != TopLevelDestination.DAY &&
+                        destination != TopLevelDestination.MONTH &&
+                        destination != TopLevelDestination.WEEK
+                    destination?.takeIf { shouldShowTopAppBar }?.let { topLevelDestination ->
+                        CalendarTopAppBar(
+                            titleRes = topLevelDestination.titleTextId,
+                            navigationIcon = Icons.Search,
+                            navigationIconContentDescription = stringResource(
+                                id = settingsR.string.feature_settings_top_app_bar_navigation_icon_description,
+                            ),
+                            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                                containerColor = Color.Transparent,
+                                scrolledContainerColor = MaterialTheme.colorScheme.background,
+                            ),
+                            onNavigationClick = { appState.navigateToSearch() },
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier.consumeWindowInsets(
+                            if (shouldShowTopAppBar) {
+                                WindowInsets.safeDrawing.only(WindowInsetsSides.Top)
+                            } else {
+                                WindowInsets(0, 0, 0, 0)
+                            },
+                        ),
+                    ) {
+                        ChristianCalendarNavHost(
+                            appState = appState,
+                            onShowSnackbar = { message, action ->
+                                snackbarHostState.showSnackbar(
+                                    message = message,
+                                    actionLabel = action,
+                                    duration = Short,
+                                ) == ActionPerformed
+                            },
+                            onMenuClick = { scope.launch { drawerState.open() } },
+                        )
+                    }
                 }
             }
         }

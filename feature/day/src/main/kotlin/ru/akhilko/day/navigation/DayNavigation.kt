@@ -21,6 +21,7 @@ fun NavController.navigateToDay(dayId: String, navOptions: NavOptions? = null) {
 fun NavGraphBuilder.dayScreen(
     onBack: () -> Unit,
     onNavigateToDay: (String) -> Unit,
+    onMenuClick: () -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
 ) {
     navigation(
@@ -36,6 +37,7 @@ fun NavGraphBuilder.dayScreen(
             DayRoute(
                 onBack = onBack,
                 onNavigateToDay = onNavigateToDay,
+                onMenuClick = onMenuClick,
             )
         }
     }

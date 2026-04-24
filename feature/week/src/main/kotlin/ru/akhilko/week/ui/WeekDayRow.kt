@@ -28,8 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,10 +38,14 @@ import ru.akhilko.core.designsystem.component.BadgeKind
 import ru.akhilko.core.designsystem.component.DayTypeBadgeRow
 import ru.akhilko.core.designsystem.component.FastingChip
 import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.core.designsystem.theme.ColorEaster
+import ru.akhilko.core.designsystem.theme.ColorEasterSurface
 import ru.akhilko.core.designsystem.theme.ColorFast
 import ru.akhilko.core.designsystem.theme.ColorFeast
+import ru.akhilko.core.designsystem.theme.ColorGreatFeast
 import ru.akhilko.core.designsystem.theme.ColorGreat
 import ru.akhilko.core.designsystem.theme.ColorRemembrance
+import ru.akhilko.core.designsystem.theme.ColorTwelveFeast
 import ru.akhilko.core.ui.format.monthGenitiveRu
 import ru.akhilko.core.ui.mapper.CalendarDayPresentation
 
@@ -52,12 +56,30 @@ fun WeekDayRow(
     onDayClick: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val isSunday = day.weekdayShortRu.equals("вс", ignoreCase = true)
+    val isTwelve = day.badges.contains(BadgeKind.TWELVE)
+    val isEaster = day.badges.contains(BadgeKind.EASTER)
     val leftBg = when {
-        day.badges.contains(BadgeKind.GREAT) -> ColorGreat.copy(alpha = 0.18f)
-        day.badges.contains(BadgeKind.FEAST) -> ColorFeast.copy(alpha = 0.18f)
-        day.badges.contains(BadgeKind.REMEMBRANCE) -> ColorRemembrance.copy(alpha = 0.18f)
-        day.badges.contains(BadgeKind.FAST) -> ColorFast.copy(alpha = 0.18f)
+        isEaster -> ColorEasterSurface
+        isTwelve -> ColorTwelveFeast.copy(alpha = 0.55f)                  // насыщенный бордо
+        day.badges.contains(BadgeKind.GREAT) -> ColorGreatFeast.copy(alpha = 0.30f)
+        day.badges.contains(BadgeKind.FEAST) -> ColorFeast.copy(alpha = 0.12f)
+        day.badges.contains(BadgeKind.REMEMBRANCE) -> ColorRemembrance.copy(alpha = 0.12f)
+        isSunday -> ColorGreatFeast.copy(alpha = 0.10f)
+        day.badges.contains(BadgeKind.FAST) -> ColorFast.copy(alpha = 0.12f)
         else -> MaterialTheme.colorScheme.surface
+    }
+    val numberColor = when {
+        isTwelve -> Color.White
+        isEaster -> ColorEaster
+        isSunday -> ColorGreatFeast
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+    val weekdayColor = when {
+        isTwelve -> Color.White.copy(alpha = 0.85f)
+        isEaster -> ColorEaster.copy(alpha = 0.85f)
+        isSunday -> ColorGreatFeast.copy(alpha = 0.8f)
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
     val visibleBadges = if (day.fastingName != null) {
         day.badges.filter { it != BadgeKind.FAST }
@@ -65,9 +87,6 @@ fun WeekDayRow(
         day.badges
     }
     val title = day.title.ifBlank { day.weekText.orEmpty() }
-    val showSubtitle = day.title.isNotBlank() &&
-        day.weekText != null &&
-        day.weekText != day.title
 
     Card(
         onClick = { onDayClick(day.id) },
@@ -75,7 +94,11 @@ fun WeekDayRow(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
         ),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        border = if (isEaster) {
+            BorderStroke(1.dp, ColorEaster)
+        } else {
+            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        },
         elevation = CardDefaults.cardElevation(0.dp),
         modifier = modifier
             .fillMaxWidth()
@@ -99,14 +122,20 @@ fun WeekDayRow(
                 Text(
                     text = day.weekdayShortRu.uppercase(),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = weekdayColor,
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = day.gregorianDayNum.toString(),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
+                    color = numberColor,
                     textDecoration = if (day.isToday) TextDecoration.Underline else null,
+                )
+                Text(
+                    text = monthGenitiveRu(day.gregorianMonth).take(3),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = weekdayColor,
                 )
             }
 
@@ -125,17 +154,6 @@ fun WeekDayRow(
                         text = title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                    )
-                }
-
-                if (showSubtitle) {
-                    Text(
-                        text = day.weekText.orEmpty(),
-                        style = MaterialTheme.typography.bodySmall,
-                        fontStyle = FontStyle.Italic,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
                 }
 
@@ -180,11 +198,13 @@ fun WeekDayRow(
 
                 day.fastingName?.let { FastingChip(it) }
 
-                Text(
-                    text = "${day.julianDay} ${monthGenitiveRu(day.julianMonth)}",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                if (day.julianDay > 0 && day.julianMonth in 1..12) {
+                    Text(
+                        text = "${day.julianDay} ${monthGenitiveRu(day.julianMonth)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }

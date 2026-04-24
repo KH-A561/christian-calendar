@@ -29,9 +29,11 @@ import java.time.LocalDate
 fun WeekScreen(
     uiState: WeekUiState,
     onNavigateToSearch: () -> Unit,
+    onMenuClick: () -> Unit,
     onPrevWeek: () -> Unit,
     onNextWeek: () -> Unit,
     onDayClick: (String) -> Unit,
+    floatingActionButton: @Composable () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     when (uiState) {
@@ -58,11 +60,13 @@ fun WeekScreen(
                     WeekTopBar(
                         dateRange = formatWeekRange(uiState.weekStart),
                         sedmicaText = uiState.days.firstOrNull()?.weekText,
+                        onMenuClick = onMenuClick,
                         onPrevWeek = onPrevWeek,
                         onNextWeek = onNextWeek,
                         onSearchClick = onNavigateToSearch,
                     )
                 },
+                floatingActionButton = floatingActionButton,
                 modifier = modifier,
                 containerColor = Color.Transparent,
             ) { padding ->
@@ -96,6 +100,7 @@ private fun WeekScreenListPreview() {
                     days = previewDays(),
                 ),
                 onNavigateToSearch = {},
+                onMenuClick = {},
                 onPrevWeek = {},
                 onNextWeek = {},
                 onDayClick = {},
@@ -112,6 +117,7 @@ private fun WeekScreenLoadingPreview() {
             WeekScreen(
                 uiState = WeekUiState.Loading,
                 onNavigateToSearch = {},
+                onMenuClick = {},
                 onPrevWeek = {},
                 onNextWeek = {},
                 onDayClick = {},
@@ -128,6 +134,7 @@ private fun WeekScreenErrorPreview() {
             WeekScreen(
                 uiState = WeekUiState.Error,
                 onNavigateToSearch = {},
+                onMenuClick = {},
                 onPrevWeek = {},
                 onNextWeek = {},
                 onDayClick = {},

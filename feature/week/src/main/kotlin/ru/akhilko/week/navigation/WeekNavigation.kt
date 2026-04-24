@@ -16,6 +16,7 @@ fun NavGraphBuilder.weekScreen(
     onDayClick: (String) -> Unit,
     onShowSnackbar: suspend (String, String?) -> Boolean,
     onNavigateToSearch: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     navigation(
         route = WEEK_GRAPH_ROUTE,
@@ -25,6 +26,7 @@ fun NavGraphBuilder.weekScreen(
             WeekRoute(
                 onDayClick = onDayClick,
                 onNavigateToSearch = onNavigateToSearch,
+                onMenuClick = onMenuClick,
             )
         }
     }

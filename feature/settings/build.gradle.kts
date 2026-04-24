@@ -33,7 +33,10 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.androidx.work.ktx)
+
+    implementation(projects.sync)
 }

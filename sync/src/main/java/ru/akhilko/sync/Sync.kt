@@ -31,12 +31,20 @@ object Sync {
     fun initialize(context: Context) {
         WorkManager.getInstance(context).apply {
             enqueueUniqueWork(
-                SyncWorkerName,
+                SYNC_WORK_NAME,
                 ExistingWorkPolicy.KEEP,
                 SyncWorker.startUpSyncWork(),
             )
         }
     }
+
+    fun forceSync(context: Context) {
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            SYNC_WORK_NAME,
+            ExistingWorkPolicy.REPLACE,
+            SyncWorker.startUpSyncWork(),
+        )
+    }
 }
 
-private const val SyncWorkerName = "SyncWorker"
+const val SYNC_WORK_NAME = "SyncWorker"

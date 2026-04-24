@@ -996,7 +996,6 @@
     "julianDay": 14,
     "week": "Седмица 34-я по Пятидесятнице",
     "dayTypes": [
-      "FEAST"
     ],
     "fastingInfo": {
       "fastingLevel": "NONE",
@@ -3275,7 +3274,6 @@
     "julianDay": 9,
     "week": "Неделя 4-я Великого поста. Глас 8",
     "dayTypes": [
-      "FEAST",
       "LONG_FAST"
     ],
     "fastingInfo": {
@@ -3877,7 +3875,8 @@
     "week": "Страстная седмица",
     "fastingInfo": {
       "fastingLevel": "STRICT",
-      "fastingName": "Великий пост"
+      "fastingName": "Великий пост",
+      "allowed": []
     },
     "liturgicalInfo": {
       "importance": 2
@@ -4166,7 +4165,9 @@
     "julianMonth": 3,
     "julianDay": 31,
     "week": "Светлая седмица (сплошная)",
-    "dayTypes": [],
+    "dayTypes": [
+      "EASTER"
+    ],
     "fastingInfo": {
       "fastingLevel": "NONE",
       "allowed": [
@@ -4217,7 +4218,9 @@
     "julianMonth": 4,
     "julianDay": 1,
     "week": "Светлая седмица (сплошная)",
-    "dayTypes": [],
+    "dayTypes": [
+      "EASTER"
+    ],
     "fastingInfo": {
       "fastingLevel": "NONE",
       "allowed": [
@@ -4260,7 +4263,9 @@
     "julianMonth": 4,
     "julianDay": 2,
     "week": "Светлая седмица (сплошная)",
-    "dayTypes": [],
+    "dayTypes": [
+      "EASTER"
+    ],
     "fastingInfo": {
       "fastingLevel": "NONE",
       "allowed": [
@@ -4300,7 +4305,9 @@
     "julianMonth": 4,
     "julianDay": 3,
     "week": "Светлая седмица (сплошная)",
-    "dayTypes": [],
+    "dayTypes": [
+      "EASTER"
+    ],
     "fastingInfo": {
       "fastingLevel": "NONE",
       "allowed": [
@@ -4339,7 +4346,9 @@
     "julianMonth": 4,
     "julianDay": 4,
     "week": "Светлая седмица (сплошная)",
-    "dayTypes": [],
+    "dayTypes": [
+      "EASTER"
+    ],
     "fastingInfo": {
       "fastingLevel": "NONE",
       "allowed": [
@@ -4386,7 +4395,9 @@
     "julianMonth": 4,
     "julianDay": 5,
     "week": "Светлая седмица (сплошная)",
-    "dayTypes": [],
+    "dayTypes": [
+      "EASTER"
+    ],
     "fastingInfo": {
       "fastingLevel": "NONE",
       "allowed": [
@@ -4721,7 +4732,6 @@
     "julianDay": 13,
     "week": "Неделя 3-я по Пасхе, святых жен-мироносиц. Глас 2",
     "dayTypes": [
-      "FEAST"
     ],
     "fastingInfo": {
       "fastingLevel": "NONE",
@@ -5401,7 +5411,6 @@
     "julianDay": 30,
     "week": "Седмица 5-я по Пасхе. Отдание праздника Преполовения Пятидесятницы",
     "dayTypes": [
-      "FEAST"
     ],
     "fastingInfo": {
       "fastingLevel": "PARTIAL",
@@ -6253,7 +6262,7 @@
     "julianDay": 19,
     "week": "Седмица 1-я по Пятидесятнице (сплошная)",
     "dayTypes": [
-      "FEAST"
+      "GREAT_FEAST"
     ],
     "fastingInfo": {
       "fastingLevel": "NONE",
@@ -6489,7 +6498,7 @@
     "julianDay": 25,
     "week": "Неделя 1-я по Пятидесятнице. Всех святых",
     "dayTypes": [
-      "FEAST"
+      "GREAT_FEAST"
     ],
     "fastingInfo": {
       "fastingLevel": "NONE",

@@ -10,15 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Today
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.layout.padding
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.EntryPoint
@@ -34,13 +30,23 @@ import java.time.temporal.TemporalAdjusters
 fun WeekRoute(
     onDayClick: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onMenuClick: () -> Unit,
     viewModel: WeekViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val selectedDayHolder = remember(context) { context.selectedDayHolder() }
 
-    Scaffold(
+    WeekScreen(
+        uiState = uiState,
+        onNavigateToSearch = onNavigateToSearch,
+        onMenuClick = onMenuClick,
+        onPrevWeek = viewModel::prevWeek,
+        onNextWeek = viewModel::nextWeek,
+        onDayClick = { id ->
+            selectedDayHolder.setSelectedDay(id)
+            onDayClick(id)
+        },
         floatingActionButton = {
             val success = uiState as? WeekUiState.Success
             val isCurrentWeek = success?.weekStart == currentWeekStart()
@@ -56,20 +62,7 @@ fun WeekRoute(
                 )
             }
         },
-        containerColor = Color.Transparent,
-    ) { padding ->
-        WeekScreen(
-            uiState = uiState,
-            onNavigateToSearch = onNavigateToSearch,
-            onPrevWeek = viewModel::prevWeek,
-            onNextWeek = viewModel::nextWeek,
-            onDayClick = { id ->
-                selectedDayHolder.setSelectedDay(id)
-                onDayClick(id)
-            },
-            modifier = Modifier.padding(padding),
-        )
-    }
+    )
 }
 
 private fun currentWeekStart(): LocalDate =

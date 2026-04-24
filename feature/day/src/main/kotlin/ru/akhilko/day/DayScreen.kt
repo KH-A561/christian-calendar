@@ -1,12 +1,13 @@
 package ru.akhilko.day
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -21,15 +22,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import ru.akhilko.core.designsystem.component.BadgeKind
 import ru.akhilko.core.designsystem.theme.CalendarTheme
 import ru.akhilko.core.ui.mapper.CalendarDayPresentation
@@ -48,6 +49,7 @@ fun DayScreen(
     uiState: DayScreenUiState,
     onBack: () -> Unit,
     onNavigateToDay: (String) -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     when (uiState) {
         DayScreenUiState.Loading -> CenteredLoading()
@@ -56,6 +58,7 @@ fun DayScreen(
             state = uiState,
             onBack = onBack,
             onNavigateToDay = onNavigateToDay,
+            onMenuClick = onMenuClick,
         )
     }
 }
@@ -65,13 +68,21 @@ private fun DaySuccessContent(
     state: DayScreenUiState.Success,
     onBack: () -> Unit,
     onNavigateToDay: (String) -> Unit,
+    onMenuClick: () -> Unit,
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(DayTab.SAINTS) }
+    val pagerState = rememberPagerState(pageCount = { DayTab.entries.size })
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(state.day.id) {
+        pagerState.scrollToPage(0)
+    }
+
     Scaffold(
         topBar = {
             DayTopBar(
                 title = state.day.monthYearRu,
                 onBack = onBack,
+                onMenuClick = onMenuClick,
                 onPrev = { onNavigateToDay(state.prevId) },
                 onNext = { onNavigateToDay(state.nextId) },
             )
@@ -103,13 +114,19 @@ private fun DaySuccessContent(
         ) {
             DayHero(presentation = state.day)
             Spacer(Modifier.height(12.dp))
-            DayTabs(selected = selectedTab, onSelect = { selectedTab = it })
-            AnimatedContent(
-                targetState = selectedTab,
-                label = "DayTabContent",
+            DayTabs(
+                selected = DayTab.entries[pagerState.currentPage],
+                onSelect = { tab ->
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(tab.ordinal)
+                    }
+                },
+            )
+            HorizontalPager(
+                state = pagerState,
                 modifier = Modifier.fillMaxSize(),
-            ) { tab ->
-                when (tab) {
+            ) { page ->
+                when (DayTab.entries[page]) {
                     DayTab.SAINTS -> SaintsTabContent(state.day)
                     DayTab.READINGS -> ReadingsTabContent(state.day)
                     DayTab.FAST -> FastTabContent(state.day)
@@ -149,7 +166,8 @@ private fun DayScreenSuccessPreview() {
                     nextId = "next"
                 ),
                 onBack = {},
-                onNavigateToDay = {}
+                onNavigateToDay = {},
+                onMenuClick = {},
             )
         }
     }
@@ -172,7 +190,8 @@ private fun DayScreenMinimalPreview() {
                     nextId = "next"
                 ),
                 onBack = {},
-                onNavigateToDay = {}
+                onNavigateToDay = {},
+                onMenuClick = {},
             )
         }
     }
@@ -187,7 +206,8 @@ private fun DayScreenLoadingPreview() {
             DayScreen(
                 uiState = DayScreenUiState.Loading,
                 onBack = {},
-                onNavigateToDay = {}
+                onNavigateToDay = {},
+                onMenuClick = {},
             )
         }
     }
@@ -202,7 +222,8 @@ private fun DayScreenErrorPreview() {
             DayScreen(
                 uiState = DayScreenUiState.Error,
                 onBack = {},
-                onNavigateToDay = {}
+                onNavigateToDay = {},
+                onMenuClick = {},
             )
         }
     }

@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,7 +14,6 @@ import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,11 +23,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -58,7 +53,6 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -66,7 +60,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
-import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.yearMonth
@@ -78,25 +71,25 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.toKotlinLocalDate
 import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.domain.GenerateMonthSummariesUseCase
-import ru.akhilko.christian_calendar.core.domain.model.MonthSummary
 import ru.akhilko.christian_calendar.core.model.DayType
 import ru.akhilko.christian_calendar.core.model.FastingInfo
 import ru.akhilko.christian_calendar.core.model.FastingLevel
 import ru.akhilko.christian_calendar.core.model.LiturgicalInfo
 import ru.akhilko.core.designsystem.theme.CalendarTheme
+import ru.akhilko.core.designsystem.theme.ColorEaster
+import ru.akhilko.core.designsystem.theme.ColorEasterSurface
 import ru.akhilko.core.designsystem.theme.ColorFast
-import ru.akhilko.core.designsystem.theme.ColorFeast
 import ru.akhilko.core.designsystem.theme.ColorGreat
+import ru.akhilko.core.designsystem.theme.ColorGreatFeast
 import ru.akhilko.core.designsystem.theme.ColorRemembrance
+import ru.akhilko.core.designsystem.theme.ColorTwelveFeast
 import ru.akhilko.core.ui.format.monthNominativeRu
 import ru.akhilko.month.ui.MonthEventSummary
-import ru.akhilko.month.ui.MonthLegend
 import ru.akhilko.month.ui.MonthTopBar
 import ru.akhilko.ui.DaySummaryCard
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import kotlin.math.roundToInt
 import java.util.Locale as JavaLocale
@@ -106,6 +99,7 @@ private data class DayStyle(
     val textColor: Color,
     val fontWeight: FontWeight,
     val isFast: Boolean,
+    val borderColor: Color? = null,
 )
 
 @Composable
@@ -118,37 +112,44 @@ private fun resolveDayStyle(
     val dayData = dayResource?.day
     val dayTypes = dayData?.dayTypes ?: emptyList()
 
-    val isGreat = dayTypes.any {
-        it == DayType.EASTER || it == DayType.TWELVE_GREAT_FEASTS || it == DayType.GREAT_FEAST
-    }
-    val isFeast = dayTypes.contains(DayType.FEAST)
-    val isRemembrance = dayTypes.contains(DayType.COMMEMORATION)
+    val isEaster = dayTypes.contains(DayType.EASTER)
+    val isTwelve = dayTypes.contains(DayType.TWELVE_GREAT_FEASTS)
+    val isGreat = dayTypes.contains(DayType.GREAT_FEAST)
+    val isCommemoration = dayTypes.contains(DayType.COMMEMORATION)
+    val isSunday = day.date.dayOfWeek == DayOfWeek.SUNDAY
     val isFast = dayTypes.contains(DayType.LONG_FAST) ||
         dayTypes.contains(DayType.FAST) ||
         dayData?.fastingInfo?.fastingLevel != FastingLevel.NONE
 
     val backgroundColor = when {
         !isCurrentMonth -> Color.Transparent
-        isGreat -> ColorGreat.copy(alpha = 0.15f)
-        isFeast -> ColorFeast.copy(alpha = 0.15f)
-        isRemembrance -> ColorRemembrance.copy(alpha = 0.15f)
+        isEaster -> ColorEasterSurface
+        isTwelve -> ColorTwelveFeast.copy(alpha = 0.55f)        // насыщенный бордо
+        isGreat -> ColorGreatFeast.copy(alpha = 0.30f)          // мягкий розовый
+        isCommemoration -> ColorRemembrance.copy(alpha = 0.55f)
+        isSunday -> Color.Transparent
         else -> Color.Transparent
     }
 
-    val textColor = if (isCurrentMonth) {
-        colorScheme.onSurface
-    } else {
-        colorScheme.onSurface.copy(alpha = 0.25f)
+    val textColor = when {
+        !isCurrentMonth -> colorScheme.onSurface.copy(alpha = 0.25f)
+        isEaster -> ColorEaster
+        isTwelve -> Color.White                                 // белый на тинте бордо
+        isGreat -> ColorTwelveFeast                             // тёмный бордо на розовом
+        isSunday -> ColorGreatFeast
+        else -> colorScheme.onSurface
     }
 
     val fontWeight = when {
         isToday -> FontWeight.Black
-        isGreat || isFeast -> FontWeight.SemiBold
-        day.date.dayOfWeek == DayOfWeek.SUNDAY -> FontWeight.SemiBold
+        isTwelve -> FontWeight.Bold
+        isEaster || isGreat -> FontWeight.SemiBold
+        isSunday -> FontWeight.SemiBold
         else -> FontWeight.Normal
     }
 
-    return DayStyle(backgroundColor, textColor, fontWeight, isFast)
+    val borderColor = if (isEaster && isCurrentMonth) ColorEaster else null
+    return DayStyle(backgroundColor, textColor, fontWeight, isFast, borderColor)
 }
 
 @Composable
@@ -156,6 +157,7 @@ fun MonthRoute(
     modifier: Modifier = Modifier,
     onDayClick: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onMenuClick: () -> Unit,
     viewModel: MonthViewModel = androidx.hilt.navigation.compose.hiltViewModel(),
 ) {
     val monthUiState: MonthScreenUiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -164,6 +166,7 @@ fun MonthRoute(
         monthUiState = monthUiState,
         onDayClick = onDayClick,
         onNavigateToSearch = onNavigateToSearch,
+        onMenuClick = onMenuClick,
         scrollToToday = viewModel.scrollToTodayRequested,
         onVisibleYearChanged = viewModel::onVisibleYearChanged,
         modifier = modifier,
@@ -177,6 +180,7 @@ internal fun MonthScreen(
     monthUiState: MonthScreenUiState,
     onDayClick: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onMenuClick: () -> Unit,
     scrollToToday: Flow<Unit>,
     onVisibleYearChanged: (Int) -> Unit,
     initialSelectedDay: CalendarDayResource? = null,
@@ -232,7 +236,6 @@ internal fun MonthScreen(
                 val dayResourcesByDate = remember(days) {
                     days.associateBy { it.day.getGregorianLocalDate() }
                 }
-
                 Scaffold(
                     topBar = {
                         MonthTopBar(
@@ -248,6 +251,7 @@ internal fun MonthScreen(
                                 }
                             },
                             onSearchClick = onNavigateToSearch,
+                            onMenuClick = onMenuClick,
                         )
                     },
                     containerColor = Color.Transparent,
@@ -259,55 +263,57 @@ internal fun MonthScreen(
                     ) {
                         MonthDaysOfWeekHeader(daysOfWeek)
                         VerticalCalendar(
-                            state = state,
-                            userScrollEnabled = true,
-                            calendarScrollPaged = true,
-                            dayContent = { day ->
-                                val dayResource = dayResourcesByDate[day.date.toKotlinLocalDate()]
-                                Day(
-                                    day = day,
-                                    today = today,
-                                    dayResource = dayResource,
-                                    isSelected = selectedDay?.id == dayResource?.id,
-                                    onClick = { dayRes ->
-                                        selectedDay = if (selectedDay == dayRes) null else dayRes
-                                    },
-                                )
-                            },
-                            monthHeader = { month ->
-                                MonthSectionHeader(month.yearMonth)
-                            },
-                            monthContainer = { _, container ->
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(bottom = 8.dp),
-                                ) {
-                                    container()
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(
-                                            start = 16.dp,
-                                            end = 16.dp,
-                                            top = 16.dp,
-                                        ),
-                                        thickness = 1.dp,
-                                        color = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                state = state,
+                                userScrollEnabled = true,
+                                calendarScrollPaged = true,
+                                dayContent = { day ->
+                                    val dayResource = dayResourcesByDate[day.date.toKotlinLocalDate()]
+                                    Day(
+                                        day = day,
+                                        today = today,
+                                        dayResource = dayResource,
+                                        isSelected = selectedDay?.id == dayResource?.id,
+                                        onClick = { dayRes ->
+                                            selectedDay = if (selectedDay == dayRes) null else dayRes
+                                        },
                                     )
-                                }
-                            },
-                            monthFooter = { month ->
-                                Column {
-                                    Spacer(Modifier.height(8.dp))
-                                    MonthLegend()
-                                    Spacer(Modifier.height(8.dp))
-                                    MonthEventSummary(
-                                        summaries = monthUiState.summaries,
-                                        month = month,
+                                },
+                                monthHeader = { month ->
+                                    MonthSectionHeader(
+                                        yearMonth = month.yearMonth,
                                     )
-                                    Spacer(Modifier.height(16.dp))
-                                }
-                            },
-                        )
+                                },
+                                monthContainer = { _, container ->
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(bottom = 8.dp),
+                                    ) {
+                                        container()
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                top = 16.dp,
+                                            ),
+                                            thickness = 1.dp,
+                                            color = colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                        )
+                                    }
+                                },
+                                monthFooter = { month ->
+                                    Column {
+                                        Spacer(Modifier.height(8.dp))
+                                        MonthEventSummary(
+                                            summaries = monthUiState.summaries,
+                                            month = month,
+                                            dayResources = monthUiState.days,
+                                            onEventClick = onDayClick,
+                                        )
+                                        Spacer(Modifier.height(16.dp))
+                                    }
+                                },
+                            )
                     }
                 }
             }
@@ -424,25 +430,23 @@ private fun Day(
             .clip(RoundedCornerShape(8.dp))
             .background(style.backgroundColor)
             .then(
-                if (isToday) {
-                    Modifier.border(
+                when {
+                    isToday -> Modifier.border(
                         width = 1.5.dp,
                         color = colorScheme.onSurface,
                         shape = RoundedCornerShape(8.dp),
                     )
-                } else {
-                    Modifier
-                }
-            )
-            .then(
-                if (isSelected && !isToday) {
-                    Modifier.border(
+                    style.borderColor != null -> Modifier.border(
+                        width = 1.dp,
+                        color = style.borderColor,
+                        shape = RoundedCornerShape(8.dp),
+                    )
+                    isSelected -> Modifier.border(
                         width = 1.dp,
                         color = ColorGreat,
                         shape = RoundedCornerShape(8.dp),
                     )
-                } else {
-                    Modifier
+                    else -> Modifier
                 }
             )
             .clickable(
@@ -515,6 +519,7 @@ private fun MonthScreenPreview() {
             ),
             onDayClick = {},
             onNavigateToSearch = {},
+            onMenuClick = {},
             scrollToToday = emptyFlow(),
             onVisibleYearChanged = {},
         )
@@ -641,6 +646,7 @@ private fun MonthScreenFullPreview() {
             ),
             onDayClick = {},
             onNavigateToSearch = {},
+            onMenuClick = {},
             scrollToToday = emptyFlow(),
             onVisibleYearChanged = {},
         )
@@ -767,6 +773,7 @@ private fun MonthScreenWithDayCardPreview() {
             ),
             onDayClick = {},
             onNavigateToSearch = {},
+            onMenuClick = {},
             scrollToToday = emptyFlow(),
             onVisibleYearChanged = {},
             initialSelectedDay = sampleDays.first()

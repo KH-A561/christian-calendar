@@ -3,7 +3,9 @@ package ru.akhilko.month.ui
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,14 +26,23 @@ fun MonthTopBar(
     onPrevMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onSearchClick: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = onPrevMonth) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Предыдущий месяц",
-                )
+            Row {
+                IconButton(onClick = onMenuClick) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Меню",
+                    )
+                }
+                IconButton(onClick = onPrevMonth) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Предыдущий месяц",
+                    )
+                }
             }
         },
         title = {

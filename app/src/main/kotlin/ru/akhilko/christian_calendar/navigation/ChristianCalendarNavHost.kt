@@ -2,7 +2,6 @@ package ru.akhilko.christian_calendar.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.navOptions
 import ru.akhilko.christian_calendar.ui.ChristianCalendarAppState
@@ -26,6 +25,7 @@ import ru.akhilko.week.navigation.weekScreen
 fun ChristianCalendarNavHost(
     appState: ChristianCalendarAppState,
     onShowSnackbar: suspend (String, String?) -> Boolean,
+    onMenuClick: () -> Unit,
     modifier: Modifier = Modifier,
     startDestination: String = MONTH_GRAPH_ROUTE,
 ) {
@@ -39,20 +39,13 @@ fun ChristianCalendarNavHost(
             // Month → Day: обычный переход, Back возвращает на Month.
             onDayClick = { dayId -> navController.navigateToDay(dayId) },
             onNavigateToSearch = { navController.navigateToSearch() },
+            onMenuClick = onMenuClick,
         )
         weekScreen(
-            onDayClick = { dayId ->
-                val navOptions = navOptions {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-                navController.navigateToDay(dayId, navOptions)
-            },
+            onDayClick = { dayId -> navController.navigateToDay(dayId) },
             onShowSnackbar = onShowSnackbar,
             onNavigateToSearch = { navController.navigateToSearch() },
+            onMenuClick = onMenuClick,
         )
         dayScreen(
             onBack = navController::popBackStack,
@@ -65,10 +58,14 @@ fun ChristianCalendarNavHost(
                 }
                 navController.navigateToDay(dayId, navOptions)
             },
+            onMenuClick = onMenuClick,
             onShowSnackbar = onShowSnackbar,
         )
         searchScreen(
             onBackClick = navController::popBackStack,
+            onNavigateToDay = { dayId ->
+                navController.navigateToDay(dayId)
+            },
         )
     }
 }

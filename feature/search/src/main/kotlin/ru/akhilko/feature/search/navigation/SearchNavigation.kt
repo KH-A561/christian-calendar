@@ -29,12 +29,14 @@ fun NavController.navigateToSearch(navOptions: NavOptions? = null)
 
 fun NavGraphBuilder.searchScreen(
     onBackClick: () -> Unit,
+    onNavigateToDay: (String) -> Unit,
 ) {
     // TODO: Handle back stack for each top-level destination. At the moment each top-level
     // destination may have own search screen's back stack.
     composable(route = SEARCH_ROUTE) {
         SearchRoute(
             onBackClick = onBackClick,
+            onNavigateToDay = onNavigateToDay,
         )
     }
 }

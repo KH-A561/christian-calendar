@@ -18,6 +18,7 @@ fun NavController.navigateToMonth(navOptions: NavOptions) = navigate(MONTH_GRAPH
 fun NavGraphBuilder.monthScreen(
     onDayClick: (String) -> Unit,
     onNavigateToSearch: () -> Unit,
+    onMenuClick: () -> Unit,
 ) {
     navigation(
         route = MONTH_GRAPH_ROUTE,
@@ -27,6 +28,7 @@ fun NavGraphBuilder.monthScreen(
             MonthRoute(
                 onDayClick = onDayClick,
                 onNavigateToSearch = onNavigateToSearch,
+                onMenuClick = onMenuClick,
             )
         }
     }

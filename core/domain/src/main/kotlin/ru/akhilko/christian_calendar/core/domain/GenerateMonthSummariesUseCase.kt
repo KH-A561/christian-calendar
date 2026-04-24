@@ -4,6 +4,7 @@ import ru.akhilko.christian_calendar.core.data.model.CalendarDayResource
 import ru.akhilko.christian_calendar.core.domain.model.HighlightedDay
 import ru.akhilko.christian_calendar.core.domain.model.HighlightedPeriod
 import ru.akhilko.christian_calendar.core.domain.model.MonthSummary
+import ru.akhilko.christian_calendar.core.model.DayType
 import javax.inject.Inject
 
 class GenerateMonthSummariesUseCase @Inject constructor() {
@@ -19,43 +20,85 @@ class GenerateMonthSummariesUseCase @Inject constructor() {
             val highlightedDays = mutableListOf<HighlightedDay>()
             val highlightedPeriods = mutableListOf<HighlightedPeriod>()
 
-            // Логика для выделения важных дней
+            // Единичные события месяца:
+            // - EASTER / TWELVE_GREAT_FEASTS / GREAT_FEAST / COMMEMORATION
+            // - FAST только если есть fastingName
             daysInMonth.forEach { day ->
-                if (day.day.liturgicalInfo.importance >= 3) {
-                    highlightedDays.add(
-                        HighlightedDay(
-                            dayOfMonth = day.day.gregorianDay,
-                            name = day.day.title
+                val dayTypes = day.day.dayTypes
+                val hasSingleEventType = dayTypes.any {
+                    it == DayType.EASTER ||
+                        it == DayType.TWELVE_GREAT_FEASTS ||
+                        it == DayType.GREAT_FEAST ||
+                        it == DayType.COMMEMORATION
+                }
+                val hasFastWithName = dayTypes.contains(DayType.FAST) &&
+                    !day.day.fastingInfo.fastingName.isNullOrBlank()
+
+                if (hasSingleEventType || hasFastWithName) {
+                    val eventName = day.day.fastingInfo.fastingName
+                        ?.takeIf { hasFastWithName }
+                        ?: day.day.title
+                    if (eventName.isNotBlank()) {
+                        highlightedDays.add(
+                            HighlightedDay(
+                                dayOfMonth = day.day.gregorianDay,
+                                name = eventName,
+                            )
                         )
-                    )
+                    }
                 }
             }
 
-            // Логика для группировки постов
-            val fastingGroups = daysInMonth
-                .filter { it.day.fastingInfo.fastingName != null }
-                .groupBy { it.day.fastingInfo.fastingName }
-
-            fastingGroups.forEach { (name, fastingDays) ->
-                if (name != null && fastingDays.isNotEmpty()) {
-                    val firstDay = fastingDays.minByOrNull { it.day.gregorianDay }!!
-                    val lastDay = fastingDays.maxByOrNull { it.day.gregorianDay }!!
-                    highlightedPeriods.add(
-                        HighlightedPeriod(
-                            startDay = firstDay.day.gregorianDay,
-                            endDay = lastDay.day.gregorianDay,
-                            name = name
-                        )
-                    )
+            // LONG_FAST — только периодами "от-до".
+            val longFastDaysByName = daysInMonth
+                .filter { it.day.dayTypes.contains(DayType.LONG_FAST) }
+                .groupBy { resource ->
+                    resource.day.fastingInfo.fastingName
+                        ?.takeIf { it.isNotBlank() }
+                        ?: resource.day.title.ifBlank { "Пост" }
                 }
+
+            longFastDaysByName.forEach { (name, fastDays) ->
+                val sortedDays = fastDays.sortedBy { it.day.gregorianDay }
+                if (sortedDays.isEmpty()) return@forEach
+
+                var rangeStart = sortedDays.first().day.gregorianDay
+                var previousDay = rangeStart
+
+                for (index in 1 until sortedDays.size) {
+                    val currentDay = sortedDays[index].day.gregorianDay
+                    val isContinuous = currentDay == previousDay + 1
+                    if (!isContinuous) {
+                        highlightedPeriods.add(
+                            HighlightedPeriod(
+                                startDay = rangeStart,
+                                endDay = previousDay,
+                                name = name,
+                            )
+                        )
+                        rangeStart = currentDay
+                    }
+                    previousDay = currentDay
+                }
+
+                highlightedPeriods.add(
+                    HighlightedPeriod(
+                        startDay = rangeStart,
+                        endDay = previousDay,
+                        name = name,
+                    )
+                )
             }
 
             monthSummaries.add(
                 MonthSummary(
                     year = year,
                     month = month,
-                    highlightedDays = highlightedDays,
+                    highlightedDays = highlightedDays
+                        .distinctBy { it.dayOfMonth to it.name }
+                        .sortedBy { it.dayOfMonth },
                     highlightedPeriods = highlightedPeriods
+                        .sortedBy { it.startDay },
                 )
             )
         }

@@ -1,9 +1,11 @@
 package ru.akhilko.week.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,17 +28,26 @@ import java.time.LocalDate
 fun WeekTopBar(
     dateRange: String,
     sedmicaText: String?,
+    onMenuClick: () -> Unit,
     onPrevWeek: () -> Unit,
     onNextWeek: () -> Unit,
     onSearchClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         navigationIcon = {
-            IconButton(onClick = onPrevWeek) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "Предыдущая неделя",
-                )
+            Row {
+                IconButton(onClick = onMenuClick) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Меню",
+                    )
+                }
+                IconButton(onClick = onPrevWeek) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Предыдущая неделя",
+                    )
+                }
             }
         },
         title = {

@@ -7,13 +7,6 @@ enum class DayType {
     COMMEMORATION,
     UNKNOWN;
 
-    fun isFeast(): Boolean {
-        return this == GREAT_FEAST ||
-                this == EASTER ||
-                this == FEAST ||
-                this == TWELVE_GREAT_FEASTS
-    }
-
     companion object {
         fun findByName(it: String): DayType {
             if (it.isBlank()) {
